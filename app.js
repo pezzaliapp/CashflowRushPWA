@@ -1,4 +1,4 @@
-// app.js — Cashflow Rush (Arcade Puzzle Tycoon) v1.0
+// app.js — Cashflow Rush (Arcade Puzzle Tycoon) v1.1
 // © 2025 pezzaliAPP — MIT
 
 (() => {
@@ -16,6 +16,7 @@
   const $undo = document.getElementById('undoBtn');
   const $mute = document.getElementById('muteBtn');
 
+  // --- Mute toggle ---
   let muted = localStorage.getItem('cashflow.muted') === '1';
   $mute.textContent = muted ? '🔇' : '🔊';
   $mute.addEventListener('click', ()=>{
@@ -27,6 +28,12 @@
   // --- Sounds (simple beep via WebAudio) ---
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   const actx = AudioCtx ? new AudioCtx() : null;
+  async function ensureAudio(){
+    if(!actx) return;
+    if(actx.state === 'suspended'){
+      try{ await actx.resume(); }catch{}
+    }
+  }
   function beep(freq=440, dur=0.07, type='sine', vol=0.05){
     if(!actx || muted) return;
     const o = actx.createOscillator();
@@ -38,9 +45,14 @@
     setTimeout(()=>{ o.stop(); }, dur*1000);
   }
 
+  // wake audio on first user interaction
+  ['click','keydown','touchstart'].forEach(evt=>{
+    window.addEventListener(evt, ensureAudio, { once:true, passive:true });
+  });
+
   // --- Level encoding ---
   // Tiles: '.' empty, '#' wall, 'P' player, '$' coin, 'A' asset (pushable like a crate),
-  // 'G' goal pad (activate asset when placed), 'T' tax/debt, 'D' dividend, 'L' leverage, 'I' inflation (reduces flow each 4 moves)
+  // 'G' goal pad (activate asset when placed), 'T' tax/debt, 'D' dividend, 'L' leverage, 'I' inflation
   const levels = [
     {
       name: "Tutorial del Valore",
@@ -81,7 +93,7 @@
   ];
 
   // --- Game State ---
-  let levelIndex = parseInt(localStorage.getItem('cashflow.level')||'0');
+  let levelIndex = parseInt(localStorage.getItem('cashflow.level')||'0',10);
   if(levelIndex >= levels.length) levelIndex = 0;
 
   let state = null;
@@ -97,7 +109,7 @@
       for(let x=0;x<GRID;x++){
         const t = grid[y][x];
         if(t==='P'){ player={x,y}; grid[y][x]='.'; }
-        if(t==='A'){ assets.push({x,y,active:false}); grid[y][x]='.'; }
+        if(t==='A'){ assets.push({x,y,active:false,bonusGiven:false}); grid[y][x]='.'; }
         if(t==='G'){ goals.push({x,y}); grid[y][x]='G'; }
       }
     }
@@ -108,16 +120,19 @@
       net: 0, flow: 0, moves: 0, tick: 0
     };
     history = [];
-    saveSnapshot();
+    saveSnapshot(true); // first snapshot
     render();
     updateHUD();
   }
 
   function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
 
-  function saveSnapshot(){
-    history.push(clone(state));
-    if(history.length>80) history.shift();
+  // save only when changed (reduce duplicati in history)
+  function saveSnapshot(force=false){
+    if(force || history.length===0 || JSON.stringify(history[history.length-1])!==JSON.stringify(state)){
+      history.push(clone(state));
+      if(history.length>100) history.shift();
+    }
   }
 
   function undo(){
@@ -138,17 +153,21 @@
     const t = tile(x,y);
     if(t==='$'){ state.net += 500; state.grid[y][x]='.'; beep(660); }
     if(t==='D'){ state.flow += 200; state.grid[y][x]='.'; beep(880); }
-    if(t==='T'){ state.net = Math.max(0, state.net - 800); state.grid[y][x]='.'; beep(220,'0.08','square'); }
-    if(t==='L'){ state.flow += 600; state.net = Math.max(0, state.net - 400); state.grid[y][x]='.'; beep(520,'0.06','sawtooth'); }
-    if(t==='I'){ // inflation hurts flow periodically
-      state.grid[y][x]='.'; state.flow = Math.max(0, state.flow - 200); beep(300,'0.05'); 
-    }
+    if(t==='T'){ state.net = Math.max(0, state.net - 800); state.grid[y][x]='.'; beep(220,0.08,'square'); }
+    if(t==='L'){ state.flow += 600; state.net = Math.max(0, state.net - 400); state.grid[y][x]='.'; beep(520,0.06,'sawtooth'); }
+    if(t==='I'){ state.grid[y][x]='.'; state.flow = Math.max(0, state.flow - 200); beep(300,0.05); }
   }
 
   function recalcAssets(){
-    // activated asset contributes +1000 net immediately and +500 flow per 5 moves
+    // attiva se sull'obiettivo; bonus una sola volta al momento dell'attivazione
     for(const a of state.assets){
+      const wasActive = a.active;
       a.active = goalAt(a.x,a.y);
+      if(a.active && !wasActive && !a.bonusGiven){
+        state.net += 1000;      // bonus immediato per l'attivazione
+        a.bonusGiven = true;
+        beep(700,0.08,'triangle',0.06);
+      }
     }
   }
 
@@ -156,13 +175,17 @@
     // every move: net += flow
     state.net += state.flow;
     // every 5 moves: each active asset adds +500 flow (compounding engine)
-    if(state.moves % 5 === 0){
+    if(state.moves>0 && state.moves % 5 === 0){
       const actives = state.assets.filter(a=>a.active).length;
-      state.flow += actives * 500;
+      if(actives>0){
+        state.flow += actives * 500;
+        beep(600,0.05,'sine',0.03);
+      }
     }
     // every 7 moves: inflation pulse reduces flow slightly
-    if(state.moves % 7 === 0){
+    if(state.moves>0 && state.moves % 7 === 0){
       state.flow = Math.max(0, state.flow - 100);
+      beep(300,0.04,'square',0.03);
     }
   }
 
@@ -170,18 +193,22 @@
     const nx = state.player.x + dx;
     const ny = state.player.y + dy;
     if(!inBounds(nx,ny) || isWall(nx,ny)) return;
+
     const box = assetAt(nx,ny);
     if(box){
       const bx = nx + dx, by = ny + dy;
       if(!inBounds(bx,by) || isWall(bx,by) || assetAt(bx,by)) return; // blocked
       box.x = bx; box.y = by;
       recalcAssets();
-      beep(420,'0.05','triangle');
+      beep(420,0.05,'triangle');
     }
+
     state.player.x = nx; state.player.y = ny;
     applyTileEffect(nx,ny);
+
     state.moves++;
     tickIncome();
+
     saveSnapshot();
     render(); updateHUD();
     checkWin();
@@ -207,6 +234,7 @@
     $target.textContent = fmt(levels[levelIndex].target);
   }
 
+  // --- Rendering ---
   function drawCell(x,y,color){
     const px = x*CELL, py = y*CELL;
     ctx.fillStyle = color; ctx.fillRect(px,py,CELL,CELL);
@@ -270,10 +298,10 @@
     ctx.beginPath(); ctx.fillStyle = color; ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
   }
 
-  // Input
+  // --- Input ---
   let touchStart=null;
   canvas.addEventListener('touchstart', (e)=>{
-    const t = e.changedTouches[0]; touchStart = {x:t.clientX, y:t.clientY}; 
+    const t = e.changedTouches[0]; touchStart = {x:t.clientX, y:t.clientY};
   }, {passive:true});
   canvas.addEventListener('touchend', (e)=>{
     const t = e.changedTouches[0];
@@ -292,12 +320,12 @@
     if(k==='ArrowRight') move(1,0);
     if(k==='ArrowUp') move(0,-1);
     if(k==='ArrowDown') move(0,1);
-    if(k==='z' && (e.ctrlKey||e.metaKey)) undo();
+    if((k==='z' && (e.ctrlKey||e.metaKey)) || k==='u') undo();
     if(k==='r') loadLevel(levelIndex);
   });
 
-  document.getElementById('resetBtn').addEventListener('click', ()=>loadLevel(levelIndex));
-  document.getElementById('undoBtn').addEventListener('click', ()=>undo());
+  $reset.addEventListener('click', ()=>loadLevel(levelIndex));
+  $undo.addEventListener('click', ()=>undo());
 
   // Start
   loadLevel(levelIndex);

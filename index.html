@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0a1228">
+  <title>Cashflow Rush — Arcade Puzzle Tycoon</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <style>
+    :root{
+      --bg:#0a1228; --ink:#e9f1ff; --muted:#9db0d0; --card:#111a36; --line:#1a2655; --accent:#2dd36f; --danger:#ff4d4d; --coin:#ffd700
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;background:radial-gradient(1200px 1200px at 10% -10%,#141f45 0%, var(--bg) 45%) fixed;color:var(--ink);display:flex;flex-direction:column;align-items:center}
+    header{width:100%;max-width:960px;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    header .title{display:flex;align-items:center;gap:12px}
+    header img{width:40px;height:40px;border-radius:8px}
+    header h1{font-size:18px;margin:0}
+    header .actions{display:flex;gap:8px}
+    .btn{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn:hover{border-color:var(--accent)}
+    .wrap{width:100%;max-width:960px;display:grid;grid-template-columns:1fr 320px;gap:16px;padding:0 16px 24px}
+    canvas{width:100%;height:auto;background:#081028;border:2px solid var(--line);border-radius:12px;image-rendering:pixelated}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+    .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .kpi{background:#0c1533;border:1px solid var(--line);border-radius:10px;padding:8px}
+    .kpi b{display:block;font-size:12px;color:var(--muted)}
+    .kpi span{font-weight:700;font-size:18px}
+    .legend{display:flex;flex-wrap:wrap;gap:8px}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:12px;color:var(--muted)}
+    .dot{width:10px;height:10px;border-radius:50%}
+    footer{padding:12px;color:var(--muted);font-size:12px}
+    @media(max-width:900px){ .wrap{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <img src="./icons/icon-192.png" alt="logo">
+      <h1>Cashflow Rush — Arcade Puzzle Tycoon</h1>
+    </div>
+    <div class="actions">
+      <button class="btn" id="installBtn" hidden>Installa</button>
+      <button class="btn" id="resetBtn">Reset</button>
+      <button class="btn" id="undoBtn">Undo</button>
+      <button class="btn" id="muteBtn">🔊</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <canvas id="game" width="720" height="720"></canvas>
+    <aside class="panel">
+      <div class="metrics">
+        <div class="kpi"><b>Valore Netto</b><span id="netWorth">0</span></div>
+        <div class="kpi"><b>Flusso €/mossa</b><span id="cashflow">0</span></div>
+        <div class="kpi"><b>Mosse</b><span id="moves">0</span></div>
+        <div class="kpi"><b>Obiettivo</b><span id="target">50.000€</span></div>
+      </div>
+      <div class="legend">
+        <span class="tag"><span class="dot" style="background:var(--coin)"></span>Monete</span>
+        <span class="tag"><span class="dot" style="background:var(--accent)"></span>Asset (rende)</span>
+        <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
+        <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
+        <span class="tag"><span class="dot" style="background:var(--danger)"></span>Tassa/Debito</span>
+        <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
+      </div>
+      <div class="panel" style="gap:4px">
+        <b>Comandi</b>
+        <div style="color:var(--muted);font-size:12px">
+          Tastiera: ⬅️⬆️⬇️➡️ — Touch: swipe — Obiettivo: raggiungi il target muovendo il player (quadrato) e spingendo <em>Asset</em> sui pad verdi per attivarli. Ogni mossa genera (o perde) cassa in base al cashflow. Evita Debiti/Tasse, raccogli Dividendi e usa la Leva con attenzione.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
+  <script src="./app.js"></script>
+  <script>
+    // PWA install prompt
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault(); deferredPrompt = e; installBtn.hidden = false;
+    });
+    installBtn?.addEventListener('click', async ()=>{
+      if(!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; installBtn.hidden = true;
+    });
+    if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js'); }
+  </script>
+</body>
+</html>

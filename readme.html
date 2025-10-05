@@ -37,7 +37,6 @@
     main p{margin:10px 0;font-size:15px;line-height:1.6;color:var(--ink)}
     main ul, main ol{margin:10px 0 10px 20px}
     main li{margin-bottom:4px}
-    pre{background:#0c1533;border:1px solid #1a2655;border-radius:8px;padding:12px;overflow-x:auto}
     code{background:#0c1533;border-radius:4px;padding:2px 4px;font-size:90%}
     a{color:var(--accent);text-decoration:none}
     a:hover{text-decoration:underline}
@@ -61,14 +60,13 @@
   </header>
 
   <main>
+
     <h2>🎮 Come si gioca</h2>
     <p>Sposta il personaggio sulla griglia e spingi gli <strong>Asset (blu)</strong> verso i <strong>Goal (verdi)</strong> per attivarli e generare rendite passive.</p>
 
     <h3>Eventi economici:</h3>
     <table>
-      <thead>
-        <tr><th>Simbolo</th><th>Evento</th><th>Effetto</th></tr>
-      </thead>
+      <thead><tr><th>Simbolo</th><th>Evento</th><th>Effetto</th></tr></thead>
       <tbody>
         <tr><td>💰 <code>$</code></td><td>Monete</td><td>+500 Valore Netto</td></tr>
         <tr><td>💧 <code>D</code></td><td>Dividendo</td><td>+200 Flusso €/mossa</td></tr>
@@ -87,9 +85,7 @@
 
     <h2>🧭 Simboli &amp; Legenda</h2>
     <table>
-      <thead>
-        <tr><th>Colore</th><th>Simbolo</th><th>Significato</th></tr>
-      </thead>
+      <thead><tr><th>Colore</th><th>Simbolo</th><th>Significato</th></tr></thead>
       <tbody>
         <tr><td>🟡</td><td><code>$</code></td><td>Monete</td></tr>
         <tr><td>🔵</td><td><code>D</code></td><td>Dividendo</td></tr>
@@ -118,6 +114,149 @@
     </table>
 
     <hr>
+
+    <h2>🏁 Livelli (Career Mode)</h2>
+    <table>
+      <thead><tr><th>#</th><th>Nome</th><th style="text-align:right">Target</th></tr></thead>
+      <tbody>
+        <tr><td style="text-align:center">1</td><td>Risparmio</td><td style="text-align:right">5.000€</td></tr>
+        <tr><td style="text-align:center">2</td><td>Investimento</td><td style="text-align:right">15.000€</td></tr>
+        <tr><td style="text-align:center">3</td><td>Leva Finanziaria</td><td style="text-align:right">30.000€</td></tr>
+        <tr><td style="text-align:center">4</td><td>Inflazione</td><td style="text-align:right">50.000€</td></tr>
+        <tr><td style="text-align:center">5</td><td>Speculazione</td><td style="text-align:right">80.000€</td></tr>
+        <tr><td style="text-align:center">6</td><td>Diversificazione</td><td style="text-align:right">120.000€</td></tr>
+        <tr><td style="text-align:center">7</td><td>Crisi</td><td style="text-align:right">150.000€</td></tr>
+        <tr><td style="text-align:center">8</td><td>Ripresa</td><td style="text-align:right">220.000€</td></tr>
+        <tr><td style="text-align:center">9</td><td>Bolla</td><td style="text-align:right">350.000€</td></tr>
+        <tr><td style="text-align:center">10</td><td>Tycoon Finale</td><td style="text-align:right">1.000.000€</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2>⌨️ / 📱 Controlli</h2>
+    <h3>Laptop</h3>
+    <ul>
+      <li><strong>Frecce</strong> — Muoviti / spingi Asset</li>
+      <li><strong>R</strong> — Ricarica livello</li>
+      <li><strong>Ctrl/Cmd + Z</strong> — Undo ultima mossa</li>
+      <li><strong>Toolbar</strong> — Reset, Undo, 📈 Livelli, 🔊/🔇 Audio, 📊 Report</li>
+    </ul>
+
+    <h3>Smartphone</h3>
+    <ul>
+      <li><strong>PLAY</strong> — Inizia la partita (sblocca audio su iOS)</li>
+      <li><strong>D-pad</strong> (▲ ◀ ▶ ▼) o <strong>Swipe</strong> sul canvas</li>
+      <li><strong>📊 Report</strong> — Mostra riepilogo livello</li>
+    </ul>
+
+    <hr>
+
+    <h2>📱 Suggerimento iOS: Aggiungi alla Home</h2>
+    <ol>
+      <li>Tocca <strong>Condividi (⬆️)</strong> nella barra in basso</li>
+      <li>Seleziona <strong>“Aggiungi alla schermata Home”</strong></li>
+      <li>Apri l’icona <strong>Cashflow Rush</strong> appena creata</li>
+    </ol>
+
+    <blockquote>Funziona anche <strong>offline</strong> come una vera App. 🚀</blockquote>
+    <p>L’overlay di guida appare <strong>solo la prima volta</strong> se l’app non è ancora installata come PWA.</p>
+
+    <hr>
+
+    <h2>⚙️ PWA — Installazione &amp; Aggiornamenti</h2>
+    <ul>
+      <li>Installabile su iOS, Android e Desktop</li>
+      <li><strong>Aggiornamento automatico:</strong> il Service Worker aggiorna i file quando rileva una nuova versione</li>
+      <li>Versione attuale: <strong>v3.1.4</strong></li>
+      <li>In <code>index.html</code>, <code>app.js</code>, <code>dual.js</code>, <code>sw.js</code> è usata la query <code>?v=3.1.4</code></li>
+      <li>Il Service Worker invia <code>SW_UPDATED</code> e forza il refresh automatico</li>
+    </ul>
+
+    <blockquote>Se noti risorse non aggiornate: apri l’app, attendi due refresh — non serve svuotare la cache manualmente.</blockquote>
+
+    <hr>
+
+    <h2>⚖️ Parametri di Gioco (default)</h2>
+    <table>
+      <thead><tr><th>Evento</th><th>Effetto</th></tr></thead>
+      <tbody>
+        <tr><td>Monete</td><td>+500 Netto</td></tr>
+        <tr><td>Dividendo</td><td>+200 Flusso</td></tr>
+        <tr><td>Leva</td><td>+600 Flusso, −400 Netto</td></tr>
+        <tr><td>Inflazione</td><td>−200 Flusso</td></tr>
+        <tr><td>Tassa</td><td>−800 Netto</td></tr>
+        <tr><td>Asset attivo</td><td>+100 Netto/mossa per un numero limitato di mosse</td></tr>
+        <tr><td>Decadimento</td><td>ogni 7 mosse il Flusso si riduce di 100</td></tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2>🚫 Anti-Grind</h2>
+    <p>Il sistema disattiva guadagni da flusso/asset se:</p>
+    <ul>
+      <li>ti muovi indietro immediatamente rispetto alla direzione precedente,</li>
+      <li>oppure esegui un micro-loop A→B→A senza raccogliere o spingere asset.</li>
+    </ul>
+    <p>Serve a mantenere la sfida pulita, evitando farming.</p>
+
+    <hr>
+
+    <h2>🧩 Progressi e Reset</h2>
+    <ul>
+      <li><strong>📈 Livelli</strong> — Salta a un livello specifico</li>
+      <li><strong>↺ Restart Career</strong> — Azzera progressi e reputazione</li>
+      <li>I progressi sono salvati localmente:
+        <code>cfr.level</code>, <code>cfr.rep</code>, <code>cfr.muted</code>, <code>du.mode</code>
+      </li>
+    </ul>
+
+    <hr>
+
+    <h2>🚀 Deploy / Hosting</h2>
+    <ol>
+      <li>Copia la cartella su un server statico (HTTPS consigliato)</li>
+      <li>Assicurati di servire correttamente MIME type (JS, JSON, PNG, Webmanifest)</li>
+      <li>Aggiorna le query di versione (<code>?v=</code>) in <code>index.html</code>, <code>sw.js</code> e <code>dual.js</code></li>
+      <li>Incrementa la versione in:
+        <ul>
+          <li><code>&lt;title&gt;</code> e file JS</li>
+          <li><code>const VER</code> in <code>sw.js</code></li>
+        </ul>
+      </li>
+    </ol>
+
+    <hr>
+
+    <h2>🧾 License</h2>
+    <p>MIT © 2025 <strong>pezzaliAPP</strong></p>
+
+    <hr>
+
+    <h2>🧾 Dichiarazione di Originalità e Copyright</h2>
+    <p><strong>💼 Cashflow Rush — Career Edition</strong> è un progetto originale sviluppato da <strong>Alessandro Pezzali (pezzaliAPP)</strong>.<br>
+    Non esiste alcun titolo identico o equivalente pubblicato o registrato con lo stesso nome, regole o struttura.</p>
+
+    <p>Il gioco si ispira liberamente al genere <strong>Sokoban</strong> (Hiroyuki Imabayashi, 1981), ma l’ispirazione è puramente meccanica (spostamento e spinta di oggetti in una griglia).  
+    Tutti gli altri elementi — <strong>tema economico-finanziario, KPI, modalità Career, sistema anti-grind, interfaccia PWA e finalità educativa</strong> — sono opere inedite e frutto di sviluppo autonomo.</p>
+
+    <h3>🔹 Elementi distintivi e originali</h3>
+    <ol>
+      <li><strong>Tema e semantica</strong> — Asset, monete, tasse, inflazione, dividendi e leva sostituiscono i blocchi tradizionali, introducendo significato economico e didattico.</li>
+      <li><strong>Career Mode</strong> — Progressione con indicatori reali: Valore Netto, Flusso €/mossa, Efficienza, Reputazione ★.</li>
+      <li><strong>Motore anti-grind</strong> — Prevenzione automatica di loop e micro-mosse senza valore economico.</li>
+      <li><strong>Architettura PWA</strong> — Gioco installabile e offline-first, adattivo per mobile e desktop.</li>
+      <li><strong>Finalità educativa</strong> — Serious game per l’apprendimento dei principi di finanza personale e gestione delle risorse.</li>
+    </ol>
+
+    <h3>🔹 Status legale</h3>
+    <ul>
+      <li>✅ <strong>Originale e non derivativo</strong>: nessun codice, grafica o asset proviene da opere terze.</li>
+      <li>✅ <strong>Titolarità completa</strong> del nome, codice sorgente, logica, interfaccia e contenuti.</li>
+      <li>✅ <strong>Licenza MIT</strong>: il codice è open source, riutilizzabile e modificabile secondo i termini.</li>
+      <li>🚫 <strong>Nessun uso di materiali protetti</strong> (marchi, loghi, colonne sonore, elementi grafici commerciali).</li>
+    </ul>
 
     <footer>© 2025 pezzaliAPP — MIT • open source, educativo e gratuito</footer>
 

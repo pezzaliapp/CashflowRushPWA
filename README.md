@@ -110,18 +110,31 @@ L’overlay di guida appare **solo la prima volta** se l’app non è ancora ins
 
 > Se noti risorse non aggiornate: apri l’app, attendi due refresh — non serve svuotare la cache manualmente.
 
----
+⸻
 
 ## 📂 Struttura File
 
-/index.html             → UI desktop/mobile, KPI, D-pad, PLAY, Report, overlay iOS
-/app.js                 → Motore Career + Anti-grind + KPI + gestione asset
-/dual.js                → Adattatore device (auto, desktop, mobile) + swipe
-/sw.js                  → Service Worker cache-busting + auto-reload
-/manifest.webmanifest   → Metadati PWA
+/index.html
+  → UI desktop/mobile, KPI, D-pad, PLAY, Report, overlay iOS
+
+/app.js
+  → Motore Career + Anti-grind + KPI + gestione asset
+
+/dual.js
+  → Adattatore device (auto, desktop, mobile) + swipe
+
+/sw.js
+  → Service Worker cache-busting + auto-reload
+
+/manifest.webmanifest
+  → Metadati PWA
+
 /icons/icon-192.png
 /icons/icon-512.png
+  → Icone per installazione
+
 /README.md
+  → Documentazione tecnica
 
 ---
 

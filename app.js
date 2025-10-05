@@ -1,181 +1,164 @@
-// app.js — v2.8.9 Start fix + mobile 3-col legends
+// Cashflow Rush v3.0 — Career Mode (skeleton)
 (() => {
-  const gridSize = 12, baseRes = 720;
-  function getCanvas(){ return document.body.classList.contains('mode-mobile') ? document.getElementById('gameMob') : document.getElementById('game'); }
-  let canvas = getCanvas(); let ctx = canvas.getContext('2d'); canvas.width=baseRes; canvas.height=baseRes;
+  const SIZE = 12, BASE = 720;
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  canvas.width = BASE; canvas.height = BASE;
 
-  function computeAutoMode(){ const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints>0; return (isTouch || window.innerWidth < 900) ? 'mobile' : 'desktop'; }
-  let modePref = localStorage.getItem('cashflow.mode') || 'auto';
-  function resolveMode(){ return modePref==='auto' ? computeAutoMode() : modePref; }
-  function applyMode(){
-    const mode = resolveMode();
-    document.body.classList.toggle('mode-mobile', mode==='mobile');
-    document.body.classList.toggle('mode-desktop', mode!=='mobile');
-    document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===modePref));
-    canvas = getCanvas(); ctx = canvas.getContext('2d'); canvas.width=baseRes; canvas.height=baseRes; fitCanvas(); render(); updatePlayOverlay();
-  }
-  function fitCanvas(){
-    if(document.body.classList.contains('mode-mobile')){
-      const w = Math.min(window.innerWidth*0.94, 720);
-      canvas.style.width = w+'px'; canvas.style.height = 'auto';
-    }else{
-      const stage = document.querySelector('.stageDesk');
-      const maxW = stage.clientWidth - 24;
-      const maxH = Math.min(window.innerHeight - 300, stage.clientHeight - 24);
-      const size = Math.max(520, Math.min(maxW, maxH, 720));
-      canvas.style.width = size+'px'; canvas.style.height = size+'px';
-    }
-  }
-  window.addEventListener('resize', ()=>{ if(modePref==='auto') applyMode(); else fitCanvas(); });
-  window.addEventListener('orientationchange', fitCanvas);
-  document.getElementById('modeSeg').addEventListener('click', (e)=>{ const b=e.target.closest('button'); if(!b) return; modePref=b.dataset.mode; localStorage.setItem('cashflow.mode', modePref); applyMode(); });
+  // Mode (kept for future mobile tuning)
+  let modePref = localStorage.getItem('cfr.mode') || 'auto';
+  document.getElementById('modeSeg').addEventListener('click', e=>{
+    const b=e.target.closest('button'); if(!b) return;
+    modePref = b.dataset.mode; localStorage.setItem('cfr.mode', modePref);
+    document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('active', x.dataset.mode===modePref));
+  });
 
-  const el = {
-    net: document.getElementById('netWorth'), flow: document.getElementById('cashflow'),
-    moves: document.getElementById('moves'), target: document.getElementById('target'),
-    mNet2: document.getElementById('mNet2'), mFlow2: document.getElementById('mFlow2'),
-    mMoves2: document.getElementById('mMoves2'), mTarget2: document.getElementById('mTarget2'),
-  };
-  function fmt(n){ return n.toLocaleString('it-IT',{maximumFractionDigits:0}) + "€"; }
-  function syncHUD(){ if(el.net) el.net.textContent=fmt(state.net); if(el.flow) el.flow.textContent=fmt(state.flow)+"/mossa"; if(el.moves) el.moves.textContent=state.moves; if(el.target) el.target.textContent=fmt(state.target); if(el.mNet2) el.mNet2.textContent=fmt(state.net); if(el.mFlow2) el.mFlow2.textContent=fmt(state.flow)+"/mossa"; if(el.mMoves2) el.mMoves2.textContent=state.moves; if(el.mTarget2) el.mTarget2.textContent=fmt(state.target); }
-
-  // Audio + Haptics
-  let muted = localStorage.getItem('cashflow.muted') === '1';
+  // Basic audio
+  let muted = localStorage.getItem('cfr.muted')==='1';
   const $mute = document.getElementById('muteBtn'); $mute.textContent = muted ? '🔇' : '🔊';
-  const AudioCtx = window.AudioContext || window.webkitAudioContext; const actx = AudioCtx ? new AudioCtx() : null;
-  function ensureAudio(){ if(actx && actx.state==='suspended'){ actx.resume().catch(()=>{}); } }
-  ['touchstart','mousedown','keydown'].forEach(ev=>window.addEventListener(ev, ensureAudio, {passive:true}));
-  function tone(freq=440, dur=0.06, type='sine', vol=0.05){ if(!actx || muted) return; try{ const o=actx.createOscillator(), g=actx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{ try{o.stop()}catch{} }, dur*1000);}catch{} }
-  function haptic(patternOrMs=10){ if(navigator.vibrate){ navigator.vibrate(patternOrMs); } }
-  $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cashflow.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
+  const AC = window.AudioContext || window.webkitAudioContext; const actx = AC ? new AC() : null;
+  function tone(f=440,d=0.06,t='sine',v=0.05){ if(!actx || muted) return; const o=actx.createOscillator(), g=actx.createGain(); o.type=t; o.frequency.value=f; g.gain.value=v; o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{try{o.stop()}catch{}}, d*1000); }
+  $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cfr.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
 
-  // Levels
+  // Levels (Career)
   const levels = [
-    {name:"Tutorial del Valore", target:5000, grid:[
-      "############","#..$..D..G.#","#..##....#.#","#..A..P..#.#","#..##....#.#","#..$..L..#.#","#..##....#.#","#..A.....#.#","#..##..T.#.#","#..$.....#.#","#..##..I.#.#","############"]},
-    {name:"Leva & Tasse", target:15000, grid:[
-      "############","#P..A..#..G#","#.##.#.#.#.#","#.$..L..D..#","#.##.#.#.#.#","#..A..#..G.#","#.#.#.#.#..#","#..T..I..$.#","#.#.#.#.#..#","#..A..#..G.#","#..$..D..$.#","############"]},
-    {name:"Scalata di Capitale", target:50000, grid:[
-      "############","#P..$..L..G#","#.#.#.#.#..#","#..A..D..$.#","#.#.#.#.#..#","#..G..#..A.#","#..#..I..#.#","#.$..L..D..#","#.#.#.#.#..#","#..A..#..G.#","#..$..T..$.#","############"]},
-    {name:"Rendita a Cascata", target:120000, grid:[
-      "############","#G..A..$..P#","#.#.#.#.#..#","#..D..A..G.#","#.#.#.#.#..#","#..$..L..$.#","#..#..I..#.#","#..A..D..G.#","#.#.#.#.#..#","#.$..T..$..#","#..G..A..$.#","############"]},
-    {name:"Debito Creativo", target:200000, grid:[
-      "############","#P..L..A..G#","#.#.#.#.#..#","#..T..$..D.#","#.#.#.#.#..#","#..A..G..A.#","#..#..I..#.#","#.$..L..$..#","#.#.#.#.#..#","#..G..A..G.#","#..$..D..$.#","############"]},
-    {name:"Inflazione Cattiva", target:250000, grid:[
-      "############","#P..I..$..G#","#.#.#.#.#..#","#..A..I..D.#","#.#.#.#.#..#","#..G..I..A.#","#..#..I..#.#","#.$..I..$..#","#.#.#.#.#..#","#..A..I..G.#","#..$..I..$.#","############"]},
-    {name:"Tycoon Finale", target:500000, grid:[
-      "############","#P..A..L..G#","#.#.#.#.#..#","#..D..$..D.#","#.#.#.#.#..#","#..A..G..A.#","#..#..I..#.#","#.$..L..$..#","#.#.#.#.#..#","#..G..A..G.#","#..$..T..$.#","############"]},
+    {name:"Risparmio",         target:  5000,  seed:1},
+    {name:"Investimento",     target: 15000,  seed:2},
+    {name:"Leva Finanziaria", target: 30000,  seed:3},
+    {name:"Inflazione",       target: 50000,  seed:4},
+    {name:"Speculazione",     target: 80000,  seed:5},
+    {name:"Diversificazione", target:120000,  seed:6},
+    {name:"Crisi",            target:150000,  seed:7},
+    {name:"Ripresa",          target:220000,  seed:8},
+    {name:"Bolla",            target:350000,  seed:9},
+    {name:"Tycoon Finale",    target:1000000, seed:10},
   ];
 
-  // State
-  let levelIndex = parseInt(localStorage.getItem('cashflow.level')||'0'); if(levelIndex>=levels.length) levelIndex=0;
-  let state=null, history=[], lastDividendMove=-999, leverageCountEarly=0;
-  let lastDir = {dx:0, dy:0}, backtrackStreak = 0;
+  let L = parseInt(localStorage.getItem('cfr.level')||'0'); if(L>=levels.length) L=0;
+
+  // Game state
+  let state = null, history = [];
   let started = false;
 
-  function clone(o){ return JSON.parse(JSON.stringify(o)); }
-  function tile(x,y){ return state.grid[y][x]; }
-  function isWall(x,y){ return tile(x,y)==='#'; }
-  function inBounds(x,y){ return x>=0 && y>=0 && x<gridSize && y<gridSize; }
-  function assetAt(x,y){ return state.assets.find(a=>a.x===x && a.y===y); }
-  function goalAt(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
-  function recalcAssets(){ for(const a of state.assets){ const was=a.active; a.active=goalAt(a.x,a.y); if(a.active && !was) a.fuel=5; } }
-
-  function applyTileEffect(x,y){
-    const t=tile(x,y);
-    if(t==='$'){ state.net+=500; state.grid[y][x]='.'; tone(660); haptic(12); }
-    if(t==='D'){ state.flow+=200; state.grid[y][x]='.'; tone(880); haptic([10,30,10]);
-      if(state.moves - lastDividendMove <= 4){ state.net+=1000; tone(1040,0.08,'triangle',0.06); haptic([15,25,15]); }
-      lastDividendMove = state.moves;
+  function rng(seed){ let s = seed||1; return ()=> (s = (s*1664525+1013904223)%4294967296)/4294967296; }
+  function genGrid(seed){
+    const rnd = rng(seed), g = Array.from({length:SIZE}, _=>Array(SIZE).fill('.'));
+    // frame walls
+    for(let i=0;i<SIZE;i++){ g[0][i]='#'; g[SIZE-1][i]='#'; g[i][0]='#'; g[i][SIZE-1]='#'; }
+    // goals
+    for(let i=0;i<3;i++){ g[2+i*3][SIZE-2] = 'G'; }
+    // random features
+    const features = ['$', 'D', 'T', 'L', 'I'];
+    for(let k=0;k<28;k++){
+      const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
+      if(g[y][x]!=='.') continue;
+      g[y][x] = features[Math.floor(rnd()*features.length)];
     }
-    if(t==='T'){ state.net=Math.max(0,state.net-800); state.grid[y][x]='.'; tone(220,0.08,'square',0.05); haptic(40); }
-    if(t==='L'){ state.flow+=600; state.net=Math.max(0,state.net-400); state.grid[y][x]='.'; tone(520,0.06,'sawtooth',0.05); haptic([20,20,20]);
-      if(state.moves<=10){ leverageCountEarly++; if(leverageCountEarly>=2){ state.flow+=1500; state.badgeBoostTurns=3; tone(1200,0.08,'sine',0.06); haptic([15,15,30]); } }
+    // assets
+    for(let k=0;k<4;k++){
+      const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
+      if(g[y][x]!=='.') continue; g[y][x] = 'A';
     }
-    if(t==='I'){ state.grid[y][x]='.'; state.flow=Math.max(0,state.flow-200); tone(300,0.05); haptic(20); }
+    // player
+    g[1][1] = 'P';
+    return g;
   }
 
-  function tickIncome(suppress=false){
-    if(suppress) return;
-    if(state.badgeBoostTurns && state.badgeBoostTurns>0){ state.net+=1500; state.badgeBoostTurns--; }
+  function loadLevel(index){
+    const meta = levels[index];
+    const grid = genGrid(meta.seed);
+    let player={x:1,y:1};
+    const assets=[], goals=[];
+    for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
+      const t=grid[y][x];
+      if(t==='P'){ player={x,y}; grid[y][x]='.'; }
+      if(t==='A'){ assets.push({x,y,active:false,fuel:0}); grid[y][x]='.'; }
+      if(t==='G'){ goals.push({x,y}); }
+    }
+    state = { name:meta.name, target:meta.target, grid, player, assets, goals, net:0, flow:0, moves:0, rep:parseInt(localStorage.getItem('cfr.rep')||'0'), eff:0 };
+    history.length=0;
+    updateHUD(); render(); started=false; toggleOverlay(true);
+  }
+
+  function toggleOverlay(show){ document.getElementById('overlay').style.display = show ? 'flex' : 'none'; }
+  document.getElementById('playBtn').addEventListener('click', ()=>{ started=true; toggleOverlay(false); tone(660,0.06); });
+
+  // HUD
+  function euro(n){ return n.toLocaleString('it-IT')+"€"; }
+  function updateHUD(){
+    kNet.textContent = euro(state.net);
+    kFlow.textContent = euro(state.flow)+"/mossa";
+    kMoves.textContent = state.moves;
+    kTarget.textContent = euro(state.target);
+    const eff = state.moves? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
+    state.eff = eff; kEff.textContent = eff+"%";
+    kRep.textContent = state.rep;
+    localStorage.setItem('cfr.level', String(L));
+  }
+
+  // Helpers
+  function inB(x,y){ return x>=0 && y>=0 && x<SIZE && y<SIZE; }
+  function at(x,y){ return state.grid[y][x]; }
+  function isWall(x,y){ return at(x,y)==='#'; }
+  function assetAt(x,y){ return state.assets.find(a=>a.x===x && a.y===y); }
+  function isGoal(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
+  function recalc(){ for(const a of state.assets){ const was=a.active; a.active=isGoal(a.x,a.y); if(a.active && !was) a.fuel=5; } }
+
+  function applyTile(x,y){
+    const t = at(x,y);
+    if(t==='$'){ state.net+=500; state.grid[y][x]='.'; tone(760,0.06); }
+    if(t==='D'){ state.flow+=200; state.grid[y][x]='.'; tone(900,0.06); }
+    if(t==='T'){ state.net=Math.max(0,state.net-800); state.grid[y][x]='.'; tone(240,0.06,'square'); }
+    if(t==='L'){ state.flow+=600; state.net=Math.max(0,state.net-400); state.grid[y][x]='.'; tone(520,0.06,'triangle'); }
+    if(t==='I'){ state.flow=Math.max(0,state.flow-200); state.grid[y][x]='.'; tone(300,0.05); }
+  }
+
+  function tick(){
     state.net += state.flow;
     for(const a of state.assets){
-      if(a.active && a.fuel && a.fuel>0){ state.net += 100; a.fuel--; if(a.fuel<=0){ a.active=false; } }
-    }
-    if(state.moves % 10 === 0){
-      const actives = state.assets.filter(a=>a.active).length;
-      if(actives === 0){ state.net = Math.max(0, state.net - 500); } else { state.net += actives * 200; }
+      if(a.active && a.fuel>0){ state.net += 100; a.fuel--; if(a.fuel<=0) a.active=false; }
     }
     if(state.moves % 7 === 0){ state.flow = Math.max(0, state.flow - 100); }
   }
 
-  function save(){ localStorage.setItem('cashflow.state', JSON.stringify(state)); localStorage.setItem('cashflow.level', String(levelIndex)); }
-  function restore(){ const raw=localStorage.getItem('cashflow.state'); if(!raw) return false; try{ state=JSON.parse(raw); return true; }catch{ return false; } }
-
-  function baseLoad(idx){
-    const L=levels[idx]; const grid=L.grid.map(r=>r.split(''));
-    let player={x:0,y:0}; const assets=[], goals=[];
-    for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++){ const t=grid[y][x];
-      if(t==='P'){ player={x,y}; grid[y][x]='.'; }
-      if(t==='A'){ assets.push({x,y,active:false,fuel:0}); grid[y][x]='.'; }
-      if(t==='G'){ goals.push({x,y}); grid[y][x]='G'; }
-    }
-    state={name:L.name,target:L.target,grid,player,assets,goals,net:0,flow:0,moves:0,badgeBoostTurns:0};
-    history=[]; lastDividendMove=-999; leverageCountEarly=0; lastDir={dx:0,dy:0}; backtrackStreak=0;
-    syncHUD(); render(); save(); fitCanvas();
-  }
-  function loadLevel(idx){ baseLoad(idx); started=false; updatePlayOverlay(); }
-
-  function updatePlayOverlay(){
-    const desk = document.getElementById('playOverlayDesk'); const mob = document.getElementById('playOverlayMob');
-    const onMob = document.body.classList.contains('mode-mobile');
-    desk && (desk.style.display = (!started && !onMob) ? 'flex' : 'none');
-    mob && (mob.style.display = (!started && onMob) ? 'flex' : 'none');
-  }
-  function startGame(){
-    if(!state){ baseLoad(levelIndex); }
-    started=true; ensureAudio(); updatePlayOverlay();
-  }
-
-  function undo(){ if(!started) return; if(history.length<=1) return; history.pop(); state=clone(history[history.length-1]); syncHUD(); render(); }
-
   function move(dx,dy){
     if(!started) return;
     const nx=state.player.x+dx, ny=state.player.y+dy;
-    if(!inBounds(nx,ny)||isWall(nx,ny)) return;
-    const box=assetAt(nx,ny);
+    if(!inB(nx,ny) || isWall(nx,ny)) return;
+    const box = assetAt(nx,ny);
     if(box){
       const bx=nx+dx, by=ny+dy;
-      if(!inBounds(bx,by)||isWall(bx,by)||assetAt(bx,by)) return;
-      box.x=bx; box.y=by; recalcAssets(); tone(420,0.05,'triangle'); haptic(10);
+      if(!inB(bx,by) || isWall(bx,by) || assetAt(bx,by)) return;
+      box.x=bx; box.y=by; recalc(); tone(420,0.05,'triangle');
     }
-    const isBacktrack = (dx === -lastDir.dx && dy === -lastDir.dy);
-    if(isBacktrack) backtrackStreak++; else backtrackStreak = 0;
-    lastDir = {dx, dy};
-
-    history.push(clone(state)); if(history.length>160) history.shift();
+    history.push(JSON.parse(JSON.stringify(state)));
     state.player.x=nx; state.player.y=ny;
-    applyTileEffect(nx,ny);
+    applyTile(nx,ny);
     state.moves++;
-    tickIncome(backtrackStreak >= 1);
-    syncHUD(); render(); save();
-    if(state.net >= state.target){
-      tone(660,0.08); setTimeout(()=>tone(880,0.08),120); setTimeout(()=>tone(1040,0.1),240);
-      haptic([30,30,60]);
-      const score = Math.round(state.net / Math.max(1,state.moves));
-      alert(`Livello completato! ${state.name}\nMosse: ${state.moves}\nScore efficienza: ${score}`);
-      levelIndex=(levelIndex+1)%levels.length; loadLevel(levelIndex);
+    tick();
+    updateHUD(); render();
+
+    if(state.net>=state.target){
+      // Reputation rule: no negative ever → star up
+      if(history.every(s=>s.net>=0)) state.rep = Math.min(5, (state.rep||0)+1);
+      localStorage.setItem('cfr.rep', String(state.rep||0));
+      const score = Math.round(state.net/Math.max(1,state.moves)) + state.eff*10 + (state.rep||0)*500;
+      alert(`Livello completato: ${state.name}\nMosse: ${state.moves}\nEfficienza: ${state.eff}%\nReputazione: ${state.rep}★\nScore: ${score}`);
+      L=(L+1)%levels.length; loadLevel(L);
     }
   }
 
+  // Render
   function render(){
-    const W=canvas.width, H=canvas.height, CELL=Math.floor(W/gridSize);
+    const W=canvas.width, H=canvas.height, C=Math.floor(W/SIZE);
     const c=ctx;
     c.clearRect(0,0,W,H);
     c.fillStyle="#081028"; c.fillRect(0,0,W,H);
     c.strokeStyle="#1a2655";
-    for(let i=0;i<=gridSize;i++){ c.beginPath(); c.moveTo(i*CELL,0); c.lineTo(i*CELL,H); c.stroke(); c.beginPath(); c.moveTo(0,i*CELL); c.lineTo(W,i*CELL); c.stroke(); }
-    for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++){ const t=state.grid[y][x];
+    for(let i=0;i<=SIZE;i++){ c.beginPath(); c.moveTo(i*C,0); c.lineTo(i*C,H); c.stroke();
+                              c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke(); }
+    for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
+      const t=state.grid[y][x];
       if(t==='#') c.fillStyle='#0c1533';
       else if(t==='G') c.fillStyle='#003b2a';
       else if(t==='$') c.fillStyle='#2d2300';
@@ -184,54 +167,48 @@
       else if(t==='L') c.fillStyle='#14002a';
       else if(t==='I') c.fillStyle='#2a1a00';
       else c.fillStyle='transparent';
-      if(c.fillStyle!=='transparent') c.fillRect(x*CELL,y*CELL,CELL,CELL);
+      if(c.fillStyle!=='transparent') c.fillRect(x*C,y*C,C,C);
     }
-    function dot(x,y,color){ const r=Math.floor(CELL*0.12); const cx=x*CELL + CELL/2, cy=y*CELL + CELL/2; c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
-    for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++){ const t=state.grid[y][x];
-      if(t==='$') dot(x,y,'#ffd700'); if(t==='D') dot(x,y,'#3dc2ff'); if(t==='T') dot(x,y,'#ff4d4d'); if(t==='L') dot(x,y,'#8a56ff'); if(t==='I') dot(x,y,'#ffaa00');
+    function dot(x,y,color){ const r=Math.floor(C*0.12); const cx=x*C + C/2, cy=y*C + C/2; c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
+    for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
+      const t=state.grid[y][x];
+      if(t==='$') dot(x,y,'#ffd700');
+      if(t==='D') dot(x,y,'#3dc2ff');
+      if(t==='T') dot(x,y,'#ff4d4d');
+      if(t==='L') dot(x,y,'#8a56ff');
+      if(t==='I') dot(x,y,'#ffaa00');
     }
     const pad=10, padP=14;
-    function box(x,y,color){ c.fillStyle=color; c.fillRect(x*CELL+pad,y*CELL+pad,CELL-2*pad,CELL-2*pad); c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*CELL+pad,y*CELL+pad,CELL-2*pad,CELL-2*pad); }
+    function box(x,y,color){ c.fillStyle=color; c.fillRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); }
     for(const a of state.assets){ box(a.x,a.y, a.active ? '#2dd36f' : '#748ffc'); }
-    c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*CELL+padP, state.player.y*CELL+padP, CELL-2*padP, CELL-2*padP);
+    c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*C+padP, state.player.y*C+padP, C-2*padP, C-2*padP);
   }
 
   // Inputs
-  function isMobile(){ return document.body.classList.contains('mode-mobile'); }
-  document.querySelectorAll('.touchpad button').forEach(b=>b.addEventListener('click', ()=>{ if(isMobile()) move(parseInt(b.dataset.dx), parseInt(b.dataset.dy)); }));
-  let ts=null;
-  ['game','gameMob'].forEach(id=>{
-    const c=document.getElementById(id);
-    c.addEventListener('touchstart', e=>{ ts=e.changedTouches[0]; }, {passive:true});
-    c.addEventListener('touchend', e=>{ if(!ts) return; const t=e.changedTouches[0]; const dx=t.clientX-ts.clientX, dy=t.clientY-ts.clientY;
-      if(Math.max(Math.abs(dx),Math.abs(dy))<24) return;
-      if(Math.abs(dx)>Math.abs(dy)) move(dx>0?1:-1,0); else move(0,dy>0?1:-1);
-      ts=null; }, {passive:true});
+  window.addEventListener('keydown', e=>{
+    const k=e.key; if(k==='ArrowLeft') move(-1,0);
+    if(k==='ArrowRight') move(1,0);
+    if(k==='ArrowUp') move(0,-1);
+    if(k==='ArrowDown') move(0,1);
+    if((e.ctrlKey||e.metaKey) && k==='z' && history.length){ state = history.pop(); updateHUD(); render(); }
+    if(k==='r') loadLevel(L);
   });
-  window.addEventListener('keydown', e=>{ if(isMobile() || !started) return; const k=e.key; if(k==='ArrowLeft') move(-1,0); if(k==='ArrowRight') move(1,0); if(k==='ArrowUp') move(0,-1); if(k==='ArrowDown') move(0,1); if(k==='z'&&(e.ctrlKey||e.metaKey)) undo(); if(k==='r') loadLevel(levelIndex); });
 
   // Toolbar
-  document.getElementById('resetBtn').addEventListener('click', ()=>{ loadLevel(levelIndex); });
-  document.getElementById('undoBtn').addEventListener('click', ()=>undo());
   document.getElementById('levelsBtn').addEventListener('click', ()=>{
-    const list = levels.map((L,i)=>`${i+1}. ${L.name}`).join('\\n');
-    const choice = prompt(`Vai a livello (1-${levels.length})\\n${list}`, String(levelIndex+1));
-    const idx = Math.max(1, Math.min(levels.length, parseInt(choice||'1'))) - 1;
-    levelIndex = idx; loadLevel(levelIndex);
+    const list = levels.map((x,i)=>`${i+1}. ${x.name} — target ${x.target.toLocaleString('it-IT')}€`).join('\n');
+    const ans = prompt(`Vai al livello (1-${levels.length})\n`+list, String(L+1));
+    const idx = Math.max(1, Math.min(levels.length, parseInt(ans||'1'))) - 1;
+    L=idx; loadLevel(L);
   });
-
-  // PLAY — buttons and overlay click
-  function bindPlay(){
-    const btnD = document.getElementById('playBtnDesk');
-    const btnM = document.getElementById('playBtnMob');
-    const ovD = document.getElementById('playOverlayDesk');
-    const ovM = document.getElementById('playOverlayMob');
-    [btnD, btnM, ovD, ovM].forEach(n=> n && n.addEventListener('click', startGame));
-  }
-  bindPlay();
+  document.getElementById('careerBtn').addEventListener('click', ()=>{
+    if(confirm("Ricomincia Carriera?\nResetta progressione e reputazione.")){
+      localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L);
+    }
+  });
+  document.getElementById('resetBtn').addEventListener('click', ()=>loadLevel(L));
+  document.getElementById('undoBtn').addEventListener('click', ()=>{ if(history.length){ state = history.pop(); updateHUD(); render(); }});
 
   // Boot
-  applyMode();
-  if(!restore()){ baseLoad(levelIndex); } else { render(); fitCanvas(); }
-  started=false; updatePlayOverlay();
+  loadLevel(L);
 })();

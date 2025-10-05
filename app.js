@@ -1,22 +1,24 @@
-// Cashflow Rush — Career Edition v3.1.2-mobilefix
+// Cashflow Rush — Career Edition v3.1.4-robust
 // pezzaliAPP ©2025 — MIT License
 (() => {
   const SIZE = 12, BASE = 720;
   const $ = id => document.getElementById(id);
 
-  // ---------- Canvas: scegli SEMPRE quello VISIBILE ----------
+  // -------- Canvas: scegli SEMPRE quello VISIBILE (supporta #game, #gameMob, #gameDesk) --------
   let canvas = null, ctx = null;
+  function isVisible(el){ return !!(el && el.offsetParent !== null); }
   function pickCanvas() {
-    const d = $('gameDesk');
+    const g = $('game');
     const m = $('gameMob');
-    // Preferisci in base alla classe del body, ma usa quello che è realmente visibile
-    const preferMobile = document.body.classList.contains('mode-mobile');
-    const preferred = preferMobile ? m : d;
-    const isVisible = el => el && el.offsetParent !== null;
-    return isVisible(preferred) ? preferred
-         : isVisible(m) ? m
-         : isVisible(d) ? d
-         : (preferred || m || d);
+    const d = $('gameDesk');
+    // 1) Se dual.js ha già rinominato → #game
+    if (isVisible(g)) return g;
+    // 2) Altrimenti prendi quello visibile tra mobile/desktop
+    if (isVisible(m)) return m;
+    if (isVisible(d)) return d;
+    // 3) Fallback: primo canvas visibile nella pagina
+    const any = Array.from(document.querySelectorAll('canvas')).find(isVisible);
+    return any || g || m || d || null;
   }
   function syncCanvas() {
     const c = pickCanvas();
@@ -29,10 +31,10 @@
   }
   syncCanvas();
   window.addEventListener('resize', syncCanvas);
-  // failsafe: se cambia layout senza resize (alcuni WebView iOS), ricontrolla periodicamente
+  // iOS WebView a volte non lancia resize quando cambia layout → ricontrollo leggero
   setInterval(syncCanvas, 600);
 
-  // ---------- KPI refs (desktop → mobile fallback) ----------
+  // -------- KPI refs (desktop → mobile fallback) --------
   const kNet   = $('dNet')   || $('mNet');
   const kFlow  = $('dFlow')  || $('mFlow');
   const kMoves = $('dMoves') || $('mMoves');
@@ -44,7 +46,7 @@
   const overlayEls = [ $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
   const playBtns   = [ $('playBtnDesk'),    $('playBtnMob')     ].filter(Boolean);
 
-  // ---------- Audio ----------
+  // -------- Audio --------
   let muted = localStorage.getItem('cfr.muted') === '1';
   const $mute = $('muteBtn'); if ($mute) $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -62,7 +64,7 @@
     });
   }
 
-  // ---------- Career levels ----------
+  // -------- Career levels --------
   const levels = [
     { name:"Risparmio",         target:  5000,  seed:1 },
     { name:"Investimento",      target: 15000,  seed:2 },
@@ -77,7 +79,7 @@
   ];
   let L = parseInt(localStorage.getItem('cfr.level')||'0'); if(L>=levels.length) L=0;
 
-  // ---------- Stato ----------
+  // -------- Stato --------
   let state=null, history=[], started=false;
 
   // RNG & griglia
@@ -169,26 +171,29 @@
     localStorage.setItem('cfr.rep', String(state.rep||0));
     const eff = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
     state.eff = eff;
-    $('rLevel').textContent  = state.name;
-    $('rTarget').textContent = euro(state.target);
-    $('rNet').textContent    = euro(state.net);
-    $('rFlow').textContent   = euro(state.flow);
-    $('rMoves').textContent  = state.moves;
-    $('rEff').textContent    = eff + "%";
-    $('rRep').textContent    = state.rep + "★";
-    $('reportModal').classList.add('show');
+    const rLevel=$('rLevel'), rTarget=$('rTarget'), rNet=$('rNet'), rFlow=$('rFlow'), rMoves=$('rMoves'), rEff=$('rEff'), rRep=$('rRep');
+    const modal=$('reportModal');
+    if(rLevel){ rLevel.textContent = state.name; }
+    if(rTarget){ rTarget.textContent = euro(state.target); }
+    if(rNet){ rNet.textContent = euro(state.net); }
+    if(rFlow){ rFlow.textContent = euro(state.flow); }
+    if(rMoves){ rMoves.textContent = state.moves; }
+    if(rEff){ rEff.textContent = eff + "%"; }
+    if(rRep){ rRep.textContent = (state.rep||0) + "★"; }
+    if(modal){ modal.classList.add('show'); }
     tone(800,0.15,'triangle');
     L=(L+1)%levels.length;
     localStorage.setItem('cfr.level', String(L));
   }
 
-  $('reportCloseBtn').addEventListener('click', ()=>{ $('reportModal').classList.remove('show'); loadLevel(L); });
+  const closeBtn = $('reportCloseBtn');
+  if(closeBtn) closeBtn.addEventListener('click', ()=>{ const modal=$('reportModal'); if(modal) modal.classList.remove('show'); loadLevel(L); });
 
   function updateHUD(){
-    kNet.textContent   = euro(state.net);
-    kFlow.textContent  = euro(state.flow)+"/mossa";
-    kMoves.textContent = state.moves;
-    kTarget.textContent= euro(state.target);
+    if(kNet)   kNet.textContent   = euro(state.net);
+    if(kFlow)  kFlow.textContent  = euro(state.flow)+"/mossa";
+    if(kMoves) kMoves.textContent = state.moves;
+    if(kTarget)kTarget.textContent= euro(state.target);
     const eff = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
     state.eff = eff;
     if(kEff) kEff.textContent = eff + "%";
@@ -197,7 +202,7 @@
 
   function render(){
     // assicurati di disegnare sul canvas attuale (smartphone vs laptop)
-    syncCanvas();
+    syncCanvas(); if(!canvas || !ctx) return;
     const W=canvas.width, H=canvas.height, C=Math.floor(W/SIZE);
     const c=ctx;
     c.clearRect(0,0,W,H);
@@ -267,7 +272,7 @@
     }
   });
 
-  // Hooks pubblici per dual.js (swipe & play)
+  // Hook pubblici per dual.js (swipe & play)
   window.Game = {
     start: () => { if(!started){ started = true; toggleOverlay(false); tone(660,0.06); } },
     nudge: (dx,dy) => move(dx,dy),

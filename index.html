@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush — Dual Universe v3.0.0 + Mobile Layout</title>
+  <title>Cashflow Rush — Dual Universe v3.0.1-hybrid</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
   <style>
@@ -74,7 +74,7 @@
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <h1>Cashflow Rush — Dual Universe v3.0.0 + Mobile Layout</h1>
+      <h1>Cashflow Rush — Dual Universe v3.0.1-hybrid</h1>
     </div>
     <div class="actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <!-- Selettore dispositivo -->
@@ -165,12 +165,12 @@
 
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
-  <!-- 1) Adattatore dual (layout + play + d-pad + canvas swap) -->
+  <!-- Adattatore layout + play + d-pad + canvas swap -->
   <script src="./dual.js?v=3.0.1-hybrid"></script>
-  <!-- 2) Il tuo motore che funzionava (NON toccarlo) -->
-  <script src="./app.js?v=3.0.0"></script>
+  <!-- Motore v3.0.0 (stabile) -->
+  <script src="./app.js?v=3.0.1-hybrid"></script>
 
-  <!-- Service Worker con cache-busting -->
+  <!-- Service Worker -->
   <script>
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./sw.js?v=3.0.1-hybrid').then(reg=>{

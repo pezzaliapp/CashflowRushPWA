@@ -4,20 +4,19 @@
   const SIZE = 12, BASE = 720;
   const $ = id => document.getElementById(id);
 
-  // -------- Canvas: scegli SEMPRE quello VISIBILE (supporta #game, #gameMob, #gameDesk) --------
+  /* =========================
+     Canvas selector (desktop/mobile)
+     ========================= */
   let canvas = null, ctx = null;
   function isVisible(el){ return !!(el && el.offsetParent !== null); }
   function pickCanvas() {
     const g = $('game');
     const m = $('gameMob');
     const d = $('gameDesk');
-    // 1) Se dual.js ha già rinominato → #game
-    if (isVisible(g)) return g;
-    // 2) Altrimenti prendi quello visibile tra mobile/desktop
-    if (isVisible(m)) return m;
+    if (isVisible(g)) return g;         // 1) dual.js potrebbe averlo rinominato
+    if (isVisible(m)) return m;         // 2) altrimenti quello realmente visibile
     if (isVisible(d)) return d;
-    // 3) Fallback: primo canvas visibile nella pagina
-    const any = Array.from(document.querySelectorAll('canvas')).find(isVisible);
+    const any = Array.from(document.querySelectorAll('canvas')).find(isVisible); // 3) fallback
     return any || g || m || d || null;
   }
   function syncCanvas() {
@@ -31,22 +30,31 @@
   }
   syncCanvas();
   window.addEventListener('resize', syncCanvas);
-  // iOS WebView a volte non lancia resize quando cambia layout → ricontrollo leggero
-  setInterval(syncCanvas, 600);
+  setInterval(syncCanvas, 600); // iOS WebView: sicurezza in più
 
-  // -------- KPI refs (desktop → mobile fallback) --------
-  const kNet   = $('dNet')   || $('mNet');
-  const kFlow  = $('dFlow')  || $('mFlow');
-  const kMoves = $('dMoves') || $('mMoves');
-  const kTarget= $('dTarget')|| $('mTarget');
-  const kEff   = $('dEff')   || $('mEff');
-  const kRep   = $('dRep')   || $('mRep');
+  /* =========================
+     KPI refs (desktop + mobile sempre aggiornati)
+     ========================= */
+  function byId(id){ return document.getElementById(id); }
+  const KPI = {
+    net:    [ byId('dNet'),    byId('mNet') ],
+    flow:   [ byId('dFlow'),   byId('mFlow') ],
+    moves:  [ byId('dMoves'),  byId('mMoves') ],
+    target: [ byId('dTarget'), byId('mTarget') ],
+    eff:    [ byId('dEff'),    byId('mEff') ],
+    rep:    [ byId('dRep'),    byId('mRep') ],
+  };
+  function setKPI(key, value){
+    (KPI[key] || []).forEach(el => { if (el) el.textContent = value; });
+  }
 
   // Overlay / PLAY
   const overlayEls = [ $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
   const playBtns   = [ $('playBtnDesk'),    $('playBtnMob')     ].filter(Boolean);
 
-  // -------- Audio --------
+  /* =========================
+     Audio
+     ========================= */
   let muted = localStorage.getItem('cfr.muted') === '1';
   const $mute = $('muteBtn'); if ($mute) $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -64,7 +72,9 @@
     });
   }
 
-  // -------- Career levels --------
+  /* =========================
+     Career levels
+     ========================= */
   const levels = [
     { name:"Risparmio",         target:  5000,  seed:1 },
     { name:"Investimento",      target: 15000,  seed:2 },
@@ -79,21 +89,27 @@
   ];
   let L = parseInt(localStorage.getItem('cfr.level')||'0'); if(L>=levels.length) L=0;
 
-  // -------- Stato --------
+  /* =========================
+     Stato di gioco
+     ========================= */
   let state=null, history=[], started=false;
 
-  // RNG & griglia
+  // RNG & generazione griglia
   function rng(seed){ let s=seed||1; return ()=> (s=(s*1664525+1013904223)%4294967296)/4294967296; }
   function genGrid(seed){
     const rnd=rng(seed), g=Array.from({length:SIZE}, _=>Array(SIZE).fill('.'));
+    // cornice muri
     for(let i=0;i<SIZE;i++){ g[0][i]='#'; g[SIZE-1][i]='#'; g[i][0]='#'; g[i][SIZE-1]='#'; }
+    // goal
     for(let i=0;i<3;i++) g[2+i*3][SIZE-2]='G';
+    // eventi
     const features=['$','D','T','L','I'];
     for(let k=0;k<28;k++){
       const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
       if(g[y][x]!=='.') continue;
       g[y][x]=features[Math.floor(rnd()*features.length)];
     }
+    // asset
     for(let k=0;k<4;k++){
       const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
       if(g[y][x]!=='.') continue; g[y][x]='A';
@@ -112,16 +128,21 @@
       if(t==='A'){ assets.push({x,y,active:false,fuel:0}); grid[y][x]='.'; }
       if(t==='G'){ goals.push({x,y}); }
     }
-    state={ name:meta.name,target:meta.target,grid,player,assets,goals, net:0,flow:0,moves:0, rep:parseInt(localStorage.getItem('cfr.rep')||'0'), eff:0 };
+    state={ name:meta.name,target:meta.target,grid,player,assets,goals,
+            net:0,flow:0,moves:0, rep:parseInt(localStorage.getItem('cfr.rep')||'0'), eff:0 };
     history.length=0;
     updateHUD(); render(); started=false; toggleOverlay(true);
   }
 
-  // Overlay
+  /* =========================
+     Overlay & PLAY
+     ========================= */
   function toggleOverlay(show){ overlayEls.forEach(el=> el.style.display = show ? 'flex' : 'none'); }
   playBtns.forEach(btn=> btn.addEventListener('click', ()=>{ started=true; toggleOverlay(false); tone(660,0.06); }));
 
-  // Helpers
+  /* =========================
+     Helper UI
+     ========================= */
   function euro(n){ return n.toLocaleString('it-IT')+"€"; }
   function inB(x,y){ return x>=0 && y>=0 && x<SIZE && y<SIZE; }
   function at(x,y){ return state.grid[y][x]; }
@@ -171,6 +192,7 @@
     localStorage.setItem('cfr.rep', String(state.rep||0));
     const eff = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
     state.eff = eff;
+
     const rLevel=$('rLevel'), rTarget=$('rTarget'), rNet=$('rNet'), rFlow=$('rFlow'), rMoves=$('rMoves'), rEff=$('rEff'), rRep=$('rRep');
     const modal=$('reportModal');
     if(rLevel){ rLevel.textContent = state.name; }
@@ -182,34 +204,48 @@
     if(rRep){ rRep.textContent = (state.rep||0) + "★"; }
     if(modal){ modal.classList.add('show'); }
     tone(800,0.15,'triangle');
+
     L=(L+1)%levels.length;
     localStorage.setItem('cfr.level', String(L));
   }
 
   const closeBtn = $('reportCloseBtn');
-  if(closeBtn) closeBtn.addEventListener('click', ()=>{ const modal=$('reportModal'); if(modal) modal.classList.remove('show'); loadLevel(L); });
+  if(closeBtn) closeBtn.addEventListener('click', ()=>{
+    const modal=$('reportModal');
+    if(modal) modal.classList.remove('show');
+    loadLevel(L);
+  });
 
   function updateHUD(){
-    if(kNet)   kNet.textContent   = euro(state.net);
-    if(kFlow)  kFlow.textContent  = euro(state.flow)+"/mossa";
-    if(kMoves) kMoves.textContent = state.moves;
-    if(kTarget)kTarget.textContent= euro(state.target);
-    const eff = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
+    const eff = state.moves ? Math.max(0, Math.round((state.net/Math.max(1,state.moves))/10)) : 0;
     state.eff = eff;
-    if(kEff) kEff.textContent = eff + "%";
-    if(kRep) kRep.textContent = state.rep;
+
+    setKPI('net',    euro(state.net));
+    setKPI('flow',   euro(state.flow) + "/mossa");
+    setKPI('moves',  String(state.moves));
+    setKPI('target', euro(state.target));
+    setKPI('eff',    eff + "%");
+    setKPI('rep',    String(state.rep));
   }
 
+  /* =========================
+     Render
+     ========================= */
   function render(){
-    // assicurati di disegnare sul canvas attuale (smartphone vs laptop)
     syncCanvas(); if(!canvas || !ctx) return;
     const W=canvas.width, H=canvas.height, C=Math.floor(W/SIZE);
     const c=ctx;
+
+    // sfondo + griglia
     c.clearRect(0,0,W,H);
     c.fillStyle="#081028"; c.fillRect(0,0,W,H);
     c.strokeStyle="#1a2655";
-    for(let i=0;i<=SIZE;i++){ c.beginPath(); c.moveTo(i*C,0); c.lineTo(i*C,H); c.stroke();
-                              c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke(); }
+    for(let i=0;i<=SIZE;i++){
+      c.beginPath(); c.moveTo(i*C,0); c.lineTo(i*C,H); c.stroke();
+      c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke();
+    }
+
+    // celle base
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
       if(t==='#') c.fillStyle='#0c1533';
@@ -222,6 +258,8 @@
       else c.fillStyle='transparent';
       if(c.fillStyle!=='transparent') c.fillRect(x*C,y*C,C,C);
     }
+
+    // puntini eventi
     function dot(x,y,color){ const r=Math.floor(C*0.12), cx=x*C+C/2, cy=y*C+C/2; c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
@@ -231,12 +269,17 @@
       if(t==='L') dot(x,y,'#8a56ff');
       if(t==='I') dot(x,y,'#ffaa00');
     }
+
+    // asset & player
     const pad=10, padP=14;
     function box(x,y,color){ c.fillStyle=color; c.fillRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); }
     for(const a of state.assets) box(a.x,a.y, a.active ? '#2dd36f' : '#748ffc');
     c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*C+padP, state.player.y*C+padP, C-2*padP, C-2*padP);
   }
 
+  /* =========================
+     Controlli
+     ========================= */
   // Tastiera (desktop)
   window.addEventListener('keydown', e=>{
     const k=e.key;
@@ -266,19 +309,33 @@
   }
   const resetBtn=$('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=>loadLevel(L));
   const undoBtn =$('undoBtn');  if(undoBtn)  undoBtn.addEventListener('click', ()=>{ if(history.length){ state=history.pop(); updateHUD(); render(); }});
-  const careerBtn=$('careerBtn'); if(careerBtn) careerBtn.addEventListener('click', ()=>{
-    if(confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")){
-      localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L);
-    }
-  });
+  const careerBtn=$('careerBtn'); if(careerBtn) addEventListenerWithConfirm(careerBtn,
+    "Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.",
+    ()=>{ localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L); }
+  );
+  function addEventListenerWithConfirm(btn, msg, ok){
+    btn.addEventListener('click', ()=>{ if(confirm(msg)) ok(); });
+  }
 
-  // Hook pubblici per dual.js (swipe & play)
+  /* =========================
+     Hook pubblici per dual.js
+     ========================= */
   window.Game = {
     start: () => { if(!started){ started = true; toggleOverlay(false); tone(660,0.06); } },
     nudge: (dx,dy) => move(dx,dy),
     reload: () => loadLevel(L),
   };
 
-  // Avvio
+  /* =========================
+     Avvio
+     ========================= */
+  // HUD iniziale (prima di caricare il livello)
+  setKPI('net','0€');
+  setKPI('flow','0€/mossa');
+  setKPI('moves','0');
+  setKPI('target','50.000€'); // target del livello 1
+  setKPI('eff','0%');
+  setKPI('rep','0');
+
   loadLevel(L);
 })();

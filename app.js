@@ -1,8 +1,7 @@
-// Dual Universe v3.1.1 — Desktop + Smartphone layout separati + anti-grind
+// Dual Universe v3.1.4 — Desktop + Smartphone layout + robust PLAY + anti-grind
 (()=>{
   const SIZE = 12, BASE = 720;
 
-  // Mode (auto / desktop / mobile)
   let modePref = localStorage.getItem('du.mode') || 'auto';
   function computeAuto(){ return (('ontouchstart' in window) || navigator.maxTouchPoints>0 || window.innerWidth<920) ? 'mobile' : 'desktop'; }
   function applyMode(){
@@ -11,17 +10,15 @@
     document.body.classList.toggle('mode-desktop', m!=='mobile');
     document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===modePref));
     syncCanvasRef(); fitCanvas(); render();
-    updateOverlay();
-    bindOverlay();
+    updateOverlay(); bindOverlay();
   }
   document.getElementById('modeSeg').addEventListener('click', e=>{
     const b=e.target.closest('button'); if(!b) return; modePref=b.dataset.mode; localStorage.setItem('du.mode', modePref); applyMode();
   });
   window.addEventListener('resize', ()=>{ if(modePref==='auto') applyMode(); else fitCanvas(); });
 
-  // Game selection (Classic / Career)
   let gameMode = localStorage.getItem('du.gameMode');
-  if(!gameMode){ gameMode='career'; } // career default on first run
+  if(!gameMode){ gameMode='career'; }
   document.querySelectorAll('#gameModeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.gamemode===gameMode));
   document.getElementById('gameModeSeg').addEventListener('click', e=>{
     const b=e.target.closest('button'); if(!b) return;
@@ -32,7 +29,6 @@
     loadLevel(L);
   });
 
-  // Canvas refs switch (desktop/mobile)
   let canvas, ctx, flashEl, overlayBtn, overlayEl;
   function syncCanvasRef(){
     const isMob = document.body.classList.contains('mode-mobile');
@@ -57,24 +53,17 @@
     }
   }
 
-  // Flash (desktop only)
-  function doFlash(color){
-    if(!flashEl) return;
-    flashEl.className = 'flash ' + color + ' show';
-    setTimeout(()=> flashEl.classList.remove('show'), 220);
-  }
+  function doFlash(color){ if(!flashEl) return; flashEl.className = 'flash ' + color + ' show'; setTimeout(()=> flashEl.classList.remove('show'), 220); }
 
-  // Audio
   let muted = localStorage.getItem('du.muted')==='1';
   const $mute = document.getElementById('muteBtn'); $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext; const actx = AC ? new AC() : null;
   function ensureAudio(){ if(actx && actx.state==='suspended'){ actx.resume().catch(()=>{}); } }
-  ['touchstart','mousedown','keydown'].forEach(ev=>window.addEventListener(ev, ensureAudio, {passive:true}));
+  ['touchstart','mousedown','keydown','pointerdown'].forEach(ev=>window.addEventListener(ev, ensureAudio, {passive:true}));
   function tone(f=440,d=0.06,t='sine',v=0.05){ if(!actx || muted) return; const o=actx.createOscillator(), g=actx.createGain(); o.type=t; o.frequency.value=f; g.gain.value=v; o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{try{o.stop()}catch{}}, d*1000); }
   function haptic(ms=12){ if(navigator.vibrate){ navigator.vibrate(ms); } }
   $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('du.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
 
-  // HUD refs
   const HUD = {
     d:{net:document.getElementById('dNet'), flow:document.getElementById('dFlow'), moves:document.getElementById('dMoves'), target:document.getElementById('dTarget'), eff:document.getElementById('dEff'), rep:document.getElementById('dRep')},
     m:{net:document.getElementById('mNet'), flow:document.getElementById('mFlow'), moves:document.getElementById('mMoves'), target:document.getElementById('mTarget')}
@@ -85,7 +74,6 @@
     HUD.m.net.textContent = euro(state.net); HUD.m.flow.textContent = euro(state.flow)+"/mossa"; HUD.m.moves.textContent = state.moves; HUD.m.target.textContent = euro(state.target);
   }
 
-  // Levels data
   const classicLevels = [
     {name:"Tutorial del Valore", target:5000, grid:[
       "############","#..$..D..G.#","#..##....#.#","#..A..P..#.#","#..##....#.#","#..$..L..#.#","#..##....#.#","#..A.....#.#","#..##..T.#.#","#..$.....#.#","#..##..I.#.#","############"]},
@@ -108,7 +96,6 @@
     {name:"Crisi",target:150000,seed:7},{name:"Ripresa",target:220000,seed:8},{name:"Bolla",target:350000,seed:9},{name:"Tycoon Finale",target:1000000,seed:10},
   ];
 
-  // State
   let L = parseInt(localStorage.getItem('du.level')||'0');
   let state=null, history=[], started=false;
   let lastDir={dx:0,dy:0}; const lastPos=[];
@@ -145,10 +132,17 @@
     history.length=0; lastDir={dx:0,dy:0}; lastPos.length=0; lastPos.push({x:player.x,y:player.y});
   }
 
-  function euro(n){ return n.toLocaleString('it-IT')+"€"; }
-
   function updateOverlay(){ (overlayEl||{}).style && (overlayEl.style.display = started? 'none':'flex'); }
-  function start(){ started=true; updateOverlay(); tone(660,0.06); }
+
+  function start(ev){
+    if(ev && ev.preventDefault) try{ ev.preventDefault(); }catch(_){}
+    if(started) return;
+    try{ ensureAudio(); }catch(_){}
+    started = true;
+    updateOverlay();
+    setTimeout(()=>updateOverlay(), 0);
+    tone(660,0.06);
+  }
 
   function applyTile(x,y){
     let event=false, t=at(x,y);
@@ -169,7 +163,7 @@
   }
 
   function move(dx,dy){
-    if(!started) return;
+    if(!started) { start(); }
     const nx=state.player.x+dx, ny=state.player.y+dy;
     if(!inB(nx,ny)||isWall(nx,ny)) return;
 
@@ -197,6 +191,8 @@
     lastDir={dx,dy};
 
     tickIncome(suppress);
+    // efficiency approx
+    state.eff = state.moves? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
     updateHUD(); render();
 
     if(state.net>=state.target){
@@ -234,12 +230,8 @@
     function box(x,y,color){ c.fillStyle=color; c.fillRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); }
     for(const a of state.assets){ box(a.x,a.y, a.active ? '#2dd36f' : '#748ffc'); }
     c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*C+padP, state.player.y*C+padP, C-2*padP, C-2*padP);
-    // efficiency (approx)
-    state.eff = state.moves? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
-    HUD.d.eff.textContent = (state.eff||0)+"%";
   }
 
-  // Inputs
   document.addEventListener('keydown', e=>{
     const k=e.key; if(k==='ArrowLeft') move(-1,0); if(k==='ArrowRight') move(1,0); if(k==='ArrowUp') move(0,-1); if(k==='ArrowDown') move(0,1);
     if((e.ctrlKey||e.metaKey) && k==='z' && history.length){ state = history.pop(); updateHUD(); render(); }
@@ -248,7 +240,6 @@
   document.getElementById('resetBtn').addEventListener('click', ()=>{ buildLevel(L); updateHUD(); render(); started=false; updateOverlay(); });
   document.getElementById('undoBtn').addEventListener('click', ()=>{ if(history.length){ state = history.pop(); updateHUD(); render(); }});
 
-  // Level picker
   document.getElementById('levelsBtn').addEventListener('click', ()=>{
     const list = (gameMode==='classic'? classicLevels : careerLevels).map((x,i)=>`${i+1}. ${x.name} — ${x.target.toLocaleString('it-IT')}€`).join('\n');
     const ans = prompt(`Vai al livello (1-${(gameMode==='classic'? classicLevels.length:careerLevels.length)})\n`+list, String(L+1));
@@ -256,12 +247,12 @@
     L=idx; localStorage.setItem('du.level', String(L)); buildLevel(L); updateHUD(); render(); started=false; updateOverlay();
   });
 
-  // Touchpad & swipe (mobile)
   document.querySelectorAll('.touchpad button').forEach(b=>b.addEventListener('click', ()=>{
     const dx=parseInt(b.dataset.dx), dy=parseInt(b.dataset.dy); move(dx,dy);
   }));
+
   function addSwipe(el){
-    let start=null;
+    if(!el) return; let start=null;
     el.addEventListener('touchstart', e=>{ start=e.changedTouches[0]; }, {passive:true});
     el.addEventListener('touchend', e=>{
       if(!start) return; const t=e.changedTouches[0]; const dx=t.clientX-start.clientX, dy=t.clientY-start.clientY;
@@ -271,16 +262,16 @@
     }, {passive:true});
   }
 
-  // Overlay buttons
-  // Overlay buttons: bind both, so switching mode won't break PLAY
   function bindOverlay(){
     const b1 = document.getElementById('playBtnDesk');
     const b2 = document.getElementById('playBtnMob');
-    if (b1) b1.onclick = start;
-    if (b2) b2.onclick = start;
+    const c1 = document.getElementById('gameDesk');
+    const c2 = document.getElementById('gameMob');
+    const handlers = ['click','touchstart','pointerup'];
+    [b1,b2].forEach(b=>{ if(b){ handlers.forEach(h=> b.addEventListener(h, start, {passive:false})); }});
+    [c1,c2].forEach(c=>{ if(c){ ['touchstart','pointerdown','mousedown'].forEach(h=> c.addEventListener(h, ()=>{ if(!started) start(); }, {passive:true})); }});
   }
 
-  // Boot
   syncCanvasRef(); applyMode();
   const savedLevel = parseInt(localStorage.getItem('du.level')||'0'); L=isNaN(savedLevel)?0:savedLevel;
   buildLevel(L); updateHUD(); render(); started=false; updateOverlay();

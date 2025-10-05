@@ -1,4 +1,4 @@
-// app.js — v2.8.8 Start/Play + mobile vertical legend
+// app.js — v2.8.9 Start fix + mobile 3-col legends
 (() => {
   const gridSize = 12, baseRes = 720;
   function getCanvas(){ return document.body.classList.contains('mode-mobile') ? document.getElementById('gameMob') : document.getElementById('game'); }
@@ -81,45 +81,6 @@
   function goalAt(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
   function recalcAssets(){ for(const a of state.assets){ const was=a.active; a.active=goalAt(a.x,a.y); if(a.active && !was) a.fuel=5; } }
 
-  def_sound = 0
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
-  def_sound = 0
-
-  def_haptic = 0
-
   function applyTileEffect(x,y){
     const t=tile(x,y);
     if(t==='$'){ state.net+=500; state.grid[y][x]='.'; tone(660); haptic(12); }
@@ -171,7 +132,10 @@
     desk && (desk.style.display = (!started && !onMob) ? 'flex' : 'none');
     mob && (mob.style.display = (!started && onMob) ? 'flex' : 'none');
   }
-  function startGame(){ started=true; ensureAudio(); updatePlayOverlay(); }
+  function startGame(){
+    if(!state){ baseLoad(levelIndex); }
+    started=true; ensureAudio(); updatePlayOverlay();
+  }
 
   function undo(){ if(!started) return; if(history.length<=1) return; history.pop(); state=clone(history[history.length-1]); syncHUD(); render(); }
 
@@ -256,10 +220,17 @@
     levelIndex = idx; loadLevel(levelIndex);
   });
 
-  document.getElementById('playBtnDesk').addEventListener('click', ()=>{ started=true; ensureAudio(); updatePlayOverlay(); });
-  document.getElementById('playBtnMob').addEventListener('click', ()=>{ started=true; ensureAudio(); updatePlayOverlay(); });
+  // PLAY — buttons and overlay click
+  function bindPlay(){
+    const btnD = document.getElementById('playBtnDesk');
+    const btnM = document.getElementById('playBtnMob');
+    const ovD = document.getElementById('playOverlayDesk');
+    const ovM = document.getElementById('playOverlayMob');
+    [btnD, btnM, ovD, ovM].forEach(n=> n && n.addEventListener('click', startGame));
+  }
+  bindPlay();
 
-  // Start
+  // Boot
   applyMode();
   if(!restore()){ baseLoad(levelIndex); } else { render(); fitCanvas(); }
   started=false; updatePlayOverlay();

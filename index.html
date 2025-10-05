@@ -4,63 +4,76 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush v3.0 — Career Mode</title>
+  <title>Cashflow Rush — Dual Universe v3.1.0</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
   <style>
     :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;--warn:#ffaa00;--danger:#ff4d4d}
     *{box-sizing:border-box} html,body{height:100%;margin:0}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;background:radial-gradient(1200px 1200px at 12% -10%,#141f45 0%, var(--bg) 45%) fixed;color:var(--ink);display:flex;flex-direction:column;min-height:100svh}
-    header, .wrap{width:100%;max-width:1180px;margin:0 auto;padding:10px 16px}
+    header,.wrap{width:100%;max-width:1180px;margin:0 auto;padding:10px 16px}
     header{display:flex;gap:12px;align-items:center;justify-content:space-between}
     header .title{display:flex;gap:10px;align-items:center}
     header img{width:34px;height:34px;border-radius:8px}
-    h1{font-size:18px;margin:0}
+    header h1{font-size:16px;margin:0}
     .seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-    .seg button{background:transparent;border:0;color:var(--muted);padding:6px 10px;cursor:pointer}
+    .seg button{background:transparent;border:0;color:var(--muted);padding:6px 10px;cursor:pointer;font-size:13px}
     .seg button.active{background:#0c1533;color:var(--ink)}
     .btn{background:#0c1533;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:8px 12px;cursor:pointer}
     .btn:hover{border-color:var(--accent)}
+
     .grid{display:grid;grid-template-columns:minmax(520px, 760px) 360px;gap:18px}
     .stage{position:relative;background:#081028;border:2px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:center}
     canvas{width:720px;height:720px;max-width:100%;max-height:calc(100svh - 320px);display:block;border-radius:10px;image-rendering:pixelated;touch-action:none}
-    .overlay{position:absolute;inset:14px;border-radius:12px;background:rgba(8,16,40,.72);display:flex;align-items:center;justify-content:center;border:1px dashed #2a3a77}
+    .overlay{position:absolute;inset:14px;border-radius:12px;background:rgba(8,16,40,.72);display:flex;align-items:center;justify-content:center;border:1px dashed #2a3a77;z-index:10}
     .playBtn{background:#0c1533;border:1px solid #3a4a8d;color:#e9f1ff;padding:14px 22px;border-radius:999px;font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px;cursor:pointer}
     .playBtn::before{content:"▶"}
+
     aside{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
     .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .kpi{background:#0c1533;border:1px solid var(--line);border-radius:12px;padding:10px}
     .kpi b{display:block;font-size:12px;color:#c3cfee}
     .kpi span{font-weight:800;font-size:20px}
-    .panel{background:#0c1533;border:1px solid var(--line);border-radius:12px;padding:10px}
+
     .legend{display:flex;flex-wrap:wrap;gap:8px}
     .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:13px;color:#cbd5f0}
     .dot{width:10px;height:10px;border-radius:50%}
-    footer{margin-top:auto;width:100%;text-align:center;color:#9db0d0;opacity:.6;font-size:12px;padding:10px 0 12px}
-    /* Mobile */
+
+    .flash{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .25s ease}
+    .flash.show{opacity:.7}
+    .flash.green{background:radial-gradient(90vh 90vh at 50% 50%, rgba(45,211,111,.5), transparent 60%)}
+    .flash.red{background:radial-gradient(90vh 90vh at 50% 50%, rgba(255,77,77,.5), transparent 60%)}
+
     @media (max-width: 920px){
       .grid{grid-template-columns:1fr}
       canvas{max-height:calc(100svh - 380px)}
     }
+
+    footer{margin-top:auto;width:100%;text-align:center;color:#9db0d0;opacity:.6;font-size:12px;padding:10px 0 12px}
   </style>
 </head>
 <body>
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <h1>Cashflow Rush v3.0 — Career Mode</h1>
+      <h1>Cashflow Rush — Dual Universe v3.1.0</h1>
     </div>
-    <div class="actions">
+    <div class="actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <div class="seg" id="modeSeg">
         <button data-mode="auto" class="active">Auto</button>
         <button data-mode="desktop">💻 Laptop</button>
         <button data-mode="mobile">📱 Smartphone</button>
       </div>
-      <button class="btn" id="careerBtn">Carriera</button>
-      <button class="btn" id="levelsBtn">Livelli</button>
+
+      <div class="seg" id="gameModeSeg">
+        <button data-gamemode="classic">Classic</button>
+        <button data-gamemode="career" class="active">Career</button>
+      </div>
+
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn" id="muteBtn">🔊</button>
+      <button class="btn" id="levelsBtn">📈 Livelli</button>
     </div>
   </header>
 
@@ -68,17 +81,18 @@
     <div class="stage">
       <canvas id="game" width="720" height="720"></canvas>
       <div class="overlay" id="overlay"><button class="playBtn" id="playBtn">PLAY</button></div>
+      <div id="flash" class="flash"></div>
     </div>
     <aside>
       <div class="kpis">
         <div class="kpi"><b>Valore Netto</b> <span id="kNet">0€</span></div>
         <div class="kpi"><b>Flusso €/mossa</b> <span id="kFlow">0€/mossa</span></div>
-        <div class="kpi"><b>Mosse</b> <span id="kMoves">0</span></div>
-        <div class="kpi"><b>Obiettivo</b> <span id="kTarget">50.000€</span></div>
-        <div class="kpi"><b>Efficienza</b> <span id="kEff">0%</span></div>
-        <div class="kpi"><b>Reputazione ★</b> <span id="kRep">0</span></div>
+        <div class="kpi kpi-career"><b>Mosse</b> <span id="kMoves">0</span></div>
+        <div class="kpi kpi-career"><b>Obiettivo</b> <span id="kTarget">50.000€</span></div>
+        <div class="kpi kpi-career"><b>Efficienza</b> <span id="kEff">0%</span></div>
+        <div class="kpi kpi-career"><b>Reputazione ★</b> <span id="kRep">0</span></div>
       </div>
-      <div class="panel legend">
+      <div class="legend">
         <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
         <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset attivo</span>
         <span class="tag"><span class="dot" style="background:#748ffc"></span>Asset inattivo</span>
@@ -86,20 +100,21 @@
         <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
         <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
         <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa</span>
+        <span class="tag"><span class="dot" style="background:#19cf83"></span>Goal</span>
       </div>
       <div class="panel" style="color:#c9d4f0;font-size:13px">
-        <b>Carriera (scheletro):</b> 10 livelli progressivi con Efficienza e Reputazione.  
-        I salvataggi restano in locale e la PWA si aggiorna in automatico.
+        <b>Modalità:</b> Classic → 7 livelli brevi • Career → 10 livelli progressivi (Efficienza, Reputazione).  
+        Anti-grind: niente incassi su avanti↔indietro o loop brevi senza evento economico.
       </div>
     </aside>
   </div>
 
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
-  <script src="./app.js?v=3.0.0"></script>
+  <script src="./app.js?v=3.1.0"></script>
   <script>
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=3.0.0').then(reg=>{
+      navigator.serviceWorker.register('./sw.js?v=3.1.0').then(reg=>{
         if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
         reg.addEventListener('updatefound', ()=>{
           const nw = reg.installing;

@@ -1,10 +1,10 @@
-// sw.js v3.0.0 — auto-update shell
-const VER = '3.0.0';
-const SHELL = `cfr-shell-${VER}`;
+// sw.js v3.1.0 — auto-update shell
+const VER = '3.1.0';
+const SHELL = `du-shell-${VER}`;
 const ASSETS = [
   './',
   './index.html',
-  './app.js?v=3.0.0',
+  './app.js?v=3.1.0',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
@@ -16,7 +16,7 @@ self.addEventListener('install', e=>{
 
 self.addEventListener('activate', e=>{
   e.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('cfr-shell-') && k!==SHELL).map(k=>caches.delete(k))))
+    caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('du-shell-') && k!==SHELL).map(k=>caches.delete(k))))
       .then(()=>self.clients.claim())
       .then(async ()=>{
         const clients = await self.clients.matchAll({type:'window', includeUncontrolled:true});
@@ -30,7 +30,7 @@ self.addEventListener('message', e=>{ if(e.data && e.data.type==='SKIP_WAITING')
 self.addEventListener('fetch', e=>{
   const url = new URL(e.request.url);
   if(url.origin !== location.origin) return;
-  const isShell = url.search.includes('v=3.0.0') || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  const isShell = url.search.includes('v=3.1.0') || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
   if(isShell){
     e.respondWith((async()=>{
       try{

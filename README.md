@@ -1,36 +1,13 @@
-# 🟩 Cashflow Rush — Arcade Puzzle Tycoon (PWA)
+# Cashflow Rush v2.8.2 — Strategy Dual Mode (PWA)
 
-**PWA offline, open source, MIT — © 2025 pezzaliAPP**
+**Focus di questa versione**
+- **Massima leggibilità su iPhone**: 4 card KPI in alto (Valore Netto, Flusso €/mossa, Mosse, Obiettivo).
+- **Legenda split** ben distanziata dal D-pad; nessuna sovrapposizione.
+- **Copyright** spostato *fuori* dalla scena di gioco (in fondo).
+- Mantiene anti-grind/asset a consumo/rate economiche della 2.8.
+- **Auto-update** via service worker.
 
-Un rompicapo stile *Sokoban* con una twist finanziaria: spingi gli **Asset** sui pad **Goal** per attivarli e costruire **cashflow**. Ogni mossa può generare (o bruciare) valore. Raggiungi il **target** di Valore Netto nel minor numero di mosse.
+**Pubblicazione**
+Carica la cartella (o sostituisci i file esistenti). `sw.js` aggiornerà in automatico i client.
 
-## Come si gioca
-- **Player**: quadrato bianco — muovi con **frecce** o **swipe**.
-- **Asset (blu/verde)**: blocchi spingibili; se posati sui **Goal verdi**, diventano **attivi**.
-- **Monete**: +500€ immediati.
-- **Dividendo**: aumenta il **cashflow**.
-- **Tassa/Debito**: -800€ istantanei.
-- **Leva**: +600€/mossa ma -400€ subito. Usala con criterio.
-- **Inflazione**: riduce il cashflow.
-- **Ogni 5 mosse**: ogni asset **attivo** aggiunge **+500€/mossa** (compounding).
-- **Ogni 7 mosse**: inflazione periodica riduce leggermente il cashflow.
-- Vinci quando **Valore Netto ≥ Target**.
-
-## PWA
-- **Installa**: da Chrome/Edge/Android "Aggiungi alla Home". Su iOS apri in Safari e usa **Condividi → Aggiungi alla schermata Home**.
-- **Offline**: funziona senza rete grazie al *service worker* cache‑first.
-
-## Struttura
-```
-CashflowRushPWA/
-  index.html
-  app.js
-  manifest.webmanifest
-  sw.js
-  icons/
-    icon-192.png
-    icon-512.png
-```
-
-## Licenza
-MIT — usa, modifica, condividi. Cita la fonte se ti va: *pezzaliAPP*.
+**Licenza**: MIT — © 2025 pezzaliAPP

@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush v2.8 — Strategy Dual Mode</title>
+  <title>Cashflow Rush v2.8.2 — Strategy Dual Mode</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <style>
-    :root{--bg:#0a1228;--ink:#e9f1ff;--muted:#9db0d0;--card:#111a36;--line:#1a2655;--accent:#2dd36f;--danger:#ff4d4d}
+    :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;--danger:#ff4d4d}
     *{box-sizing:border-box}
     html,body{height:100%;margin:0}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;background:radial-gradient(1200px 1200px at 10% -10%,#141f45 0%, var(--bg) 45%) fixed;color:var(--ink);display:flex;flex-direction:column}
@@ -18,46 +18,52 @@
     header img{width:36px;height:36px;border-radius:8px}
     header h1{font-size:16px;margin:0}
     header .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .btn{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:12px;cursor:pointer}
     .btn:hover{border-color:var(--accent)}
-    .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+    .seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
     .seg button{background:transparent;border:0;color:var(--muted);padding:6px 10px;cursor:pointer}
     .seg button.active{background:#0c1533;color:var(--ink)}
     .wrap{width:100%;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:16px;padding:0 14px 24px}
-    canvas{width:100%;height:auto;background:#081028;border:2px solid var(--line);border-radius:12px;image-rendering:pixelated;touch-action:none}
-    .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
-    .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .kpi{background:#0c1533;border:1px solid var(--line);border-radius:10px;padding:8px}
-    .kpi b{display:block;font-size:12px;color:var(--muted)}
-    .kpi span{font-weight:700;font-size:18px}
+    canvas{width:100%;height:auto;background:#081028;border:2px solid var(--line);border-radius:14px;image-rendering:pixelated;touch-action:none}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+    .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .kpi{background:#0c1533;border:1px solid var(--line);border-radius:12px;padding:10px}
+    .kpi b{display:block;font-size:12px;color:#b8c6e6;letter-spacing:.2px}
+    .kpi span{font-weight:800;font-size:20px}
     .legend{display:flex;flex-wrap:wrap;gap:8px}
-    .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:12px;color:var(--muted)}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:13px;color:#cbd5f0}
     .dot{width:10px;height:10px;border-radius:50%}
 
     /* MOBILE Mode elements */
-    .mobileBar{display:none;gap:10px;align-items:center;justify-content:space-between;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(17,26,54,.92);backdrop-filter:saturate(140%) blur(6px);position:fixed;left:0;right:0;bottom:0;z-index:20}
-    .mobileBar .k{font-size:12px;color:var(--muted)}
-    .mobileBar b{font-size:14px;color:var(--ink)}
-    .touchpad{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom));flex-direction:column;align-items:center;gap:10px;z-index:30}
-    .touchpad button{background:#0c1533;color:#e9f1ff;font-size:22px;border:1px solid #1a2655;border-radius:12px;padding:10px 18px;min-width:64px;min-height:48px;cursor:pointer;touch-action:manipulation}
-    .touchpad .row{display:flex;gap:10px;align-items:center;justify-content:center}
-    .legendRail{display:none;position:fixed;left:0;right:0;bottom:calc(170px + env(safe-area-inset-bottom));align-items:center;justify-content:space-between;padding:0 12px;z-index:25}
-    .legendRail .side{display:flex;gap:8px;flex-wrap:wrap;max-width:45%}
-    .legendRail .tag{background:#0c1533;opacity:.95}
+    .mobileKPI{display:none;width:100%;max-width:1100px;margin:0 auto;padding:8px 14px 0}
+    .mobileKPI .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mobileKPI .kpi{background:#0d1533;border:1px solid #233066;border-radius:14px;padding:10px}
+    .mobileKPI .kpi b{font-size:12px;color:#c3cfee}
+    .mobileKPI .kpi span{font-size:22px;font-weight:800}
+    .mobileBar{display:none}
+
+    .touchpad{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom));flex-direction:column;align-items:center;gap:12px;z-index:30}
+    .touchpad button{background:#0c1533;color:#e9f1ff;font-size:22px;border:1px solid #1a2655;border-radius:14px;padding:12px 18px;min-width:68px;min-height:52px;cursor:pointer;touch-action:manipulation}
+    .touchpad .row{display:flex;gap:12px;align-items:center;justify-content:center}
+    .legendRail{display:none;position:fixed;left:0;right:0;bottom:calc(190px + env(safe-area-inset-bottom));align-items:center;justify-content:space-between;padding:0 12px;z-index:25}
+    .legendRail .side{display:flex;gap:8px;flex-wrap:wrap;max-width:46%}
+    .legendRail .tag{background:#0c1533;opacity:.98}
 
     /* Mode toggles via body class */
     body.mode-mobile .wrap{grid-template-columns:1fr}
     body.mode-mobile aside.panel{display:none}
-    body.mode-mobile .mobileBar{display:flex}
+    body.mode-mobile .mobileKPI{display:block}
     body.mode-mobile .touchpad{display:flex}
     body.mode-mobile .legendRail{display:flex}
+
+    footer{width:100%;text-align:center;color:#9db0d0;opacity:.6;font-size:12px;padding:10px 0 12px;margin-top:auto}
   </style>
 </head>
 <body class="mode-desktop">
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <h1>Cashflow Rush v2.8 — Strategy Dual Mode</h1>
+      <h1>Cashflow Rush v2.8.2 — Strategy Dual Mode</h1>
     </div>
     <div class="actions">
       <div class="seg" id="modeSeg">
@@ -68,8 +74,19 @@
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn" id="muteBtn">🔊</button>
+      <button class="btn" id="levelsBtn">📈 Livelli</button>
     </div>
   </header>
+
+  <!-- KPI Cards for Mobile (high contrast) -->
+  <section class="mobileKPI" aria-hidden="false">
+    <div class="grid">
+      <div class="kpi"><b>Valore Netto</b><span id="mNet2">0€</span></div>
+      <div class="kpi"><b>Flusso €/mossa</b><span id="mFlow2">0€/mossa</span></div>
+      <div class="kpi"><b>Mosse</b><span id="mMoves2">0</span></div>
+      <div class="kpi"><b>Obiettivo</b><span id="mTarget2">50.000€</span></div>
+    </div>
+  </section>
 
   <div class="wrap">
     <canvas id="game" width="720" height="720"></canvas>
@@ -91,7 +108,7 @@
       </div>
       <div class="panel" style="gap:4px">
         <b>Comandi</b>
-        <div style="color:var(--muted);font-size:12px">
+        <div style="color:var(--muted);font-size:13px">
           Laptop: frecce tastiera, Ctrl/Cmd+Z = Undo, R = Reset. <br>
           Smartphone: D-pad, swipe o tap adiacente (attivati in modalità mobile).
         </div>
@@ -113,14 +130,7 @@
     </div>
   </div>
 
-  <!-- Mobile KPIs -->
-  <div class="mobileBar">
-    <div><span class="k">Net</span> <b id="mNet">0€</b></div>
-    <div><span class="k">Flow</span> <b id="mFlow">0€/mossa</b></div>
-    <div><span class="k">Moves</span> <b id="mMoves">0</b></div>
-  </div>
-
-  <!-- D-Pad (visible on mobile mode) -->
+  <!-- D-Pad -->
   <div class="touchpad" aria-label="Pad direzionale">
     <button data-dx="0" data-dy="-1" aria-label="Su">▲</button>
     <div class="row">
@@ -130,18 +140,16 @@
     <button data-dx="0" data-dy="1" aria-label="Giu">▼</button>
   </div>
 
-  <footer style="padding:12px;color:var(--muted);font-size:12px">© 2025 pezzaliAPP — MIT • PWA offline</footer>
+  <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
+
   <script src="./app.js"></script>
   <script>
-    // SW registration with auto-reload message
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./sw.js');
       navigator.serviceWorker.addEventListener('message', (ev) => {
         if (ev.data && ev.data.type === 'SW_UPDATED') window.location.reload();
       });
-      navigator.serviceWorker.ready.then((reg)=>{
-        setInterval(()=>reg.update().catch(()=>{}), 30*60*1000);
-      });
+      navigator.serviceWorker.ready.then((reg)=>{ setInterval(()=>reg.update().catch(()=>{}), 30*60*1000); });
     }
   </script>
 </body>

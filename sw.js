@@ -1,5 +1,5 @@
-// sw.js — Auto-update + smart caching (v2.8)
-const APP_VERSION = 'v2.8.0';
+// sw.js — Auto-update + smart caching (v2.8.2)
+const APP_VERSION = 'v2.8.2';
 const CACHE_SHELL = `cashflow-shell-${APP_VERSION}`;
 const ASSETS_SHELL = [
   './',

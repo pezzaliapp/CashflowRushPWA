@@ -1,18 +1,20 @@
-// Cashflow Rush — Career Edition v3.1.4-robust (anti-grind strict)
+// Cashflow Rush — Career Edition v3.1.4-robust (anti-grind migliorato)
 // pezzaliAPP ©2025 — MIT License
 (() => {
   const SIZE = 12, BASE = 720;
   const $ = id => document.getElementById(id);
 
-  /* = Canvas selector (desktop/mobile) = */
+  // -------- Canvas: scegli SEMPRE quello VISIBILE (supporta #game, #gameMob, #gameDesk) --------
   let canvas = null, ctx = null;
   function isVisible(el){ return !!(el && el.offsetParent !== null); }
   function pickCanvas() {
-    const g = $('game'), m = $('gameMob'), d = $('gameDesk');
-    if (isVisible(g)) return g;
-    if (isVisible(m)) return m;
+    const g = $('game');
+    const m = $('gameMob');
+    const d = $('gameDesk');
+    if (isVisible(g)) return g;       // 1) dual.js potrebbe aver già rinominato
+    if (isVisible(m)) return m;       // 2) altrimenti prendi quello visibile
     if (isVisible(d)) return d;
-    const any = Array.from(document.querySelectorAll('canvas')).find(isVisible);
+    const any = Array.from(document.querySelectorAll('canvas')).find(isVisible); // 3) fallback
     return any || g || m || d || null;
   }
   function syncCanvas() {
@@ -26,25 +28,21 @@
   }
   syncCanvas();
   window.addEventListener('resize', syncCanvas);
-  setInterval(syncCanvas, 600); // iOS safeguard
+  setInterval(syncCanvas, 600); // alcuni WebView iOS non triggerano resize
 
-  /* = KPI refs (aggiorna desktop + mobile insieme) = */
-  function byId(id){ return document.getElementById(id); }
-  const KPI = {
-    net:    [ byId('dNet'),    byId('mNet') ],
-    flow:   [ byId('dFlow'),   byId('mFlow') ],
-    moves:  [ byId('dMoves'),  byId('mMoves') ],
-    target: [ byId('dTarget'), byId('mTarget') ],
-    eff:    [ byId('dEff'),    byId('mEff') ],
-    rep:    [ byId('dRep'),    byId('mRep') ],
-  };
-  function setKPI(key, value){ (KPI[key]||[]).forEach(el => { if (el) el.textContent = value; }); }
+  // -------- KPI refs (desktop → mobile fallback) --------
+  const kNet   = $('dNet')   || $('mNet');
+  const kFlow  = $('dFlow')  || $('mFlow');
+  const kMoves = $('dMoves') || $('mMoves');
+  const kTarget= $('dTarget')|| $('mTarget');
+  const kEff   = $('dEff')   || $('mEff');
+  const kRep   = $('dRep')   || $('mRep');
 
   // Overlay / PLAY
   const overlayEls = [ $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
   const playBtns   = [ $('playBtnDesk'),    $('playBtnMob')     ].filter(Boolean);
 
-  /* = Audio = */
+  // -------- Audio --------
   let muted = localStorage.getItem('cfr.muted') === '1';
   const $mute = $('muteBtn'); if ($mute) $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -62,7 +60,7 @@
     });
   }
 
-  /* = Career levels = */
+  // -------- Career levels --------
   const levels = [
     { name:"Risparmio",         target:  5000,  seed:1 },
     { name:"Investimento",      target: 15000,  seed:2 },
@@ -77,10 +75,8 @@
   ];
   let L = parseInt(localStorage.getItem('cfr.level')||'0'); if(L>=levels.length) L=0;
 
-  /* = Stato = */
+  // -------- Stato --------
   let state=null, history=[], started=false;
-  // per anti-grind
-  let lastDX=0, lastDY=0; // direzione dell’ultima mossa
 
   // RNG & griglia
   function rng(seed){ let s=seed||1; return ()=> (s=(s*1664525+1013904223)%4294967296)/4294967296; }
@@ -112,18 +108,16 @@
       if(t==='A'){ assets.push({x,y,active:false,fuel:0}); grid[y][x]='.'; }
       if(t==='G'){ goals.push({x,y}); }
     }
-    state={ name:meta.name,target:meta.target,grid,player,assets,goals,
-            net:0,flow:0,moves:0, rep:parseInt(localStorage.getItem('cfr.rep')||'0'), eff:0 };
+    state={ name:meta.name,target:meta.target,grid,player,assets,goals, net:0,flow:0,moves:0, rep:parseInt(localStorage.getItem('cfr.rep')||'0'), eff:0 };
     history.length=0;
-    lastDX=0; lastDY=0;
     updateHUD(); render(); started=false; toggleOverlay(true);
   }
 
-  /* = Overlay & PLAY = */
+  // Overlay
   function toggleOverlay(show){ overlayEls.forEach(el=> el.style.display = show ? 'flex' : 'none'); }
   playBtns.forEach(btn=> btn.addEventListener('click', ()=>{ started=true; toggleOverlay(false); tone(660,0.06); }));
 
-  /* = Helper = */
+  // Helpers
   function euro(n){ return n.toLocaleString('it-IT')+"€"; }
   function inB(x,y){ return x>=0 && y>=0 && x<SIZE && y<SIZE; }
   function at(x,y){ return state.grid[y][x]; }
@@ -132,65 +126,65 @@
   function isGoal(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
   function recalc(){ for(const a of state.assets){ const was=a.active; a.active=isGoal(a.x,a.y); if(a.active && !was) a.fuel=5; } }
 
-  // ora ritorna true/false se è stato raccolto un evento
+  // -------- Eventi sulle celle (senza clamping a 0) --------
   function applyTile(x,y){
     const t=at(x,y);
-    if(t==='$'){ state.net+=500; state.grid[y][x]='.'; tone(760,0.06); return true; }
-    if(t==='D'){ state.flow+=200; state.grid[y][x]='.'; tone(900,0.06); return true; }
-    if(t==='T'){ state.net=Math.max(0,state.net-800); state.grid[y][x]='.'; tone(240,0.06,'square'); return true; }
-    if(t==='L'){ state.flow+=600; state.net=Math.max(0,state.net-400); state.grid[y][x]='.'; tone(520,0.06,'triangle'); return true; }
-    if(t==='I'){ state.flow=Math.max(0,state.flow-200); state.grid[y][x]='.'; tone(300,0.05); return true; }
-    return false;
+    if(t==='$'){ state.net += 500; state.grid[y][x]='.'; tone(760,0.06); }
+    if(t==='D'){ state.flow += 200; state.grid[y][x]='.'; tone(900,0.06); }
+    if(t==='T'){ state.net  -= 800; state.grid[y][x]='.'; tone(240,0.06,'square'); }
+    if(t==='L'){ state.flow += 600; state.net  -= 400; state.grid[y][x]='.'; tone(520,0.06,'triangle'); }
+    if(t==='I'){ state.flow = Math.max(0, state.flow - 200); state.grid[y][x]='.'; tone(300,0.05); }
   }
 
-  // tick condizionale (anti-grind strict)
-  function tick(allowIncome){
-    if(!allowIncome) return; // nessun incasso se la mossa non è “valida”
-    state.net += state.flow;
+  // -------- Tick con anti-grind (incassa solo se gainAllowed) --------
+  function tick(gainAllowed = true){
+    if (gainAllowed) state.net += state.flow; // incasso flusso solo se la mossa è “valida”
     for(const a of state.assets){
-      if(a.active && a.fuel>0){ state.net += 100; a.fuel--; if(a.fuel<=0) a.active=false; }
+      if(a.active && a.fuel>0){
+        state.net += 100;
+        a.fuel--;
+        if(a.fuel<=0) a.active=false;
+      }
     }
-    if(state.moves % 7 === 0) state.flow = Math.max(0, state.flow - 100);
+    if(state.moves % 7 === 0) state.flow = Math.max(0, state.flow - 100); // decadimento
   }
 
+  // -------- Movimento con didSomething --------
   function move(dx,dy){
     if(!started) return;
+
+    let didSomething = false; // flag per l’anti-grind
+
     const nx=state.player.x+dx, ny=state.player.y+dy;
     if(!inB(nx,ny) || isWall(nx,ny)) return;
 
-    // spinta asset?
-    let pushed=false;
     const box=assetAt(nx,ny);
     if(box){
       const bx=nx+dx, by=ny+dy;
       if(!inB(bx,by) || isWall(bx,by) || assetAt(bx,by)) return;
-      box.x=bx; box.y=by; pushed=true; recalc(); tone(420,0.05,'triangle');
+      box.x=bx; box.y=by;
+      recalc();
+      didSomething = true;         // spinta asset = azione economica valida
+      tone(420,0.05,'triangle');
     }
 
+    // Salva stato per Undo
     history.push(JSON.parse(JSON.stringify(state)));
 
-    // muovi player
+    // Muovi il player
     state.player.x=nx; state.player.y=ny;
 
-    // raccolta evento?
-    const collected = applyTile(nx,ny);
+    // Applica eventi e rileva se hanno cambiato net/flow
+    const beforeNet = state.net, beforeFlow = state.flow;
+    applyTile(nx,ny);
+    if (state.net !== beforeNet || state.flow !== beforeFlow) didSomething = true;
 
-    // anti-grind: contro-passo immediato?
-    const backtrack = (dx === -lastDX && dy === -lastDY);
-
-    // mossa “significativa” = raccolto qualcosa OR spinto asset
-    const meaningful = collected || pushed;
-
-    // consenti incasso solo se mossa significativa e non contro-passo
-    const allowIncome = meaningful && !backtrack;
-
+    // Avanza tempo
     state.moves++;
-    tick(allowIncome);
-
-    // aggiorna “ultima direzione” (se la mossa è nulla, non cambia)
-    lastDX = dx; lastDY = dy;
+    tick(didSomething); // incassa flusso solo se la mossa ha avuto valore
 
     updateHUD(); render();
+
     if(state.net>=state.target) completeLevel();
   }
 
@@ -202,16 +196,16 @@
 
     const rLevel=$('rLevel'), rTarget=$('rTarget'), rNet=$('rNet'), rFlow=$('rFlow'), rMoves=$('rMoves'), rEff=$('rEff'), rRep=$('rRep');
     const modal=$('reportModal');
-    if(rLevel){ rLevel.textContent = state.name; }
-    if(rTarget){ rTarget.textContent = euro(state.target); }
-    if(rNet){ rNet.textContent = euro(state.net); }
-    if(rFlow){ rFlow.textContent = euro(state.flow); }
-    if(rMoves){ rMoves.textContent = state.moves; }
-    if(rEff){ rEff.textContent = eff + "%"; }
-    if(rRep){ rRep.textContent = (state.rep||0) + "★"; }
-    if(modal){ modal.classList.add('show'); }
-    tone(800,0.15,'triangle');
+    if(rLevel)  rLevel.textContent  = state.name;
+    if(rTarget) rTarget.textContent = euro(state.target);
+    if(rNet)    rNet.textContent    = euro(state.net);
+    if(rFlow)   rFlow.textContent   = euro(state.flow);
+    if(rMoves)  rMoves.textContent  = state.moves;
+    if(rEff)    rEff.textContent    = eff + "%";
+    if(rRep)    rRep.textContent    = (state.rep||0) + "★";
+    if(modal)   modal.classList.add('show');
 
+    tone(800,0.15,'triangle');
     L=(L+1)%levels.length;
     localStorage.setItem('cfr.level', String(L));
   }
@@ -223,31 +217,34 @@
     loadLevel(L);
   });
 
+  // -------- HUD --------
   function updateHUD(){
-    const eff = state.moves ? Math.max(0, Math.round((state.net/Math.max(1,state.moves))/10)) : 0;
+    if(kNet)   kNet.textContent   = euro(state.net);
+    if(kFlow)  kFlow.textContent  = euro(state.flow)+"/mossa";
+    if(kMoves) kMoves.textContent = state.moves;
+    if(kTarget)kTarget.textContent= euro(state.target);
+    const eff = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
     state.eff = eff;
-    setKPI('net',    euro(state.net));
-    setKPI('flow',   euro(state.flow) + "/mossa");
-    setKPI('moves',  String(state.moves));
-    setKPI('target', euro(state.target));
-    setKPI('eff',    eff + "%");
-    setKPI('rep',    String(state.rep));
+    if(kEff) kEff.textContent = eff + "%";
+    if(kRep) kRep.textContent = state.rep;
   }
 
-  /* = Render = */
+  // -------- Render --------
   function render(){
     syncCanvas(); if(!canvas || !ctx) return;
     const W=canvas.width, H=canvas.height, C=Math.floor(W/SIZE);
     const c=ctx;
-
     c.clearRect(0,0,W,H);
     c.fillStyle="#081028"; c.fillRect(0,0,W,H);
+
+    // griglia
     c.strokeStyle="#1a2655";
     for(let i=0;i<=SIZE;i++){
       c.beginPath(); c.moveTo(i*C,0); c.lineTo(i*C,H); c.stroke();
       c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke();
     }
 
+    // background per celle speciali
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
       if(t==='#') c.fillStyle='#0c1533';
@@ -260,7 +257,10 @@
       else c.fillStyle='transparent';
       if(c.fillStyle!=='transparent') c.fillRect(x*C,y*C,C,C);
     }
-    function dot(x,y,color){ const r=Math.floor(C*0.12), cx=x*C+C/2, cy=y*C+C/2; c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
+
+    // puntini evento
+    function dot(x,y,color){ const r=Math.floor(C*0.12), cx=x*C+C/2, cy=y*C+C/2;
+      c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
       if(t==='$') dot(x,y,'#ffd700');
@@ -269,13 +269,16 @@
       if(t==='L') dot(x,y,'#8a56ff');
       if(t==='I') dot(x,y,'#ffaa00');
     }
+
+    // asset e player
     const pad=10, padP=14;
-    function box(x,y,color){ c.fillStyle=color; c.fillRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); }
+    function box(x,y,color){ c.fillStyle=color; c.fillRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad);
+      c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); }
     for(const a of state.assets) box(a.x,a.y, a.active ? '#2dd36f' : '#748ffc');
     c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*C+padP, state.player.y*C+padP, C-2*padP, C-2*padP);
   }
 
-  /* = Controlli = */
+  // -------- Input: tastiera (desktop) --------
   window.addEventListener('keydown', e=>{
     const k=e.key;
     if(k==='ArrowLeft') move(-1,0);
@@ -286,11 +289,13 @@
     if(k==='r') loadLevel(L);
   });
 
+  // -------- Input: D-Pad (mobile) --------
   document.querySelectorAll('.touchpad button[data-dx]').forEach(b=> b.addEventListener('click', ()=>{
     const dx=parseInt(b.dataset.dx), dy=parseInt(b.dataset.dy);
     move(dx,dy);
   }));
 
+  // -------- Toolbar --------
   const levelsBtn = $('levelsBtn');
   if(levelsBtn){
     levelsBtn.addEventListener('click', ()=>{
@@ -302,25 +307,24 @@
   }
   const resetBtn=$('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=>loadLevel(L));
   const undoBtn =$('undoBtn');  if(undoBtn)  undoBtn.addEventListener('click', ()=>{ if(history.length){ state=history.pop(); updateHUD(); render(); }});
-  const careerBtn=$('careerBtn'); if(careerBtn) careerBtn.addEventListener('click', ()=>{
+  const careerBtn=$('careerBtn'); if(careerBtn) addEventListenerSafe(careerBtn, 'click', ()=>{
     if(confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")){
       localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L);
     }
   });
 
-  /* = Hook per dual.js = */
+  function addEventListenerSafe(el, ev, fn){
+    if(!el) return;
+    el.addEventListener(ev, fn);
+  }
+
+  // -------- API pubblica per dual.js (swipe & play) --------
   window.Game = {
     start: () => { if(!started){ started = true; toggleOverlay(false); tone(660,0.06); } },
     nudge: (dx,dy) => move(dx,dy),
     reload: () => loadLevel(L),
   };
 
-  /* = Avvio = */
-  setKPI('net','0€');
-  setKPI('flow','0€/mossa');
-  setKPI('moves','0');
-  setKPI('target','50.000€');
-  setKPI('eff','0%');
-  setKPI('rep','0');
+  // Avvio
   loadLevel(L);
 })();

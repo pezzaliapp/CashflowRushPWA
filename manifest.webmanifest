@@ -1,6 +1,6 @@
 {
-  "name": "Cashflow Rush — Arcade Puzzle Tycoon",
-  "short_name": "Cashflow Rush",
+  "name": "Cashflow Rush v2.6 — Mobile Arcade Edition",
+  "short_name": "CashflowRush",
   "start_url": "./?source=pwa",
   "display": "standalone",
   "background_color": "#0a1228",

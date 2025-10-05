@@ -2,65 +2,63 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush — Arcade Puzzle Tycoon</title>
+  <title>Cashflow Rush v2.6 — Mobile Arcade Edition</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <style>
-    :root{
-      --bg:#0a1228; --ink:#e9f1ff; --muted:#9db0d0; --card:#111a36; --line:#1a2655;
-      --accent:#2dd36f; --danger:#ff4d4d; --coin:#ffd700
-    }
+    :root{--bg:#0a1228;--ink:#e9f1ff;--muted:#9db0d0;--card:#111a36;--line:#1a2655;--accent:#2dd36f;--danger:#ff4d4d}
     *{box-sizing:border-box}
     html,body{height:100%;margin:0}
-    body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;
-      background:radial-gradient(1200px 1200px at 10% -10%,#141f45 0%, var(--bg) 45%) fixed;
-      color:var(--ink);display:flex;flex-direction:column;align-items:center
-    }
-    header{width:100%;max-width:960px;padding:12px 16px;
-      display:flex;gap:12px;align-items:center;justify-content:space-between}
-    header .title{display:flex;align-items:center;gap:12px}
-    header img{width:40px;height:40px;border-radius:8px}
-    header h1{font-size:18px;margin:0}
-    header small{color:var(--muted);font-size:12px;display:block}
-    header .actions{display:flex;gap:8px}
-    .btn{background:var(--card);border:1px solid var(--line);color:var(--ink);
-      padding:8px 12px;border-radius:10px;cursor:pointer}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;background:radial-gradient(1200px 1200px at 10% -10%,#141f45 0%, var(--bg) 45%) fixed;color:var(--ink);display:flex;flex-direction:column}
+    header{width:100%;max-width:1100px;margin:0 auto;padding:10px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+    header .title{display:flex;align-items:center;gap:10px}
+    header img{width:36px;height:36px;border-radius:8px}
+    header h1{font-size:16px;margin:0}
+    header .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{background:var(--card);border:1px solid var(--line);color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer}
     .btn:hover{border-color:var(--accent)}
-    .wrap{width:100%;max-width:960px;display:grid;grid-template-columns:1fr 320px;
-      gap:16px;padding:0 16px 24px}
-    canvas{width:100%;height:auto;background:#081028;border:2px solid var(--line);
-      border-radius:12px;image-rendering:pixelated}
-    .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;
-      padding:12px;display:flex;flex-direction:column;gap:8px}
+    .wrap{width:100%;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:16px;padding:0 14px 80px}
+    canvas{width:100%;height:auto;background:#081028;border:2px solid var(--line);border-radius:12px;image-rendering:pixelated;touch-action:none}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
     .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .kpi{background:#0c1533;border:1px solid var(--line);border-radius:10px;padding:8px}
     .kpi b{display:block;font-size:12px;color:var(--muted)}
     .kpi span{font-weight:700;font-size:18px}
     .legend{display:flex;flex-wrap:wrap;gap:8px}
-    .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;
-      border:1px solid var(--line);border-radius:999px;background:#0c1533;
-      font-size:12px;color:var(--muted)}
+    .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:12px;color:var(--muted)}
     .dot{width:10px;height:10px;border-radius:50%}
-    #message{margin-top:8px;font-size:14px;color:var(--accent)}
-    footer{padding:12px;color:var(--muted);font-size:12px}
-    @media(max-width:900px){ .wrap{grid-template-columns:1fr} }
+    .board{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    table{width:100%;border-collapse:collapse;font-size:12px;color:var(--muted)}
+    th,td{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left}
+    .editor{display:none;gap:8px}
+    .editor textarea{width:100%;height:180px;background:#0c1533;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+
+    /* Mobile-first */
+    .mobileBar{display:none;gap:10px;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--line);background:rgba(17,26,54,.9);backdrop-filter:saturate(140%) blur(6px);position:fixed;left:0;right:0;bottom:0;z-index:20}
+    .mobileBar .k{font-size:12px;color:var(--muted)}
+    .mobileBar b{font-size:14px;color:var(--ink)}
+    .touchpad{position:fixed;left:50%;transform:translateX(-50%);bottom:62px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:30}
+    .touchpad button{background:#0c1533;color:#e9f1ff;font-size:22px;border:1px solid #1a2655;border-radius:10px;padding:10px 18px;min-width:64px;min-height:48px;cursor:pointer;touch-action:manipulation}
+    .touchpad div{display:flex;gap:6px}
+
+    @media (max-width: 920px){
+      .wrap{grid-template-columns:1fr;padding-bottom:140px}
+      aside.panel{display:none}
+      .mobileBar{display:flex}
+      header h1{font-size:15px}
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <div>
-        <h1>Cashflow Rush</h1>
-        <small id="levelName">Arcade Puzzle Tycoon</small>
-      </div>
+      <h1>Cashflow Rush v2.6 — Mobile Arcade Edition</h1>
     </div>
     <div class="actions">
-      <button class="btn" id="installBtn" hidden>Installa</button>
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn" id="muteBtn">🔊</button>
@@ -76,42 +74,44 @@
         <div class="kpi"><b>Mosse</b><span id="moves">0</span></div>
         <div class="kpi"><b>Obiettivo</b><span id="target">50.000€</span></div>
       </div>
-      <div id="message"></div>
       <div class="legend">
-        <span class="tag"><span class="dot" style="background:var(--coin)"></span>Monete</span>
-        <span class="tag"><span class="dot" style="background:var(--accent)"></span>Asset (rende)</span>
+        <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
+        <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset attivo</span>
+        <span class="tag"><span class="dot" style="background:#748ffc"></span>Asset inattivo</span>
         <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
         <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
-        <span class="tag"><span class="dot" style="background:var(--danger)"></span>Tassa/Debito</span>
+        <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa/Debito</span>
         <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
       </div>
       <div class="panel" style="gap:4px">
         <b>Comandi</b>
         <div style="color:var(--muted);font-size:12px">
-          Tastiera: ⬅️⬆️⬇️➡️ — Touch: swipe<br>
-          Obiettivo: raggiungi il target muovendo il player (quadrato) e spingendo <em>Asset</em> sui pad verdi per attivarli.<br>
-          Ogni mossa genera (o perde) cassa in base al cashflow. Evita Debiti/Tasse, raccogli Dividendi e usa la Leva con attenzione.
+          Frecce a schermo + swipe + tap (tocca una casella adiacente per muoverti). Su desktop usa le frecce della tastiera.
         </div>
       </div>
     </aside>
   </div>
 
-  <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
+  <!-- Mobile live KPIs -->
+  <div class="mobileBar">
+    <div><span class="k">Net</span> <b id="mNet">0€</b></div>
+    <div><span class="k">Flow</span> <b id="mFlow">0€/mossa</b></div>
+    <div><span class="k">Moves</span> <b id="mMoves">0</b></div>
+  </div>
 
+  <!-- D-Pad -->
+  <div class="touchpad" aria-label="Pad direzionale">
+    <button data-dx="0" data-dy="-1" aria-label="Su">▲</button>
+    <div>
+      <button data-dx="-1" data-dy="0" aria-label="Sinistra">◀</button>
+      <button data-dx="1" data-dy="0" aria-label="Destra">▶</button>
+    </div>
+    <button data-dx="0" data-dy="1" aria-label="Giu">▼</button>
+  </div>
+
+  <footer style="padding:12px;color:var(--muted);font-size:12px">© 2025 pezzaliAPP — MIT • PWA offline</footer>
   <script src="./app.js"></script>
   <script>
-    // PWA install prompt
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', (e)=>{
-      e.preventDefault(); deferredPrompt = e; installBtn.hidden = false;
-    });
-    installBtn?.addEventListener('click', async ()=>{
-      if(!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null; installBtn.hidden = true;
-    });
     if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js'); }
   </script>
 </body>

@@ -1,20 +1,34 @@
-// Cashflow Rush — Career Edition v3.1.4-robust (anti-grind migliorato)
+// Cashflow Rush — Career Edition v3.1.4-robust (anti-grind + KPI mobile fix)
 // pezzaliAPP ©2025 — MIT License
 (() => {
   const SIZE = 12, BASE = 720;
   const $ = id => document.getElementById(id);
 
-  // -------- Canvas: scegli SEMPRE quello VISIBILE (supporta #game, #gameMob, #gameDesk) --------
+  // ---------- util ----------
+  function isVisibleEl(el){ return !!(el && el.offsetParent !== null); }
+  function pickVisible(...ids){
+    for(const id of ids){
+      const el = $(id);
+      if(isVisibleEl(el)) return el;
+    }
+    // fallback: restituisci il primo esistente anche se nascosto
+    for(const id of ids){
+      const el = $(id);
+      if(el) return el;
+    }
+    return null;
+  }
+
+  // ---------- canvas: scegli sempre quello VISIBILE ----------
   let canvas = null, ctx = null;
-  function isVisible(el){ return !!(el && el.offsetParent !== null); }
   function pickCanvas() {
     const g = $('game');
     const m = $('gameMob');
     const d = $('gameDesk');
-    if (isVisible(g)) return g;       // 1) dual.js potrebbe aver già rinominato
-    if (isVisible(m)) return m;       // 2) altrimenti prendi quello visibile
-    if (isVisible(d)) return d;
-    const any = Array.from(document.querySelectorAll('canvas')).find(isVisible); // 3) fallback
+    if (isVisibleEl(g)) return g;
+    if (isVisibleEl(m)) return m;
+    if (isVisibleEl(d)) return d;
+    const any = Array.from(document.querySelectorAll('canvas')).find(isVisibleEl);
     return any || g || m || d || null;
   }
   function syncCanvas() {
@@ -28,21 +42,17 @@
   }
   syncCanvas();
   window.addEventListener('resize', syncCanvas);
-  setInterval(syncCanvas, 600); // alcuni WebView iOS non triggerano resize
+  setInterval(syncCanvas, 600); // iOS WebView a volte non emette resize
 
-  // -------- KPI refs (desktop → mobile fallback) --------
-  const kNet   = $('dNet')   || $('mNet');
-  const kFlow  = $('dFlow')  || $('mFlow');
-  const kMoves = $('dMoves') || $('mMoves');
-  const kTarget= $('dTarget')|| $('mTarget');
-  const kEff   = $('dEff')   || $('mEff');
-  const kRep   = $('dRep')   || $('mRep');
-
-  // Overlay / PLAY
+  // ---------- Overlay / PLAY ----------
   const overlayEls = [ $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
   const playBtns   = [ $('playBtnDesk'),    $('playBtnMob')     ].filter(Boolean);
+  function toggleOverlay(show){ overlayEls.forEach(el=> el.style.display = show ? 'flex' : 'none'); }
+  playBtns.forEach(btn=> btn.addEventListener('click', ()=>{
+    started=true; toggleOverlay(false); tone(660,0.06);
+  }));
 
-  // -------- Audio --------
+  // ---------- Audio ----------
   let muted = localStorage.getItem('cfr.muted') === '1';
   const $mute = $('muteBtn'); if ($mute) $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -60,7 +70,7 @@
     });
   }
 
-  // -------- Career levels --------
+  // ---------- Career ----------
   const levels = [
     { name:"Risparmio",         target:  5000,  seed:1 },
     { name:"Investimento",      target: 15000,  seed:2 },
@@ -75,7 +85,7 @@
   ];
   let L = parseInt(localStorage.getItem('cfr.level')||'0'); if(L>=levels.length) L=0;
 
-  // -------- Stato --------
+  // ---------- Stato ----------
   let state=null, history=[], started=false;
 
   // RNG & griglia
@@ -113,11 +123,7 @@
     updateHUD(); render(); started=false; toggleOverlay(true);
   }
 
-  // Overlay
-  function toggleOverlay(show){ overlayEls.forEach(el=> el.style.display = show ? 'flex' : 'none'); }
-  playBtns.forEach(btn=> btn.addEventListener('click', ()=>{ started=true; toggleOverlay(false); tone(660,0.06); }));
-
-  // Helpers
+  // ---------- Helpers ----------
   function euro(n){ return n.toLocaleString('it-IT')+"€"; }
   function inB(x,y){ return x>=0 && y>=0 && x<SIZE && y<SIZE; }
   function at(x,y){ return state.grid[y][x]; }
@@ -126,7 +132,7 @@
   function isGoal(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
   function recalc(){ for(const a of state.assets){ const was=a.active; a.active=isGoal(a.x,a.y); if(a.active && !was) a.fuel=5; } }
 
-  // -------- Eventi sulle celle (senza clamping a 0) --------
+  // ---------- Eventi (senza clamp a 0 su Netto) ----------
   function applyTile(x,y){
     const t=at(x,y);
     if(t==='$'){ state.net += 500; state.grid[y][x]='.'; tone(760,0.06); }
@@ -136,9 +142,9 @@
     if(t==='I'){ state.flow = Math.max(0, state.flow - 200); state.grid[y][x]='.'; tone(300,0.05); }
   }
 
-  // -------- Tick con anti-grind (incassa solo se gainAllowed) --------
+  // ---------- Tick con anti-grind ----------
   function tick(gainAllowed = true){
-    if (gainAllowed) state.net += state.flow; // incasso flusso solo se la mossa è “valida”
+    if (gainAllowed) state.net += state.flow; // incasso flusso solo se mossa “valida”
     for(const a of state.assets){
       if(a.active && a.fuel>0){
         state.net += 100;
@@ -149,11 +155,11 @@
     if(state.moves % 7 === 0) state.flow = Math.max(0, state.flow - 100); // decadimento
   }
 
-  // -------- Movimento con didSomething --------
+  // ---------- Movimento ----------
   function move(dx,dy){
     if(!started) return;
 
-    let didSomething = false; // flag per l’anti-grind
+    let didSomething = false;
 
     const nx=state.player.x+dx, ny=state.player.y+dy;
     if(!inB(nx,ny) || isWall(nx,ny)) return;
@@ -164,30 +170,31 @@
       if(!inB(bx,by) || isWall(bx,by) || assetAt(bx,by)) return;
       box.x=bx; box.y=by;
       recalc();
-      didSomething = true;         // spinta asset = azione economica valida
+      didSomething = true;       // spinta = mossa valida
       tone(420,0.05,'triangle');
     }
 
-    // Salva stato per Undo
+    // Undo snapshot
     history.push(JSON.parse(JSON.stringify(state)));
 
-    // Muovi il player
+    // Muovi player
     state.player.x=nx; state.player.y=ny;
 
-    // Applica eventi e rileva se hanno cambiato net/flow
+    // Eventi su cella e verifica se hanno cambiato net/flow
     const beforeNet = state.net, beforeFlow = state.flow;
     applyTile(nx,ny);
     if (state.net !== beforeNet || state.flow !== beforeFlow) didSomething = true;
 
     // Avanza tempo
     state.moves++;
-    tick(didSomething); // incassa flusso solo se la mossa ha avuto valore
+    tick(didSomething);
 
     updateHUD(); render();
 
     if(state.net>=state.target) completeLevel();
   }
 
+  // ---------- Vittoria ----------
   function completeLevel(){
     if(history.every(s=>s.net>=0)) state.rep = Math.min(5,(state.rep||0)+1);
     localStorage.setItem('cfr.rep', String(state.rep||0));
@@ -210,26 +217,28 @@
     localStorage.setItem('cfr.level', String(L));
   }
 
-  const closeBtn = $('reportCloseBtn');
-  if(closeBtn) closeBtn.addEventListener('click', ()=>{
-    const modal=$('reportModal');
-    if(modal) modal.classList.remove('show');
-    loadLevel(L);
-  });
-
-  // -------- HUD --------
+  // ---------- HUD: scegli SEMPRE l’elemento visibile (desktop/mobile) ----------
   function updateHUD(){
-    if(kNet)   kNet.textContent   = euro(state.net);
-    if(kFlow)  kFlow.textContent  = euro(state.flow)+"/mossa";
-    if(kMoves) kMoves.textContent = state.moves;
-    if(kTarget)kTarget.textContent= euro(state.target);
+    const elNet   = pickVisible('dNet','mNet');
+    const elFlow  = pickVisible('dFlow','mFlow');
+    const elMoves = pickVisible('dMoves','mMoves');
+    const elTarget= pickVisible('dTarget','mTarget');
+    const elEff   = pickVisible('dEff','mEff');
+    const elRep   = pickVisible('dRep','mRep');
+
+    if(elNet)    elNet.textContent    = euro(state.net);
+    if(elFlow)   elFlow.textContent   = euro(state.flow) + "/mossa";
+    if(elMoves)  elMoves.textContent  = state.moves;
+    if(elTarget) elTarget.textContent = euro(state.target);
+
     const eff = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
     state.eff = eff;
-    if(kEff) kEff.textContent = eff + "%";
-    if(kRep) kRep.textContent = state.rep;
+
+    if(elEff) elEff.textContent = eff + "%";
+    if(elRep) elRep.textContent = state.rep;
   }
 
-  // -------- Render --------
+  // ---------- Render ----------
   function render(){
     syncCanvas(); if(!canvas || !ctx) return;
     const W=canvas.width, H=canvas.height, C=Math.floor(W/SIZE);
@@ -244,7 +253,7 @@
       c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke();
     }
 
-    // background per celle speciali
+    // sfondo celle speciali
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
       if(t==='#') c.fillStyle='#0c1533';
@@ -278,7 +287,7 @@
     c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*C+padP, state.player.y*C+padP, C-2*padP, C-2*padP);
   }
 
-  // -------- Input: tastiera (desktop) --------
+  // ---------- Input tastiera (desktop) ----------
   window.addEventListener('keydown', e=>{
     const k=e.key;
     if(k==='ArrowLeft') move(-1,0);
@@ -289,13 +298,13 @@
     if(k==='r') loadLevel(L);
   });
 
-  // -------- Input: D-Pad (mobile) --------
+  // ---------- D-Pad (mobile) ----------
   document.querySelectorAll('.touchpad button[data-dx]').forEach(b=> b.addEventListener('click', ()=>{
     const dx=parseInt(b.dataset.dx), dy=parseInt(b.dataset.dy);
     move(dx,dy);
   }));
 
-  // -------- Toolbar --------
+  // ---------- Toolbar ----------
   const levelsBtn = $('levelsBtn');
   if(levelsBtn){
     levelsBtn.addEventListener('click', ()=>{
@@ -307,18 +316,13 @@
   }
   const resetBtn=$('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=>loadLevel(L));
   const undoBtn =$('undoBtn');  if(undoBtn)  undoBtn.addEventListener('click', ()=>{ if(history.length){ state=history.pop(); updateHUD(); render(); }});
-  const careerBtn=$('careerBtn'); if(careerBtn) addEventListenerSafe(careerBtn, 'click', ()=>{
+  const careerBtn=$('careerBtn'); if(careerBtn) careerBtn.addEventListener('click', ()=>{
     if(confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")){
       localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L);
     }
   });
 
-  function addEventListenerSafe(el, ev, fn){
-    if(!el) return;
-    el.addEventListener(ev, fn);
-  }
-
-  // -------- API pubblica per dual.js (swipe & play) --------
+  // ---------- API per dual.js (swipe & play) ----------
   window.Game = {
     start: () => { if(!started){ started = true; toggleOverlay(false); tone(660,0.06); } },
     nudge: (dx,dy) => move(dx,dy),

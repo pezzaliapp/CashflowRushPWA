@@ -1,4 +1,4 @@
-// app.js — Cashflow Rush v2.7 Dual Mode Edition
+// app.js — Cashflow Rush v2.8 Strategy Dual Mode
 // © 2025 pezzaliAPP — MIT
 (() => {
   const canvas = document.getElementById('game');
@@ -27,9 +27,8 @@
   function applyMode(mode){
     document.body.classList.remove('mode-mobile','mode-desktop');
     document.body.classList.add(mode==='mobile'?'mode-mobile':'mode-desktop');
-    // update segmented UI
     $modeSeg.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-    const btn = $modeSeg.querySelector(`[data-mode="${mode}"]`) || $modeSeg.querySelector('[data-mode="auto"]');
+    const btn = $modeSeg.querySelector(`[data-mode="${modePref}"]`) || $modeSeg.querySelector('[data-mode="auto"]');
     if(btn) btn.classList.add('active');
   }
   let modePref = localStorage.getItem('cashflow.mode') || 'auto';
@@ -39,7 +38,6 @@
   $modeSeg.addEventListener('click', (e)=>{
     const b = e.target.closest('button'); if(!b) return;
     modePref = b.dataset.mode; localStorage.setItem('cashflow.mode', modePref);
-    // Update active class for Auto too
     $modeSeg.querySelectorAll('button').forEach(x=>x.classList.toggle('active', x===b));
     refreshMode();
   });
@@ -83,6 +81,7 @@
   // State
   let levelIndex = parseInt(localStorage.getItem('cashflow.level')||'0'); if(levelIndex>=levels.length) levelIndex=0;
   let state=null, history=[], startTime=0, lastDividendMove=-999, leverageCountEarly=0;
+  let lastDir = {dx:0, dy:0}, backtrackStreak = 0;
 
   // Persistence
   function saveProgress(){ localStorage.setItem('cashflow.state', JSON.stringify(state)); localStorage.setItem('cashflow.level', String(levelIndex)); }
@@ -97,7 +96,13 @@
   function goalAt(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
 
   function saveSnapshot(){ history.push(clone(state)); if(history.length>160) history.shift(); saveProgress(); }
-  function recalcAssets(){ for(const a of state.assets){ a.active=goalAt(a.x,a.y); } }
+  function recalcAssets(){
+    for(const a of state.assets){
+      const wasActive = a.active;
+      a.active = goalAt(a.x,a.y);
+      if(a.active && !wasActive){ a.fuel = 5; } // (re)arm on activation
+    }
+  }
 
   function applyTileEffect(x,y){
     const t=tile(x,y);
@@ -113,13 +118,26 @@
     if(t==='I'){ state.grid[y][x]='.'; state.flow=Math.max(0,state.flow-200); beep(300,0.05); }
   }
 
-  function tickIncome(){
+  function tickIncome(suppress=false){
+    if(suppress) return; // anti-grind: skip income
     if(state.badgeBoostTurns && state.badgeBoostTurns>0){ state.net+=1500; state.badgeBoostTurns--; }
+
+    // Base per-move flow
     state.net += state.flow;
-    if(state.moves % 5 === 0){
-      const actives = state.assets.filter(a=>a.active).length;
-      state.flow += actives * 500;
+
+    // Asset a consumo: +100 per asset attivo con fuel>0 e decremento fuel
+    for(const a of state.assets){
+      if(a.active && a.fuel && a.fuel>0){ state.net += 100; a.fuel--; if(a.fuel<=0){ a.active=false; } }
     }
+
+    // "Rata" ogni 10 mosse
+    if(state.moves % 10 === 0){
+      const actives = state.assets.filter(a=>a.active).length;
+      if(actives === 0){ state.net = Math.max(0, state.net - 500); }
+      else { state.net += actives * 200; }
+    }
+
+    // Erosione inflazione leggera: ogni 7 mosse il flow cala un po'
     if(state.moves % 7 === 0){ state.flow = Math.max(0, state.flow - 100); }
   }
 
@@ -128,11 +146,11 @@
     let player={x:0,y:0}; const assets=[], goals=[];
     for(let y=0;y<GRID;y++) for(let x=0;x<GRID;x++){ const t=grid[y][x];
       if(t==='P'){ player={x,y}; grid[y][x]='.'; }
-      if(t==='A'){ assets.push({x,y,active:false}); grid[y][x]='.'; }
+      if(t==='A'){ assets.push({x,y,active:false,fuel:0}); grid[y][x]='.'; }
       if(t==='G'){ goals.push({x,y}); grid[y][x]='G'; }
     }
     state={name:L.name,target:L.target,grid,player,assets,goals,net:0,flow:0,moves:0,tick:0,badgeBoostTurns:0};
-    history=[]; lastDividendMove=-999; leverageCountEarly=0; startTime=performance.now();
+    history=[]; lastDividendMove=-999; leverageCountEarly=0; startTime=performance.now(); lastDir={dx:0,dy:0}; backtrackStreak=0;
     saveSnapshot(); render(); updateHUD();
   }
 
@@ -147,16 +165,25 @@
       if(!inBounds(bx,by)||isWall(bx,by)||assetAt(bx,by)) return;
       box.x=bx; box.y=by; recalcAssets(); beep(420,0.05,'triangle');
     }
+    // Anti-grind detection: immediate backtrack?
+    const isBacktrack = (dx === -lastDir.dx && dy === -lastDir.dy);
+    if(isBacktrack) backtrackStreak++; else backtrackStreak = 0;
+    lastDir = {dx, dy};
+
     state.player.x=nx; state.player.y=ny;
     applyTileEffect(nx,ny);
-    state.moves++; tickIncome(); saveSnapshot(); render(); updateHUD(); checkWin();
+    state.moves++;
+    tickIncome(backtrackStreak >= 1); // suppress income if backtracking repeatedly
+    saveSnapshot(); render(); updateHUD(); checkWin();
   }
 
   function checkWin(){
     if(state.net >= state.target){
+      // Efficiency score
+      const score = Math.round(state.net / Math.max(1,state.moves));
       setTimeout(()=>{
         beep(660,0.1); setTimeout(()=>beep(880,0.1),120); setTimeout(()=>beep(1040,0.1),240);
-        alert(`Livello completato! ${state.name}`);
+        alert(`Livello completato! ${state.name}\nMosse: ${state.moves}\nScore efficienza: ${score}`);
         levelIndex=(levelIndex+1)%levels.length; localStorage.setItem('cashflow.level', String(levelIndex)); loadLevel(levelIndex);
       },20);
     }
@@ -198,7 +225,7 @@
     rect(state.player.x, state.player.y, '#e9f1ff');
   }
 
-  // Input — swipe/tap only in mobile mode (but we leave them enabled safely)
+  // Input — mobile gestures & tap; keyboard in desktop mode
   let touchStart=null;
   canvas.addEventListener('touchstart', e=>{ const t=e.changedTouches[0]; touchStart={x:t.clientX,y:t.clientY}; }, {passive:true});
   canvas.addEventListener('touchend', e=>{

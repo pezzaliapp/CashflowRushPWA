@@ -42,20 +42,67 @@
 </head>
 <body>
   <header>
-    <div class="headwrap">
-      <div class="title">
-        <h1>💼 Cashflow Rush — Career Edition (v3.1.4)</h1>
-        <p>Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.<br>
-           Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.<br>
-           Funziona <b>offline</b> come Progressive Web App (PWA).</p>
-      </div>
-      <div class="lang" aria-label="Language selector">
-        <button data-lang="it" class="active">🇮🇹 Italiano</button>
-        <button data-lang="en">🇬🇧 English</button>
-        <button data-lang="de">🇩🇪 Deutsch</button>
-      </div>
+  <div class="headwrap">
+    <div class="title">
+      <h1>💼 Cashflow Rush — Career Edition (v3.1.4)</h1>
+
+      <!-- Blocchi testuali dinamici -->
+      <p id="intro-line1">Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.</p>
+      <p id="intro-line2">Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.</p>
+      <p id="intro-line3">Funziona <b>offline</b> come Progressive Web App (PWA).</p>
     </div>
-  </header>
+
+    <!-- Selettore lingua -->
+    <div class="lang" aria-label="Language selector">
+      <button data-lang="it" class="active">🇮🇹 Italiano</button>
+      <button data-lang="en">🇬🇧 English</button>
+      <button data-lang="de">🇩🇪 Deutsch</button>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const LINES = {
+        it: [
+          'Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.',
+          'Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.',
+          'Funziona <b>offline</b> come Progressive Web App (PWA).'
+        ],
+        en: [
+          'Arcade financial puzzle in “push-box” style, with a 10-level difficulty progression.',
+          'Optimized for <b>Laptop (keyboard)</b> and <b>Smartphone (touch + D-pad)</b>.',
+          'Works <b>offline</b> as a Progressive Web App (PWA).'
+        ],
+        de: [
+          'Arcade-Finanzrätsel im „Push-Box“-Stil mit einer Progression über 10 Schwierigkeitsstufen.',
+          'Optimiert für <b>Laptop (Tastatur)</b> und <b>Smartphone (Touch + D-Pad)</b>.',
+          'Funktioniert <b>offline</b> als Progressive Web App (PWA).'
+        ]
+      };
+
+      const p1=document.getElementById('intro-line1'),
+            p2=document.getElementById('intro-line2'),
+            p3=document.getElementById('intro-line3'),
+            btns=document.querySelectorAll('.lang button');
+
+      function applyLang(code){
+        const t = LINES[code] || LINES.it;
+        p1.innerHTML=t[0]; p2.innerHTML=t[1]; p3.innerHTML=t[2];
+        btns.forEach(b=>b.classList.toggle('active', b.dataset.lang===code));
+        localStorage.setItem('cashflow.lang', code);
+      }
+
+      // lingua iniziale
+      const saved = localStorage.getItem('cashflow.lang') || 'it';
+      applyLang(saved);
+
+      // click
+      btns.forEach(btn=>{
+        btn.addEventListener('click',()=>applyLang(btn.dataset.lang));
+      });
+    })();
+  </script>
+</header>
 
   <main>
     <div class="container">

@@ -1,15 +1,38 @@
-// Cashflow Rush — Career Edition v3.1.0-career
+// Cashflow Rush — Career Edition v3.1.2-mobilefix
 // pezzaliAPP ©2025 — MIT License
 (() => {
   const SIZE = 12, BASE = 720;
   const $ = id => document.getElementById(id);
 
-  // Canvas dinamico (desktop o mobile)
-  const canvas = $('gameDesk') || $('gameMob') || $('game');
-  const ctx = canvas.getContext('2d');
-  canvas.width = BASE; canvas.height = BASE;
+  // ---------- Canvas: scegli SEMPRE quello VISIBILE ----------
+  let canvas = null, ctx = null;
+  function pickCanvas() {
+    const d = $('gameDesk');
+    const m = $('gameMob');
+    // Preferisci in base alla classe del body, ma usa quello che è realmente visibile
+    const preferMobile = document.body.classList.contains('mode-mobile');
+    const preferred = preferMobile ? m : d;
+    const isVisible = el => el && el.offsetParent !== null;
+    return isVisible(preferred) ? preferred
+         : isVisible(m) ? m
+         : isVisible(d) ? d
+         : (preferred || m || d);
+  }
+  function syncCanvas() {
+    const c = pickCanvas();
+    if (!c) return;
+    if (canvas !== c) {
+      canvas = c;
+      ctx = canvas.getContext('2d');
+      canvas.width = BASE; canvas.height = BASE;
+    }
+  }
+  syncCanvas();
+  window.addEventListener('resize', syncCanvas);
+  // failsafe: se cambia layout senza resize (alcuni WebView iOS), ricontrolla periodicamente
+  setInterval(syncCanvas, 600);
 
-  // KPI references (desktop → mobile fallback)
+  // ---------- KPI refs (desktop → mobile fallback) ----------
   const kNet   = $('dNet')   || $('mNet');
   const kFlow  = $('dFlow')  || $('mFlow');
   const kMoves = $('dMoves') || $('mMoves');
@@ -21,7 +44,7 @@
   const overlayEls = [ $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
   const playBtns   = [ $('playBtnDesk'),    $('playBtnMob')     ].filter(Boolean);
 
-  // Audio
+  // ---------- Audio ----------
   let muted = localStorage.getItem('cfr.muted') === '1';
   const $mute = $('muteBtn'); if ($mute) $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -39,7 +62,7 @@
     });
   }
 
-  // Career levels
+  // ---------- Career levels ----------
   const levels = [
     { name:"Risparmio",         target:  5000,  seed:1 },
     { name:"Investimento",      target: 15000,  seed:2 },
@@ -54,7 +77,7 @@
   ];
   let L = parseInt(localStorage.getItem('cfr.level')||'0'); if(L>=levels.length) L=0;
 
-  // Stato
+  // ---------- Stato ----------
   let state=null, history=[], started=false;
 
   // RNG & griglia
@@ -173,6 +196,8 @@
   }
 
   function render(){
+    // assicurati di disegnare sul canvas attuale (smartphone vs laptop)
+    syncCanvas();
     const W=canvas.width, H=canvas.height, C=Math.floor(W/SIZE);
     const c=ctx;
     c.clearRect(0,0,W,H);
@@ -242,7 +267,7 @@
     }
   });
 
-  // Hook pubblici per dual.js (swipe & play fallback)
+  // Hooks pubblici per dual.js (swipe & play)
   window.Game = {
     start: () => { if(!started){ started = true; toggleOverlay(false); tone(660,0.06); } },
     nudge: (dx,dy) => move(dx,dy),

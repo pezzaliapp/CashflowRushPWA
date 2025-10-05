@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush — Dual Universe v3.0.2-hybrid</title>
+  <title>Cashflow Rush — Career Edition v3.1.0-career</title>
 
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
@@ -78,7 +78,7 @@
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <h1>Cashflow Rush — Dual Universe v3.0.2-hybrid</h1>
+      <h1>Cashflow Rush — Career Edition v3.1.0-career</h1>
     </div>
     <div class="actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <!-- Dispositivo -->
@@ -88,16 +88,11 @@
         <button data-mode="mobile" aria-pressed="false">📱 Smartphone</button>
       </div>
 
-      <!-- Modalità di gioco -->
-      <div class="seg" id="gameModeSeg" role="group" aria-label="Selettore modalità">
-        <button data-gamemode="classic">Classic</button>
-        <button data-gamemode="career" class="active">Dual</button>
-      </div>
-
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn" id="muteBtn" aria-label="Audio">🔊</button>
       <button class="btn" id="levelsBtn">📈 Livelli</button>
+      <button class="btn" id="careerBtn">↺ Restart Career</button>
     </div>
   </header>
 
@@ -113,7 +108,6 @@
         <div class="kpi"><b>Flusso €/mossa</b> <span id="dFlow">0€/mossa</span></div>
         <div class="kpi"><b>Mosse</b> <span id="dMoves">0</span></div>
         <div class="kpi"><b>Obiettivo</b> <span id="dTarget">50.000€</span></div>
-        <!-- opzionali (se presenti il motore li aggiorna) -->
         <div class="kpi" style="display:none"><b>Efficienza</b> <span id="dEff">0%</span></div>
         <div class="kpi" style="display:none"><b>Reputazione ★</b> <span id="dRep">0</span></div>
       </div>
@@ -125,6 +119,9 @@
         <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa</span>
         <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset</span>
         <span class="tag"><span class="dot" style="background:#19cf83"></span>Goal</span>
+      </div>
+      <div class="panel" style="color:#c9d4f0;font-size:13px">
+        <b>Career Edition:</b> 10 livelli progressivi, incassi “anti-grind” (niente loop a vuoto).
       </div>
     </aside>
   </section>
@@ -173,14 +170,14 @@
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
   <!-- Adattatore layout + play + d-pad + canvas swap -->
-  <script src="./dual.js?v=3.0.2-hybrid"></script>
-  <!-- Motore (skeleton) con Game.nudge -->
-  <script src="./app.js?v=3.0.2-hybrid"></script>
+  <script src="./dual.js?v=3.1.0-career"></script>
+  <!-- Motore Career -->
+  <script src="./app.js?v=3.1.0-career"></script>
 
   <!-- Service Worker con cache-busting -->
   <script>
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=3.0.2-hybrid').then(reg=>{
+      navigator.serviceWorker.register('./sw.js?v=3.1.0-career').then(reg=>{
         if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
         reg.addEventListener('updatefound', ()=>{
           const nw = reg.installing;

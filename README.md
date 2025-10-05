@@ -110,31 +110,31 @@ L’overlay di guida appare **solo la prima volta** se l’app non è ancora ins
 
 > Se noti risorse non aggiornate: apri l’app, attendi due refresh — non serve svuotare la cache manualmente.
 
-⸻
+---
 
 ## 📂 Struttura File
 
 /index.html
-  → UI desktop/mobile, KPI, D-pad, PLAY, Report, overlay iOS
+→ UI desktop/mobile, KPI, D-pad, PLAY, Report, overlay iOS
 
 /app.js
-  → Motore Career + Anti-grind + KPI + gestione asset
+→ Motore Career + Anti-grind + KPI + gestione asset
 
 /dual.js
-  → Adattatore device (auto, desktop, mobile) + swipe
+→ Adattatore device (auto, desktop, mobile) + swipe
 
 /sw.js
-  → Service Worker cache-busting + auto-reload
+→ Service Worker cache-busting + auto-reload
 
 /manifest.webmanifest
-  → Metadati PWA
+→ Metadati PWA
 
 /icons/icon-192.png
 /icons/icon-512.png
-  → Icone per installazione
+→ Icone per installazione
 
 /README.md
-  → Documentazione tecnica
+→ Documentazione tecnica
 
 ---
 
@@ -200,17 +200,29 @@ MIT © 2025 **pezzaliAPP**
 
 ---
 
-## 🛠️ Troubleshooting
-| Problema | Soluzione |
-|:--|:--|
-| PLAY non parte su iPhone | Tocca il canvas o il pulsante PLAY una volta per sbloccare l’audio |
-| Audio assente | Controlla 🔊/🔇 e modalità silenziosa |
-| Aggiornamento non visibile | Apri l’app e attendi due refresh |
-| Lag o resize su mobile | Seleziona **Auto** o **Smartphone** nel menu superiore |
-| Overlay iOS non più visibile | Cancella `localStorage['pwa.tipShown']` e ricarica |
+## 🧾 Dichiarazione di Originalità e Copyright
+
+**💼 Cashflow Rush — Career Edition** è un progetto originale sviluppato da **Alessandro Pezzali (pezzaliAPP)**.  
+Non esiste alcun titolo identico o equivalente pubblicato o registrato con lo stesso nome, regole o struttura.
+
+Il gioco si ispira liberamente al genere **Sokoban** (Hiroyuki Imabayashi, 1981), ma l’ispirazione è puramente meccanica (spostamento e spinta di oggetti in una griglia).  
+Tutti gli altri elementi — **tema economico-finanziario, KPI, modalità Career, sistema anti-grind, interfaccia PWA e finalità educativa** — sono opere inedite e frutto di sviluppo autonomo.
+
+### 🔹 Elementi distintivi e originali
+1. **Tema e semantica** — Asset, monete, tasse, inflazione, dividendi e leva sostituiscono i blocchi tradizionali, introducendo significato economico e didattico.  
+2. **Career Mode** — Progressione con indicatori reali: *Valore Netto, Flusso €/mossa, Efficienza, Reputazione ★*.  
+3. **Motore anti-grind** — Prevenzione automatica di loop e micro-mosse senza valore economico.  
+4. **Architettura PWA** — Gioco installabile e offline-first, adattivo per mobile e desktop.  
+5. **Finalità educativa** — Serious game per l’apprendimento dei principi di finanza personale e gestione delle risorse.
+
+### 🔹 Status legale
+- ✅ **Originale e non derivativo**: nessun codice, grafica o asset proviene da opere terze.  
+- ✅ **Titolarità completa** del nome, codice sorgente, logica, interfaccia e contenuti.  
+- ✅ **Licenza MIT**: il codice è open source, liberamente utilizzabile e modificabile nel rispetto dei termini.  
+- 🚫 **Nessun uso di materiali protetti** (marchi, loghi, colonne sonore, elementi grafici commerciali).
 
 ---
 
 📍 **Autore:** [Alessandro Pezzali](https://www.alessandropezzali.it)  
 **Progetto:** [pezzaliAPP.com](https://www.pezzaliapp.com)  
-**Licenza:** MIT — open source, educativo e gratuito.
+**Licenza:** MIT — opera originale, open source e a scopo educativo.

@@ -1,38 +1,92 @@
-// dual.js v3.1.0-career — auto layout + swipe
-(()=>{
-  const modeSeg = document.getElementById('modeSeg');
-  function computeAuto(){ return (('ontouchstart' in window) || navigator.maxTouchPoints>0 || window.innerWidth<920) ? 'mobile' : 'desktop'; }
-  let modePref = localStorage.getItem('du.mode') || 'auto';
-  function applyMode(){
-    const m = modePref==='auto' ? computeAuto() : modePref;
-    document.body.classList.toggle('mode-mobile', m==='mobile');
-    document.body.classList.toggle('mode-desktop', m!=='mobile');
-    document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===modePref));
+// dual.js — Cashflow Rush v3.1.3 (Hybrid layout + Swipe + Vibration)
+// ©2025 pezzaliAPP — MIT License
+(() => {
+  const $ = id => document.getElementById(id);
+
+  // Rileva dispositivo
+  function detectDevice() {
+    const ua = navigator.userAgent.toLowerCase();
+    if (/iphone|ipad|ipod|android/.test(ua)) return 'mobile';
+    return 'desktop';
   }
-  window.addEventListener('resize', ()=>{ if(modePref==='auto') applyMode(); });
-  if(modeSeg){
-    modeSeg.addEventListener('click', e=>{
-      const b=e.target.closest('button'); if(!b) return;
-      modePref=b.dataset.mode; localStorage.setItem('du.mode', modePref); applyMode();
+
+  let modePref = localStorage.getItem('cfr.mode') || 'auto';
+  let mode = modePref === 'auto' ? detectDevice() : modePref;
+  document.body.classList.toggle('mode-mobile', mode === 'mobile');
+  document.body.classList.toggle('mode-desktop', mode === 'desktop');
+
+  // Selettore "Auto / Laptop / Smartphone"
+  const seg = $('modeSeg');
+  if (seg) {
+    seg.querySelectorAll('button').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === modePref);
+      b.addEventListener('click', () => {
+        const m = b.dataset.mode;
+        localStorage.setItem('cfr.mode', m);
+        mode = m === 'auto' ? detectDevice() : m;
+        document.body.classList.toggle('mode-mobile', mode === 'mobile');
+        document.body.classList.toggle('mode-desktop', mode === 'desktop');
+        seg.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      });
     });
   }
-  applyMode();
 
-  // Swipe on mobile canvas
-  const mob = document.getElementById('gameMob');
-  if(mob){
-    let start=null;
-    mob.addEventListener('touchstart', e=>{ start=e.changedTouches[0]; }, {passive:true});
-    mob.addEventListener('touchend', e=>{
-      if(!start) return; const t=e.changedTouches[0]; const dx=t.clientX-start.clientX, dy=t.clientY-start.clientY;
-      if(Math.max(Math.abs(dx),Math.abs(dy))<24) return;
-      if(Math.abs(dx)>Math.abs(dy)){ window.Game?.nudge?.(dx>0?1:-1,0); } else { window.Game?.nudge?.(0,dy>0?1:-1); }
-      start=null;
-    }, {passive:true});
+  // Attiva canvas corretto
+  const canvas = (mode === 'mobile') ? $('gameMob') : $('gameDesk');
+  if (canvas && canvas.id !== 'game') canvas.id = 'game';
+
+  // Tasto PLAY
+  const playBtns = [ $('playBtnDesk'), $('playBtnMob') ].filter(Boolean);
+  playBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      try { window.Game.start(); } catch(e){}
+    });
+  });
+
+  // Touch D-Pad (mobile)
+  document.querySelectorAll('.touchpad button[data-dx]').forEach(b => {
+    b.addEventListener('click', () => {
+      const dx = parseInt(b.dataset.dx), dy = parseInt(b.dataset.dy);
+      try {
+        window.Game.start();
+        window.Game.nudge(dx, dy);
+        if (navigator.vibrate) navigator.vibrate(20);
+      } catch(e){}
+    });
+  });
+
+  // Swipe su canvas (mobile)
+  if (mode === 'mobile' && canvas) {
+    let startX = 0, startY = 0;
+    canvas.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', e => {
+      const t = e.changedTouches[0];
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      if (Math.max(absX, absY) < 30) return;
+      try {
+        if (absX > absY) {
+          window.Game.nudge(dx > 0 ? 1 : -1, 0);
+        } else {
+          window.Game.nudge(0, dy > 0 ? 1 : -1);
+        }
+        if (navigator.vibrate) navigator.vibrate(25);
+      } catch(e){}
+    }, { passive: true });
   }
 
-  // Ensure PLAY buttons call Game.start too (fallback)
-  ['playBtnDesk','playBtnMob'].forEach(id=>{
-    const b=document.getElementById(id); if(b) b.addEventListener('click', ()=> window.Game?.start?.());
+  // Aggiornamento layout on resize
+  window.addEventListener('resize', () => {
+    const newMode = modePref === 'auto' ? detectDevice() : modePref;
+    document.body.classList.toggle('mode-mobile', newMode === 'mobile');
+    document.body.classList.toggle('mode-desktop', newMode === 'desktop');
   });
 })();

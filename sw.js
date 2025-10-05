@@ -1,11 +1,11 @@
-// sw.js v3.0.1-hybrid
-const VER='3.0.1-hybrid';
-const SHELL='du-shell-'+VER;
+// sw.js v3.1.0-career
+const VER='3.1.0-career';
+const SHELL='cfr-career-'+VER;
 const ASSETS=[
   './',
   './index.html',
-  './dual.js?v=3.0.1-hybrid',
-  './app.js?v=3.0.1-hybrid',
+  './dual.js?v=3.1.0-career',
+  './app.js?v=3.1.0-career',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
@@ -16,7 +16,7 @@ self.addEventListener('install',e=>{
 });
 self.addEventListener('activate',e=>{
   e.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('du-shell-')&&k!==SHELL).map(k=>caches.delete(k))))
+    caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('cfr-career-')&&k!==SHELL).map(k=>caches.delete(k))))
       .then(()=>self.clients.claim())
       .then(async ()=>{
         const wins=await self.clients.matchAll({type:'window',includeUncontrolled:true});
@@ -28,7 +28,7 @@ self.addEventListener('message',e=>{ if(e.data&&e.data.type==='SKIP_WAITING') se
 self.addEventListener('fetch',e=>{
   const url=new URL(e.request.url);
   if(url.origin!==location.origin) return;
-  const isShell=url.search.includes('v=3.0.1-hybrid')||url.pathname.endsWith('/')||url.pathname.endsWith('/index.html');
+  const isShell=url.search.includes('v=3.1.0-career')||url.pathname.endsWith('/')||url.pathname.endsWith('/index.html');
   if(isShell){
     e.respondWith((async()=>{
       try{

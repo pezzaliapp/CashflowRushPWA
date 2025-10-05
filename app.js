@@ -1,21 +1,9 @@
-// app.js — v2.8.6 Laptop Restored + Mobile Pro Layout
+// app.js — v2.8.7 Mobile polish + no haptic fallback sound
 (() => {
   const gridSize = 12, baseRes = 720;
+  function getCanvas(){ return document.body.classList.contains('mode-mobile') ? document.getElementById('gameMob') : document.getElementById('game'); }
+  let canvas = getCanvas(); let ctx = canvas.getContext('2d'); canvas.width=baseRes; canvas.height=baseRes;
 
-  // pick visible canvas (desktop or mobile)
-  function getCanvas(){
-    // desktop canvas
-    const deskCanvas = document.getElementById('game');
-    // mobile canvas (mirrors same state)
-    const mobCanvas = document.getElementById('gameMob');
-    const useMob = document.body.classList.contains('mode-mobile');
-    return useMob ? mobCanvas : deskCanvas;
-  }
-  let canvas = getCanvas();
-  let ctx = canvas.getContext('2d');
-  canvas.width = baseRes; canvas.height = baseRes;
-
-  // ===== Mode switching
   function computeAutoMode(){ const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints>0; return (isTouch || window.innerWidth < 900) ? 'mobile' : 'desktop'; }
   let modePref = localStorage.getItem('cashflow.mode') || 'auto';
   function resolveMode(){ return modePref==='auto' ? computeAutoMode() : modePref; }
@@ -24,18 +12,13 @@
     document.body.classList.toggle('mode-mobile', mode==='mobile');
     document.body.classList.toggle('mode-desktop', mode!=='mobile');
     document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===modePref));
-    // switch canvas bindings
-    canvas = getCanvas(); ctx = canvas.getContext('2d'); canvas.width=baseRes; canvas.height=baseRes;
-    fitCanvas();
-    render();
+    canvas = getCanvas(); ctx = canvas.getContext('2d'); canvas.width=baseRes; canvas.height=baseRes; fitCanvas(); render();
   }
   function fitCanvas(){
     if(document.body.classList.contains('mode-mobile')){
-      // width capped by .frameMob
-      const w = Math.min(window.innerWidth*0.92, 720);
+      const w = Math.min(window.innerWidth*0.94, 720);
       canvas.style.width = w+'px'; canvas.style.height = 'auto';
     }else{
-      // desktop: keep square but allow shrink on small windows
       const stage = document.querySelector('.stageDesk');
       const maxW = stage.clientWidth - 24;
       const maxH = Math.min(window.innerHeight - 300, stage.clientHeight - 24);
@@ -45,53 +28,28 @@
   }
   window.addEventListener('resize', ()=>{ if(modePref==='auto') applyMode(); else fitCanvas(); });
   window.addEventListener('orientationchange', fitCanvas);
-  document.getElementById('modeSeg').addEventListener('click', (e)=>{
-    const b=e.target.closest('button'); if(!b) return;
-    modePref = b.dataset.mode; localStorage.setItem('cashflow.mode', modePref);
-    applyMode();
-  });
+  document.getElementById('modeSeg').addEventListener('click', (e)=>{ const b=e.target.closest('button'); if(!b) return; modePref=b.dataset.mode; localStorage.setItem('cashflow.mode', modePref); applyMode(); });
 
-  // ===== HUD
   const el = {
-    net: document.getElementById('netWorth'),
-    flow: document.getElementById('cashflow'),
-    moves: document.getElementById('moves'),
-    target: document.getElementById('target'),
-    mNet2: document.getElementById('mNet2'),
-    mFlow2: document.getElementById('mFlow2'),
-    mMoves2: document.getElementById('mMoves2'),
-    mTarget2: document.getElementById('mTarget2'),
+    net: document.getElementById('netWorth'), flow: document.getElementById('cashflow'),
+    moves: document.getElementById('moves'), target: document.getElementById('target'),
+    mNet2: document.getElementById('mNet2'), mFlow2: document.getElementById('mFlow2'),
+    mMoves2: document.getElementById('mMoves2'), mTarget2: document.getElementById('mTarget2'),
   };
   function fmt(n){ return n.toLocaleString('it-IT',{maximumFractionDigits:0}) + "€"; }
-  function syncHUD(){
-    if(el.net) el.net.textContent=fmt(state.net);
-    if(el.flow) el.flow.textContent=fmt(state.flow)+"/mossa";
-    if(el.moves) el.moves.textContent=state.moves;
-    if(el.target) el.target.textContent=fmt(state.target);
-    if(el.mNet2) el.mNet2.textContent=fmt(state.net);
-    if(el.mFlow2) el.mFlow2.textContent=fmt(state.flow)+"/mossa";
-    if(el.mMoves2) el.mMoves2.textContent=state.moves;
-    if(el.mTarget2) el.mTarget2.textContent=fmt(state.target);
-  }
+  function syncHUD(){ if(el.net) el.net.textContent=fmt(state.net); if(el.flow) el.flow.textContent=fmt(state.flow)+"/mossa"; if(el.moves) el.moves.textContent=state.moves; if(el.target) el.target.textContent=fmt(state.target); if(el.mNet2) el.mNet2.textContent=fmt(state.net); if(el.mFlow2) el.mFlow2.textContent=fmt(state.flow)+"/mossa"; if(el.mMoves2) el.mMoves2.textContent=state.moves; if(el.mTarget2) el.mTarget2.textContent=fmt(state.target); }
 
-  // ===== Audio + Haptics
+  // Audio + Haptics (no fallback click)
   let muted = localStorage.getItem('cashflow.muted') === '1';
-  const $mute = document.getElementById('muteBtn');
-  $mute.textContent = muted ? '🔇' : '🔊';
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const actx = AudioCtx ? new AudioCtx() : null;
+  const $mute = document.getElementById('muteBtn'); $mute.textContent = muted ? '🔇' : '🔊';
+  const AudioCtx = window.AudioContext || window.webkitAudioContext; const actx = AudioCtx ? new AudioCtx() : null;
   function ensureAudio(){ if(actx && actx.state==='suspended'){ actx.resume().catch(()=>{}); } }
   ['touchstart','mousedown','keydown'].forEach(ev=>window.addEventListener(ev, ensureAudio, {passive:true}));
-  function tone(freq=440, dur=0.06, type='sine', vol=0.05){
-    if(!actx || muted) return;
-    try{ const o=actx.createOscillator(), g=actx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol;
-      o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{ try{o.stop()}catch{} }, dur*1000);
-    }catch{}
-  }
-  function haptic(patternOrMs=10){ if(navigator.vibrate){ navigator.vibrate(patternOrMs); } else { tone(120,0.02,'square',0.04); } }
+  function tone(freq=440, dur=0.06, type='sine', vol=0.05){ if(!actx || muted) return; try{ const o=actx.createOscillator(), g=actx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{ try{o.stop()}catch{} }, dur*1000);}catch{} }
+  function haptic(patternOrMs=10){ if(navigator.vibrate){ navigator.vibrate(patternOrMs); } /* else: do nothing, no fake click */ }
   $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cashflow.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
 
-  // ===== Levels
+  // Levels
   const levels = [
     {name:"Tutorial del Valore", target:5000, grid:[
       "############","#..$..D..G.#","#..##....#.#","#..A..P..#.#","#..##....#.#","#..$..L..#.#","#..##....#.#","#..A.....#.#","#..##..T.#.#","#..$.....#.#","#..##..I.#.#","############"]},
@@ -109,7 +67,7 @@
       "############","#P..A..L..G#","#.#.#.#.#..#","#..D..$..D.#","#.#.#.#.#..#","#..A..G..A.#","#..#..I..#.#","#.$..L..$..#","#.#.#.#.#..#","#..G..A..G.#","#..$..T..$.#","############"]},
   ];
 
-  // ===== State
+  // State
   let levelIndex = parseInt(localStorage.getItem('cashflow.level')||'0'); if(levelIndex>=levels.length) levelIndex=0;
   let state=null, history=[], lastDividendMove=-999, leverageCountEarly=0;
   let lastDir = {dx:0, dy:0}, backtrackStreak = 0;
@@ -169,7 +127,6 @@
   function undo(){ if(history.length<=1) return; history.pop(); state=clone(history[history.length-1]); syncHUD(); render(); }
 
   function move(dx,dy){
-    ensureAudio();
     const nx=state.player.x+dx, ny=state.player.y+dy;
     if(!inBounds(nx,ny)||isWall(nx,ny)) return;
     const box=assetAt(nx,ny);
@@ -197,7 +154,6 @@
     }
   }
 
-  // Rendering
   function render(){
     const W=canvas.width, H=canvas.height, CELL=Math.floor(W/gridSize);
     const c=ctx;
@@ -205,7 +161,6 @@
     c.fillStyle="#081028"; c.fillRect(0,0,W,H);
     c.strokeStyle="#1a2655";
     for(let i=0;i<=gridSize;i++){ c.beginPath(); c.moveTo(i*CELL,0); c.lineTo(i*CELL,H); c.stroke(); c.beginPath(); c.moveTo(0,i*CELL); c.lineTo(W,i*CELL); c.stroke(); }
-    // tiles
     for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++){ const t=state.grid[y][x];
       if(t==='#') c.fillStyle='#0c1533';
       else if(t==='G') c.fillStyle='#003b2a';
@@ -217,12 +172,10 @@
       else c.fillStyle='transparent';
       if(c.fillStyle!=='transparent') c.fillRect(x*CELL,y*CELL,CELL,CELL);
     }
-    // dots
     function dot(x,y,color){ const r=Math.floor(CELL*0.12); const cx=x*CELL + CELL/2, cy=y*CELL + CELL/2; c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
     for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++){ const t=state.grid[y][x];
       if(t==='$') dot(x,y,'#ffd700'); if(t==='D') dot(x,y,'#3dc2ff'); if(t==='T') dot(x,y,'#ff4d4d'); if(t==='L') dot(x,y,'#8a56ff'); if(t==='I') dot(x,y,'#ffaa00');
     }
-    // boxes & player
     const pad=10, padP=14;
     function box(x,y,color){ c.fillStyle=color; c.fillRect(x*CELL+pad,y*CELL+pad,CELL-2*pad,CELL-2*pad); c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*CELL+pad,y*CELL+pad,CELL-2*pad,CELL-2*pad); }
     for(const a of state.assets){ box(a.x,a.y, a.active ? '#2dd36f' : '#748ffc'); }
@@ -233,24 +186,17 @@
   function isMobile(){ return document.body.classList.contains('mode-mobile'); }
   document.querySelectorAll('.touchpad button').forEach(b=>b.addEventListener('click', ()=>{ if(isMobile()) move(parseInt(b.dataset.dx), parseInt(b.dataset.dy)); }));
   let ts=null;
-  function activeCanvas(){ return getCanvas(); }
-  document.getElementById('game').addEventListener('touchstart', e=>{ ts=e.changedTouches[0]; }, {passive:true});
-  document.getElementById('game').addEventListener('touchend', e=>{
-    if(!ts) return; const t=e.changedTouches[0]; const dx=t.clientX-ts.clientX, dy=t.clientY-ts.clientY;
-    if(Math.max(Math.abs(dx),Math.abs(dy))<24) return;
-    if(Math.abs(dx)>Math.abs(dy)) move(dx>0?1:-1,0); else move(0,dy>0?1:-1);
-    ts=null;
-  }, {passive:true});
-  document.getElementById('gameMob').addEventListener('touchstart', e=>{ ts=e.changedTouches[0]; }, {passive:true});
-  document.getElementById('gameMob').addEventListener('touchend', e=>{
-    if(!ts) return; const t=e.changedTouches[0]; const dx=t.clientX-ts.clientX, dy=t.clientY-ts.clientY;
-    if(Math.max(Math.abs(dx),Math.abs(dy))<24) return;
-    if(Math.abs(dx)>Math.abs(dy)) move(dx>0?1:-1,0); else move(0,dy>0?1:-1);
-    ts=null;
-  }, {passive:true});
+  ['game','gameMob'].forEach(id=>{
+    const c=document.getElementById(id);
+    c.addEventListener('touchstart', e=>{ ts=e.changedTouches[0]; }, {passive:true});
+    c.addEventListener('touchend', e=>{ if(!ts) return; const t=e.changedTouches[0]; const dx=t.clientX-ts.clientX, dy=t.clientY-ts.clientY;
+      if(Math.max(Math.abs(dx),Math.abs(dy))<24) return;
+      if(Math.abs(dx)>Math.abs(dy)) move(dx>0?1:-1,0); else move(0,dy>0?1:-1);
+      ts=null; }, {passive:true});
+  });
   window.addEventListener('keydown', e=>{ if(isMobile()) return; const k=e.key; if(k==='ArrowLeft') move(-1,0); if(k==='ArrowRight') move(1,0); if(k==='ArrowUp') move(0,-1); if(k==='ArrowDown') move(0,1); if(k==='z'&&(e.ctrlKey||e.metaKey)) undo(); if(k==='r') loadLevel(levelIndex); });
 
-  // Buttons
+  // Toolbar
   document.getElementById('resetBtn').addEventListener('click', ()=>loadLevel(levelIndex));
   document.getElementById('undoBtn').addEventListener('click', ()=>undo());
   document.getElementById('levelsBtn').addEventListener('click', ()=>{

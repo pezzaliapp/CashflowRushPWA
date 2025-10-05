@@ -35,20 +35,4 @@ CashflowRushPWA/
 ## Licenza
 MIT — usa, modifica, condividi. Cita la fonte se ti va: *pezzaliAPP*.
 
----
-
-### 🎮 Livelli disponibili
-1. **Tutorial del Valore** — Introduzione al movimento e ai simboli.
-2. **Leva & Tasse** — Prime scelte di rischio/rendimento.
-3. **Scalata di Capitale** — Gestione del cashflow in crescita.
-4. **Rendita a Cascata** — Asset a consumo e combinazioni.
-5. **Debito Creativo** — Trade-off tra debito e ROI.
-6. **Inflazione Cattiva** — Shock negativi da compensare.
-7. **Tycoon Finale** — Target massimo e pianificazione perfetta.
-
----
-
-**Changelog sintetico**
-- v2.8.6: ripristinata UI **Laptop** (2 colonne, niente D‑pad); **Mobile** centrato e ingrandito; audio + haptics; SW auto-update.
-- v2.8.5: aggiunte vibrazioni (Android) + fix audio iOS.
-- v2.8.4: layout mobile rifatto, canvas adattivo, auto-update aggressivo.
+- v2.8.7: mobile rifinito (D-pad più in alto, legenda split centrata), disattivato suono di fallback haptics; desktop invariato.

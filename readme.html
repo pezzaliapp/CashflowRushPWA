@@ -667,5 +667,33 @@ main{
       }
     })();
   </script>
+  <script>
+  // Calcola l’altezza reale dell’header (che cambia con le lingue/badge) e aggiorna --headH
+  (function () {
+    const root = document.documentElement;
+    const header = document.querySelector('header');
+
+    function setHeadHeight(){
+      if(!header) return;
+      // offsetHeight include padding e border: perfetto per evitare “tagli”
+      root.style.setProperty('--headH', header.offsetHeight + 'px');
+    }
+
+    // Prima misurazione
+    setHeadHeight();
+
+    // Aggiorna su resize / zoom / cambio orientamento
+    window.addEventListener('resize', setHeadHeight);
+
+    // Aggiorna se l’header cambia dimensione (es. mostra/nascondi pulsanti lingua)
+    if ('ResizeObserver' in window) {
+      const ro = new ResizeObserver(setHeadHeight);
+      ro.observe(header);
+    } else {
+      // fallback per browser più vecchi
+      setInterval(setHeadHeight, 1000);
+    }
+  })();
+</script>
 </body>
 </html>

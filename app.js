@@ -12,6 +12,7 @@
     document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===modePref));
     syncCanvasRef(); fitCanvas(); render();
     updateOverlay();
+    bindOverlay();
   }
   document.getElementById('modeSeg').addEventListener('click', e=>{
     const b=e.target.closest('button'); if(!b) return; modePref=b.dataset.mode; localStorage.setItem('du.mode', modePref); applyMode();
@@ -271,8 +272,12 @@
   }
 
   // Overlay buttons
+  // Overlay buttons: bind both, so switching mode won't break PLAY
   function bindOverlay(){
-    overlayBtn.onclick = start;
+    const b1 = document.getElementById('playBtnDesk');
+    const b2 = document.getElementById('playBtnMob');
+    if (b1) b1.onclick = start;
+    if (b2) b2.onclick = start;
   }
 
   // Boot

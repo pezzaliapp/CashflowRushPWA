@@ -1,9 +1,9 @@
-# Cashflow Rush — Dual Universe (PWA) — v3.1.1
+# Cashflow Rush — Dual Universe (PWA) — v3.1.2
 
 **Modalità di gioco:** Classic (7 livelli rapidi) · Career (10 livelli progressivi)  
 **Smartphone layout dedicato:** canvas centrato, **D‑pad** e legende verticali ai lati, overlay **PLAY** mobile.  
 **Antigrind:** niente incassi su avanti↔indietro/loop breve senza evento economico.  
-**PWA:** offline-first con auto-update (sw.js?v=3.1.1)
+**PWA:** offline-first con auto-update (sw.js?v=3.1.2)
 
 ---
 
@@ -35,7 +35,7 @@ Zero incassi se **non** avviene un evento economico **e**: ritorno **A↔B** opp
 ✅ Incasso permesso se **spingi un asset** o **raccogli** $, D, L, T, I.
 
 ## 8) PWA
-`sw.js?v=3.1.1` forza auto‑update senza svuotare cache. Manifest e icone **Orbital** (192/512).
+`sw.js?v=3.1.2` forza auto‑update senza svuotare cache. Manifest e icone **Orbital** (192/512).
 
 ## 9) Struttura
 ```
@@ -51,7 +51,7 @@ Zero incassi se **non** avviene un evento economico **e**: ritorno **A↔B** opp
 ```
 
 ## 10) Changelog
-- **v3.1.1**: layout **smartphone** dedicato (D‑pad + legende ai lati), performance e touch/swipe migliorati.
+- **v3.1.2**: layout **smartphone** dedicato (D‑pad + legende ai lati), performance e touch/swipe migliorati.
 - **v3.1.0**: PWA unificata Classic+Career, anti-grind, overlay PLAY, flash visivo, icone Orbital.
 
 ## 11) Licenza & Crediti

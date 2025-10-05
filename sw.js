@@ -1,10 +1,10 @@
-// sw.js v3.1.1 — auto-update shell
-const VER = '3.1.1';
+// sw.js v3.1.2 — auto-update shell
+const VER = '3.1.2';
 const SHELL = `du-shell-${VER}`;
 const ASSETS = [
   './',
   './index.html',
-  './app.js?v=3.1.1',
+  './app.js?v=3.1.2',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'

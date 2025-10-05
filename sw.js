@@ -1,10 +1,10 @@
-// sw.js — Auto-update + smart caching (v2.8.2)
-const APP_VERSION = 'v2.8.2';
+// sw.js — Auto-update (v2.8.4)
+const APP_VERSION = 'v2.8.4';
 const CACHE_SHELL = `cashflow-shell-${APP_VERSION}`;
 const ASSETS_SHELL = [
   './',
   './index.html',
-  './app.js',
+  './app.js?v=2.8.4',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
@@ -19,8 +19,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k.startsWith('cashflow-shell-') && k !== CACHE_SHELL)
-        .map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k.startsWith('cashflow-shell-') && k !== CACHE_SHELL).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
      .then(async () => {
        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
@@ -29,14 +28,16 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
 
-  const pathname = url.pathname;
-  const isShellCritical = pathname.endsWith('/') || pathname.endsWith('/index.html') || pathname.endsWith('/app.js');
-
-  if (isShellCritical) {
+  const isShell = url.search.includes('v=2.8.4') || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  if (isShell) {
     e.respondWith((async () => {
       try {
         const fresh = await fetch(e.request, { cache: 'no-store' });

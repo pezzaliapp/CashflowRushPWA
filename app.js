@@ -1,4 +1,4 @@
-// Cashflow Rush v3.0 — Career Mode (skeleton) — patched for hybrid layout
+// Cashflow Rush v3.0 — Career Mode (skeleton) — patched for hybrid layout + Game.nudge
 (() => {
   const SIZE = 12, BASE = 720;
 
@@ -22,18 +22,23 @@
 
   // Device selector (solo styling)
   let modePref = localStorage.getItem('cfr.mode') || 'auto';
-  $('modeSeg').addEventListener('click', e=>{
-    const b=e.target.closest('button'); if(!b) return;
-    modePref = b.dataset.mode; localStorage.setItem('cfr.mode', modePref);
-    document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('active', x.dataset.mode===modePref));
-  });
+  const modeSeg = $('modeSeg');
+  if (modeSeg) {
+    modeSeg.addEventListener('click', e=>{
+      const b=e.target.closest('button'); if(!b) return;
+      modePref = b.dataset.mode; localStorage.setItem('cfr.mode', modePref);
+      document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('active', x.dataset.mode===modePref));
+    });
+  }
 
   // Audio base
   let muted = localStorage.getItem('cfr.muted')==='1';
-  const $mute = $('muteBtn'); $mute.textContent = muted ? '🔇' : '🔊';
+  const $mute = $('muteBtn'); if($mute) $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext; const actx = AC ? new AC() : null;
   function tone(f=440,d=0.06,t='sine',v=0.05){ if(!actx || muted) return; const o=actx.createOscillator(), g=actx.createGain(); o.type=t; o.frequency.value=f; g.gain.value=v; o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{try{o.stop()}catch{}}, d*1000); }
-  $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cfr.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
+  if($mute){
+    $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cfr.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
+  }
 
   // Levels (Career)
   const levels = [
@@ -59,7 +64,7 @@
     const rnd = rng(seed), g = Array.from({length:SIZE}, _=>Array(SIZE).fill('.'));
     for(let i=0;i<SIZE;i++){ g[0][i]='#'; g[SIZE-1][i]='#'; g[i][0]='#'; g[i][SIZE-1]='#'; }
     for(let i=0;i<3;i++){ g[2+i*3][SIZE-2] = 'G'; }
-    const features = ['$', 'D', 'T', 'L', 'I'];
+    const features = ['$', 'D', 'T', 'L', ' I'.trim()];
     for(let k=0;k<28;k++){
       const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
       if(g[y][x]!=='.') continue;
@@ -194,7 +199,7 @@
     c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*C+padP, state.player.y*C+padP, C-2*padP, C-2*padP);
   }
 
-  // Input tastiera
+  // Input tastiera (desktop)
   window.addEventListener('keydown', e=>{
     const k=e.key; if(k==='ArrowLeft') move(-1,0);
     if(k==='ArrowRight') move(1,0);
@@ -205,20 +210,24 @@
   });
 
   // Toolbar
-  $('levelsBtn').addEventListener('click', ()=>{
-    const list = levels.map((x,i)=>`${i+1}. ${x.name} — target ${x.target.toLocaleString('it-IT')}€`).join('\n');
-    const ans = prompt(`Vai al livello (1-${levels.length})\n`+list, String(L+1));
-    const idx = Math.max(1, Math.min(levels.length, parseInt(ans||'1'))) - 1;
-    L=idx; loadLevel(L);
-  });
+  const levelsBtn = $('levelsBtn');
+  if(levelsBtn){
+    levelsBtn.addEventListener('click', ()=>{
+      const list = levels.map((x,i)=>`${i+1}. ${x.name} — target ${x.target.toLocaleString('it-IT')}€`).join('\n');
+      const ans = prompt(`Vai al livello (1-${levels.length})\n`+list, String(L+1));
+      const idx = Math.max(1, Math.min(levels.length, parseInt(ans||'1'))) - 1;
+      L=idx; loadLevel(L);
+    });
+  }
   const resetBtn = $('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=>loadLevel(L));
   const undoBtn  = $('undoBtn');  if(undoBtn)  undoBtn.addEventListener('click', ()=>{ if(history.length){ state = history.pop(); updateHUD(); render(); }});
 
-  // Hooks per dual.js
+  // Hooks per dual.js (NUOVO: nudge per mobile)
   window.Game = window.Game || {};
-  Game.start = ()=>{ if(!started){ started=true; toggleOverlay(false); tone(660,0.06); } };
+  Game.start  = ()=>{ if(!started){ started=true; toggleOverlay(false); tone(660,0.06); } };
   Game.reload = ()=>{ loadLevel(L); };
   Game.isStarted = ()=> started;
+  Game.nudge = (dx,dy)=> move(dx,dy);   // <— usato dal D-pad e dallo swipe su iOS
 
   // Avvio
   loadLevel(L);

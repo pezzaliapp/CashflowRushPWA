@@ -5,296 +5,611 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>💼 Cashflow Rush — Career Edition (v3.1.4) — README</title>
   <style>
-    :root{
-      --bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;
-    }
+    :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f}
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{
-      height:100%;
-      background:var(--bg);
-      color:var(--ink);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;
-      overflow:hidden;
-    }
-    header{
-      position:fixed;top:0;left:0;right:0;z-index:10;
-      background:#0c1533;border-bottom:1px solid var(--line);
-      padding:12px 16px;text-align:center;
-      font-size:15px;line-height:1.5;color:var(--muted);
-    }
-    header h1{font-size:17px;color:var(--ink);margin:0;font-weight:600;}
-    header p{font-size:13px;color:var(--muted);}
-    main{
-      position:absolute;top:110px;left:0;right:0;bottom:0;
-      overflow-y:auto;
-      padding:30px 18px 40px 18px;
-      background:radial-gradient(1200px 800px at 20% -10%,#141f45 0%, var(--bg) 60%) fixed;
-    }
-    main h2, main h3{color:var(--accent);margin-top:22px}
-    main h2:first-of-type{margin-top:0}
-    main table{width:100%;border-collapse:collapse;margin:10px 0 20px 0}
-    main th,main td{border:1px solid var(--line);padding:6px 8px;text-align:left;font-size:14px}
-    main th{background:#0c1533}
-    main p{margin:10px 0;font-size:15px;line-height:1.6;color:var(--ink)}
-    main ul, main ol{margin:10px 0 10px 20px}
-    main li{margin-bottom:4px}
+    html,body{height:100%;background:var(--bg);color:var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;overflow:hidden}
+    header{position:fixed;top:0;left:0;right:0;z-index:10;background:#0c1533;border-bottom:1px solid var(--line);
+      padding:12px 16px}
+    .headwrap{max-width:980px;margin:0 auto;display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .title{text-align:left}
+    header h1{font-size:17px;margin:0 0 4px 0}
+    header p{font-size:13px;color:var(--muted);line-height:1.45}
+    .lang{display:flex;gap:6px;flex-wrap:wrap}
+    .lang button{background:#0b1430;border:1px solid #2a3a77;color:#cfe1ff;padding:6px 10px;border-radius:999px;cursor:pointer;font-size:12px}
+    .lang button.active{border-color:var(--accent);color:#fff}
+    main{position:absolute;top:118px;left:0;right:0;bottom:0;overflow-y:auto;
+      padding:26px 18px 40px;background:radial-gradient(1200px 820px at 20% -10%,#141f45 0%, var(--bg) 60%) fixed}
+    .container{max-width:980px;margin:0 auto}
+    h2,h3{color:var(--accent);margin-top:22px}
+    table{width:100%;border-collapse:collapse;margin:10px 0 20px}
+    th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;font-size:14px}
+    th{background:#0c1533}
+    p{margin:10px 0;font-size:15px;line-height:1.6}
+    ul,ol{margin:10px 0 10px 20px}
     code{background:#0c1533;border-radius:4px;padding:2px 4px;font-size:90%}
-    a{color:var(--accent);text-decoration:none}
-    a:hover{text-decoration:underline}
+    a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
     blockquote{border-left:3px solid var(--accent);margin:14px 0;padding-left:10px;color:#bcd2ff}
     hr{border:0;border-top:1px solid var(--line);margin:20px 0}
-    footer{text-align:center;color:#9db0d0;font-size:12px;margin-top:40px;opacity:.6}
-    .btn{
-      display:inline-block;background:#0c1533;color:#e9f1ff;border:1px solid #3a4a8d;
-      padding:10px 18px;border-radius:999px;font-weight:600;margin-top:20px;
-    }
+    footer{text-align:center;color:#9db0d0;font-size:12px;margin-top:30px;opacity:.7}
+    .btn{display:inline-block;background:#0c1533;color:#e9f1ff;border:1px solid #3a4a8d;
+      padding:10px 18px;border-radius:999px;font-weight:600;margin-top:18px}
     .btn:hover{border-color:var(--accent)}
+    /* language blocks */
+    .langblock{display:none}
+    .langblock.active{display:block}
   </style>
 </head>
-
 <body>
   <header>
-    <h1>💼 Cashflow Rush — Career Edition (v3.1.4)</h1>
-    <p>Arcade rompicapo finanziario in stile “push-box” con progressione a 10 livelli di difficoltà crescente.<br>
-       Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.<br>
-       Funziona <b>offline</b> come Progressive Web App (PWA).</p>
+    <div class="headwrap">
+      <div class="title">
+        <h1>💼 Cashflow Rush — Career Edition (v3.1.4)</h1>
+        <p>Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.<br>
+           Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.<br>
+           Funziona <b>offline</b> come Progressive Web App (PWA).</p>
+      </div>
+      <div class="lang" aria-label="Language selector">
+        <button data-lang="it" class="active">🇮🇹 Italiano</button>
+        <button data-lang="en">🇬🇧 English</button>
+        <button data-lang="de">🇩🇪 Deutsch</button>
+      </div>
+    </div>
   </header>
 
   <main>
-    <!-- Intro / Come si gioca -->
-    <h2>🎮 Come si gioca</h2>
-    <p>Sposta il personaggio sulla griglia e spingi gli <strong>Asset (blu)</strong> verso i <strong>Goal (verdi)</strong> per attivarli e generare rendite passive.</p>
+    <div class="container">
 
-    <h3>Eventi economici:</h3>
-    <table>
-      <thead><tr><th>Simbolo</th><th>Evento</th><th>Effetto</th></tr></thead>
-      <tbody>
-        <tr><td>💰 <code>$</code></td><td>Monete</td><td>+500 Valore Netto</td></tr>
-        <tr><td>💧 <code>D</code></td><td>Dividendo</td><td>+200 Flusso €/mossa</td></tr>
-        <tr><td>⚙️ <code>L</code></td><td>Leva</td><td>+600 Flusso, −400 Valore Netto</td></tr>
-        <tr><td>🔥 <code>I</code></td><td>Inflazione</td><td>−200 Flusso</td></tr>
-        <tr><td>💸 <code>T</code></td><td>Tassa</td><td>−800 Valore Netto</td></tr>
-      </tbody>
-    </table>
+      <!-- ITALIANO (default) -->
+      <article id="it" class="langblock active" lang="it">
+        <h2>🎮 Come si gioca</h2>
+        <p>Sposta il personaggio sulla griglia e spingi gli <strong>Asset (blu)</strong> verso i <strong>Goal (verdi)</strong> per attivarli e generare rendite passive.</p>
 
-    <p>Ogni mossa incassa il tuo <strong>Flusso €/mossa</strong>. Gli Asset attivati su un Goal generano extra per alcune mosse.</p>
-    <p>🎯 Completa il livello raggiungendo l’<strong>Obiettivo (Valore Netto)</strong>.</p>
-    <blockquote>⚖️ <em>Anti-grind attivo:</em> nessun incasso se ripeti micro-loop avanti/indietro senza raccogliere eventi o spingere asset.</blockquote>
+        <h3>Eventi economici:</h3>
+        <table>
+          <thead><tr><th>Simbolo</th><th>Evento</th><th>Effetto</th></tr></thead>
+          <tbody>
+            <tr><td>💰 <code>$</code></td><td>Monete</td><td>+500 Valore Netto</td></tr>
+            <tr><td>💧 <code>D</code></td><td>Dividendo</td><td>+200 Flusso €/mossa</td></tr>
+            <tr><td>⚙️ <code>L</code></td><td>Leva</td><td>+600 Flusso, −400 Valore Netto</td></tr>
+            <tr><td>🔥 <code>I</code></td><td>Inflazione</td><td>−200 Flusso</td></tr>
+            <tr><td>💸 <code>T</code></td><td>Tassa</td><td>−800 Valore Netto</td></tr>
+          </tbody>
+        </table>
 
-    <hr>
+        <p>Ogni mossa incassa il tuo <strong>Flusso €/mossa</strong>. Gli Asset attivati su un Goal generano extra per alcune mosse.</p>
+        <p>🎯 Completa il livello raggiungendo l’<strong>Obiettivo (Valore Netto)</strong>.</p>
+        <blockquote>⚖️ <em>Anti-grind attivo:</em> nessun incasso se ripeti micro-loop avanti/indietro senza raccogliere eventi o spingere asset.</blockquote>
 
-    <!-- Legenda -->
-    <h2>🧭 Simboli &amp; Legenda</h2>
-    <table>
-      <thead><tr><th>Colore</th><th>Simbolo</th><th>Significato</th></tr></thead>
-      <tbody>
-        <tr><td>🟡</td><td><code>$</code></td><td>Monete</td></tr>
-        <tr><td>🔵</td><td><code>D</code></td><td>Dividendo</td></tr>
-        <tr><td>🟣</td><td><code>L</code></td><td>Leva Finanziaria</td></tr>
-        <tr><td>🟠</td><td><code>I</code></td><td>Inflazione</td></tr>
-        <tr><td>🔴</td><td><code>T</code></td><td>Tassa</td></tr>
-        <tr><td>🟩</td><td><code>G</code></td><td>Goal (attiva Asset sovrapposto)</td></tr>
-        <tr><td>🟦</td><td><code>A</code></td><td>Asset spingibile</td></tr>
-        <tr><td>⬛</td><td><code>#</code></td><td>Muro</td></tr>
-      </tbody>
-    </table>
+        <hr>
 
-    <hr>
+        <h2>🧭 Simboli &amp; Legenda</h2>
+        <table>
+          <thead><tr><th>Colore</th><th>Simbolo</th><th>Significato</th></tr></thead>
+          <tbody>
+            <tr><td>🟡</td><td><code>$</code></td><td>Monete</td></tr>
+            <tr><td>🔵</td><td><code>D</code></td><td>Dividendo</td></tr>
+            <tr><td>🟣</td><td><code>L</code></td><td>Leva Finanziaria</td></tr>
+            <tr><td>🟠</td><td><code>I</code></td><td>Inflazione</td></tr>
+            <tr><td>🔴</td><td><code>T</code></td><td>Tassa</td></tr>
+            <tr><td>🟩</td><td><code>G</code></td><td>Goal (attiva Asset sovrapposto)</td></tr>
+            <tr><td>🟦</td><td><code>A</code></td><td>Asset spingibile</td></tr>
+            <tr><td>⬛</td><td><code>#</code></td><td>Muro</td></tr>
+          </tbody>
+        </table>
 
-    <!-- KPI -->
-    <h2>📊 KPI in tempo reale</h2>
-    <table>
-      <thead><tr><th>KPI</th><th>Descrizione</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Valore Netto</strong></td><td>Capitale cumulato (target del livello).</td></tr>
-        <tr><td><strong>Flusso €/mossa</strong></td><td>Entrata netta per ogni mossa.</td></tr>
-        <tr><td><strong>Mosse</strong></td><td>Numero di mosse effettuate.</td></tr>
-        <tr><td><strong>Obiettivo</strong></td><td>Traguardo da raggiungere per completare il livello.</td></tr>
-        <tr><td><strong>Efficienza</strong></td><td>Indicatore % ≈ (Netto/Mosse)/10.</td></tr>
-        <tr><td><strong>Reputazione ★</strong></td><td>+1 stella se completi il livello senza mai chiudere in negativo.</td></tr>
-      </tbody>
-    </table>
-    <p>Su <strong>smartphone</strong> è incluso il pulsante <strong>📊 Report</strong> che mostra il riepilogo di: Livello, Obiettivo, Valore Netto, Flusso, Mosse, Efficienza e Reputazione.</p>
+        <hr>
 
-    <hr>
+        <h2>📊 KPI in tempo reale</h2>
+        <table>
+          <thead><tr><th>KPI</th><th>Descrizione</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Valore Netto</strong></td><td>Capitale cumulato (target del livello).</td></tr>
+            <tr><td><strong>Flusso €/mossa</strong></td><td>Entrata netta per ogni mossa.</td></tr>
+            <tr><td><strong>Mosse</strong></td><td>Numero di mosse effettuate.</td></tr>
+            <tr><td><strong>Obiettivo</strong></td><td>Traguardo da raggiungere per completare il livello.</td></tr>
+            <tr><td><strong>Efficienza</strong></td><td>Indicatore % ≈ (Netto/Mosse)/10.</td></tr>
+            <tr><td><strong>Reputazione ★</strong></td><td>+1 stella se completi il livello senza mai chiudere in negativo.</td></tr>
+          </tbody>
+        </table>
+        <p>Su <strong>smartphone</strong> è incluso il pulsante <strong>📊 Report</strong> che mostra il riepilogo di: Livello, Obiettivo, Valore Netto, Flusso, Mosse, Efficienza e Reputazione.</p>
 
-    <!-- Career Mode -->
-    <h2>🏁 Livelli (Career Mode)</h2>
-    <table>
-      <thead><tr><th style="text-align:center">#</th><th>Nome</th><th style="text-align:right">Target</th></tr></thead>
-      <tbody>
-        <tr><td style="text-align:center">1</td><td>Risparmio</td><td style="text-align:right">5.000€</td></tr>
-        <tr><td style="text-align:center">2</td><td>Investimento</td><td style="text-align:right">15.000€</td></tr>
-        <tr><td style="text-align:center">3</td><td>Leva Finanziaria</td><td style="text-align:right">30.000€</td></tr>
-        <tr><td style="text-align:center">4</td><td>Inflazione</td><td style="text-align:right">50.000€</td></tr>
-        <tr><td style="text-align:center">5</td><td>Speculazione</td><td style="text-align:right">80.000€</td></tr>
-        <tr><td style="text-align:center">6</td><td>Diversificazione</td><td style="text-align:right">120.000€</td></tr>
-        <tr><td style="text-align:center">7</td><td>Crisi</td><td style="text-align:right">150.000€</td></tr>
-        <tr><td style="text-align:center">8</td><td>Ripresa</td><td style="text-align:right">220.000€</td></tr>
-        <tr><td style="text-align:center">9</td><td>Bolla</td><td style="text-align:right">350.000€</td></tr>
-        <tr><td style="text-align:center">10</td><td>Tycoon Finale</td><td style="text-align:right">1.000.000€</td></tr>
-      </tbody>
-    </table>
-    <blockquote>Layout e generazione griglia sono deterministici (seed fissi), garantendo stabilità tra sessioni.</blockquote>
+        <hr>
 
-    <hr>
+        <h2>🏁 Livelli (Career Mode)</h2>
+        <table>
+          <thead><tr><th style="text-align:center">#</th><th>Nome</th><th style="text-align:right">Target</th></tr></thead>
+          <tbody>
+            <tr><td style="text-align:center">1</td><td>Risparmio</td><td style="text-align:right">5.000€</td></tr>
+            <tr><td style="text-align:center">2</td><td>Investimento</td><td style="text-align:right">15.000€</td></tr>
+            <tr><td style="text-align:center">3</td><td>Leva Finanziaria</td><td style="text-align:right">30.000€</td></tr>
+            <tr><td style="text-align:center">4</td><td>Inflazione</td><td style="text-align:right">50.000€</td></tr>
+            <tr><td style="text-align:center">5</td><td>Speculazione</td><td style="text-align:right">80.000€</td></tr>
+            <tr><td style="text-align:center">6</td><td>Diversificazione</td><td style="text-align:right">120.000€</td></tr>
+            <tr><td style="text-align:center">7</td><td>Crisi</td><td style="text-align:right">150.000€</td></tr>
+            <tr><td style="text-align:center">8</td><td>Ripresa</td><td style="text-align:right">220.000€</td></tr>
+            <tr><td style="text-align:center">9</td><td>Bolla</td><td style="text-align:right">350.000€</td></tr>
+            <tr><td style="text-align:center">10</td><td>Tycoon Finale</td><td style="text-align:right">1.000.000€</td></tr>
+          </tbody>
+        </table>
+        <blockquote>Layout e generazione griglia sono deterministici (seed fissi), garantendo stabilità tra sessioni.</blockquote>
 
-    <!-- Controlli -->
-    <h2>⌨️ / 📱 Controlli</h2>
+        <hr>
 
-    <h3>Laptop</h3>
-    <ul>
-      <li><strong>Frecce</strong> — Muoviti / spingi Asset</li>
-      <li><strong>R</strong> — Ricarica livello</li>
-      <li><strong>Ctrl/Cmd + Z</strong> — Undo ultima mossa</li>
-      <li><strong>Toolbar</strong> — Reset, Undo, 📈 Livelli, 🔊/🔇 Audio, 📊 Report</li>
-    </ul>
-
-    <h3>Smartphone</h3>
-    <ul>
-      <li><strong>PLAY</strong> — Inizia la partita (sblocca audio su iOS)</li>
-      <li><strong>D-pad (▲ ◀ ▶ ▼)</strong> o <strong>Swipe</strong> sul canvas</li>
-      <li><strong>📊 Report</strong> — Mostra riepilogo livello</li>
-    </ul>
-
-    <hr>
-
-    <!-- iOS A2HS -->
-    <h2>📱 Suggerimento iOS: Aggiungi alla Home</h2>
-    <p>Su iPhone/iPad, per un’esperienza fluida e con audio attivo:</p>
-    <ol>
-      <li>Tocca <strong>Condividi (⬆️)</strong> nella barra in basso</li>
-      <li>Seleziona <strong>“Aggiungi alla schermata Home”</strong></li>
-      <li>Apri l’icona <strong>Cashflow Rush</strong> appena creata</li>
-    </ol>
-    <blockquote>Funziona anche <strong>offline</strong> come una vera App. 🚀</blockquote>
-    <p>L’overlay di guida appare <strong>solo la prima volta</strong> se l’app non è ancora installata come PWA.</p>
-
-    <hr>
-
-    <!-- PWA -->
-    <h2>⚙️ PWA — Installazione &amp; Aggiornamenti</h2>
-    <ul>
-      <li>Installabile su iOS, Android e Desktop</li>
-      <li><strong>Aggiornamento automatico:</strong> il Service Worker aggiorna i file quando rileva una nuova versione</li>
-      <li>Versione attuale: <strong>v3.1.4</strong></li>
-      <li>In <code>index.html</code>, <code>app.js</code>, <code>dual.js</code>, <code>sw.js</code> è usata la query <code>?v=3.1.4</code></li>
-      <li>Il Service Worker invia <code>SW_UPDATED</code> e forza il refresh automatico</li>
-    </ul>
-    <blockquote>Se noti risorse non aggiornate: apri l’app, attendi due refresh — non serve svuotare la cache manualmente.</blockquote>
-
-    <hr>
-
-    <!-- Parametri di gioco -->
-    <h2>⚖️ Parametri di Gioco (default)</h2>
-    <table>
-      <thead><tr><th>Evento</th><th>Effetto</th></tr></thead>
-      <tbody>
-        <tr><td>Monete</td><td>+500 Netto</td></tr>
-        <tr><td>Dividendo</td><td>+200 Flusso</td></tr>
-        <tr><td>Leva</td><td>+600 Flusso, −400 Netto</td></tr>
-        <tr><td>Inflazione</td><td>−200 Flusso</td></tr>
-        <tr><td>Tassa</td><td>−800 Netto</td></tr>
-        <tr><td>Asset attivo</td><td>+100 Netto/mossa per un numero limitato di mosse</td></tr>
-        <tr><td>Decadimento</td><td>ogni 7 mosse il Flusso si riduce di 100</td></tr>
-      </tbody>
-    </table>
-
-    <hr>
-
-    <!-- Anti-Grind -->
-    <h2>🚫 Anti-Grind</h2>
-    <p>Il sistema disattiva guadagni da flusso/asset se:</p>
-    <ul>
-      <li>ti muovi indietro immediatamente rispetto alla direzione precedente,</li>
-      <li>oppure esegui un micro-loop A→B→A senza raccogliere o spingere asset.</li>
-    </ul>
-    <p>Serve a mantenere la sfida pulita, evitando farming.</p>
-
-    <hr>
-
-    <!-- Progressi -->
-    <h2>🧩 Progressi e Reset</h2>
-    <ul>
-      <li><strong>📈 Livelli</strong> — Salta a un livello specifico</li>
-      <li><strong>↺ Restart Career</strong> — Azzera progressi e reputazione</li>
-      <li>I progressi sono salvati localmente:
+        <h2>⌨️ / 📱 Controlli</h2>
+        <h3>Laptop</h3>
         <ul>
-          <li><code>cfr.level</code>, <code>cfr.rep</code>, <code>cfr.muted</code>, <code>du.mode</code></li>
+          <li><strong>Frecce</strong> — Muoviti / spingi Asset</li>
+          <li><strong>R</strong> — Ricarica livello</li>
+          <li><strong>Ctrl/Cmd + Z</strong> — Undo ultima mossa</li>
+          <li><strong>Toolbar</strong> — Reset, Undo, 📈 Livelli, 🔊/🔇 Audio, 📊 Report</li>
         </ul>
-      </li>
-    </ul>
-
-    <hr>
-
-    <!-- Deploy -->
-    <h2>🚀 Deploy / Hosting</h2>
-    <ol>
-      <li>Copia la cartella su un server statico (HTTPS consigliato)</li>
-      <li>Assicurati di servire correttamente MIME type (JS, JSON, PNG, Webmanifest)</li>
-      <li>Aggiorna le query di versione (<code>?v=</code>) in <code>index.html</code>, <code>sw.js</code> e <code>dual.js</code></li>
-      <li>Incrementa la versione in:
+        <h3>Smartphone</h3>
         <ul>
-          <li><code>&lt;title&gt;</code> e file JS</li>
-          <li><code>const VER</code> in <code>sw.js</code></li>
+          <li><strong>PLAY</strong> — Inizia la partita (sblocca audio su iOS)</li>
+          <li><strong>D-pad (▲ ◀ ▶ ▼)</strong> o <strong>Swipe</strong> sul canvas</li>
+          <li><strong>📊 Report</strong> — Mostra riepilogo livello</li>
         </ul>
-      </li>
-    </ol>
 
-    <hr>
+        <hr>
 
-    <!-- Originalità -->
-    <h2>🧾 Dichiarazione di Originalità e Copyright</h2>
-    <p><strong>💼 Cashflow Rush — Career Edition</strong> è un progetto originale sviluppato da <strong>Alessandro Pezzali (pezzaliAPP)</strong>.<br>
-    Non esiste alcun titolo identico o equivalente pubblicato o registrato con lo stesso nome, regole o struttura.</p>
+        <h2>📱 Suggerimento iOS: Aggiungi alla Home</h2>
+        <ol>
+          <li>Tocca <strong>Condividi (⬆️)</strong> nella barra in basso</li>
+          <li>Seleziona <strong>“Aggiungi alla schermata Home”</strong></li>
+          <li>Apri l’icona <strong>Cashflow Rush</strong> appena creata</li>
+        </ol>
+        <blockquote>Funziona anche <strong>offline</strong> come una vera App. 🚀</blockquote>
+        <p>L’overlay di guida appare <strong>solo la prima volta</strong> se l’app non è ancora installata come PWA.</p>
 
-    <p>Il gioco si ispira liberamente al genere <strong>Sokoban</strong> (Hiroyuki Imabayashi, 1981), ma l’ispirazione è puramente meccanica (spostamento e spinta di oggetti in una griglia).<br>
-    Tutti gli altri elementi — <strong>tema economico-finanziario, KPI, modalità Career, sistema anti-grind, interfaccia PWA e finalità educativa</strong> — sono opere inedite e frutto di sviluppo autonomo.</p>
+        <hr>
 
-    <h3>🔹 Elementi distintivi e originali</h3>
-    <ol>
-      <li><strong>Tema e semantica</strong> — Asset, monete, tasse, inflazione, dividendi e leva sostituiscono i blocchi tradizionali, introducendo significato economico e didattico.</li>
-      <li><strong>Career Mode</strong> — Progressione con indicatori reali: Valore Netto, Flusso €/mossa, Efficienza, Reputazione ★.</li>
-      <li><strong>Motore anti-grind</strong> — Prevenzione automatica di loop e micro-mosse senza valore economico.</li>
-      <li><strong>Architettura PWA</strong> — Gioco installabile e offline-first, adattivo per mobile e desktop.</li>
-      <li><strong>Finalità educativa</strong> — Serious game per l’apprendimento dei principi di finanza personale e gestione delle risorse.</li>
-    </ol>
+        <h2>⚙️ PWA — Installazione &amp; Aggiornamenti</h2>
+        <ul>
+          <li>Installabile su iOS, Android e Desktop</li>
+          <li><strong>Aggiornamento automatico:</strong> il Service Worker aggiorna i file quando rileva una nuova versione</li>
+          <li>Versione attuale: <strong>v3.1.4</strong></li>
+          <li>In <code>index.html</code>, <code>app.js</code>, <code>dual.js</code>, <code>sw.js</code> è usata la query <code>?v=3.1.4</code></li>
+          <li>Il Service Worker invia <code>SW_UPDATED</code> e forza il refresh automatico</li>
+        </ul>
+        <blockquote>Se noti risorse non aggiornate: apri l’app, attendi due refresh — non serve svuotare la cache manualmente.</blockquote>
 
-    <h3>🔹 Status legale</h3>
-    <ul>
-      <li>✅ Originale e non derivativo: nessun codice, grafica o asset proviene da opere terze.</li>
-      <li>✅ Titolarità completa del nome, codice sorgente, logica, interfaccia e contenuti.</li>
-      <li>✅ Licenza MIT: il codice è open source, liberamente utilizzabile e modificabile nel rispetto dei termini.</li>
-      <li>🚫 Nessun uso di materiali protetti (marchi, loghi, colonne sonore, elementi grafici commerciali).</li>
-    </ul>
+        <hr>
 
-    <hr>
+        <h2>⚖️ Parametri di Gioco (default)</h2>
+        <table>
+          <thead><tr><th>Evento</th><th>Effetto</th></tr></thead>
+          <tbody>
+            <tr><td>Monete</td><td>+500 Netto</td></tr>
+            <tr><td>Dividendo</td><td>+200 Flusso</td></tr>
+            <tr><td>Leva</td><td>+600 Flusso, −400 Netto</td></tr>
+            <tr><td>Inflazione</td><td>−200 Flusso</td></tr>
+            <tr><td>Tassa</td><td>−800 Netto</td></tr>
+            <tr><td>Asset attivo</td><td>+100 Netto/mossa per un numero limitato di mosse</td></tr>
+            <tr><td>Decadimento</td><td>ogni 7 mosse il Flusso si riduce di 100</td></tr>
+          </tbody>
+        </table>
 
-    <!-- Troubleshooting -->
-    <h2>🛠️ Troubleshooting</h2>
-    <table>
-      <thead><tr><th>Problema</th><th>Soluzione</th></tr></thead>
-      <tbody>
-        <tr><td>PLAY non parte su iPhone</td><td>Tocca il canvas o il pulsante PLAY una volta per sbloccare l’audio</td></tr>
-        <tr><td>Audio assente</td><td>Controlla 🔊/🔇 e modalità silenziosa</td></tr>
-        <tr><td>Aggiornamento non visibile</td><td>Apri l’app e attendi due refresh</td></tr>
-        <tr><td>Lag o resize su mobile</td><td>Seleziona <strong>Auto</strong> o <strong>Smartphone</strong> nel menu superiore</td></tr>
-        <tr><td>Overlay iOS non più visibile</td><td>Cancella <code>localStorage['pwa.tipShown']</code> e ricarica</td></tr>
-      </tbody>
-    </table>
+        <hr>
 
-    <hr>
+        <h2>🚫 Anti-Grind</h2>
+        <p>Il sistema disattiva guadagni da flusso/asset se:</p>
+        <ul>
+          <li>ti muovi indietro immediatamente rispetto alla direzione precedente,</li>
+          <li>oppure esegui un micro-loop A→B→A senza raccogliere o spingere asset.</li>
+        </ul>
+        <p>Serve a mantenere la sfida pulita, evitando farming.</p>
 
-    <!-- Licenza & Autore -->
-    <h2>🧾 License</h2>
-    <p>MIT © 2025 <strong>pezzaliAPP</strong></p>
+        <hr>
 
-    <footer>📍 <strong>Autore:</strong> <a href="https://www.alessandropezzali.it">Alessandro Pezzali</a> •
-      <strong>Progetto:</strong> <a href="https://www.pezzaliapp.com">pezzaliAPP.com</a></footer>
+        <h2>🧩 Progressi e Reset</h2>
+        <ul>
+          <li><strong>📈 Livelli</strong> — Salta a un livello specifico</li>
+          <li><strong>↺ Restart Career</strong> — Azzera progressi e reputazione</li>
+          <li>I progressi sono salvati localmente:
+            <ul><li><code>cfr.level</code>, <code>cfr.rep</code>, <code>cfr.muted</code>, <code>du.mode</code></li></ul>
+          </li>
+        </ul>
 
-    <p style="text-align:center;">
-      <a href="https://www.alessandropezzali.it/CashflowRushPWA/" class="btn">⬅️ Torna al Gioco</a>
-    </p>
+        <hr>
+
+        <h2>🚀 Deploy / Hosting</h2>
+        <ol>
+          <li>Copia la cartella su un server statico (HTTPS consigliato)</li>
+          <li>Assicurati di servire correttamente MIME type (JS, JSON, PNG, Webmanifest)</li>
+          <li>Aggiorna le query di versione (<code>?v=</code>) in <code>index.html</code>, <code>sw.js</code> e <code>dual.js</code></li>
+          <li>Incrementa la versione in: <code>&lt;title&gt;</code> e file JS; <code>const VER</code> in <code>sw.js</code></li>
+        </ol>
+
+        <hr>
+
+        <h2>🧾 Dichiarazione di Originalità e Copyright</h2>
+        <p><strong>Cashflow Rush — Career Edition</strong> è un progetto originale sviluppato da <strong>Alessandro Pezzali (pezzaliAPP)</strong>. Non esiste alcun titolo identico o equivalente pubblicato o registrato con lo stesso nome, regole o struttura.</p>
+        <p>Ispirato meccanicamente al genere <strong>Sokoban</strong> (1981), ma tutti gli altri elementi — tema economico-finanziario, KPI, Career, anti-grind, UI PWA, finalità educativa — sono inediti.</p>
+        <h3>Elementi distintivi</h3>
+        <ol>
+          <li><strong>Tema</strong> con asset/monete/tasse/dividendi/infla zione</li>
+          <li><strong>Career Mode</strong> con KPI (Netto, Flusso, Efficienza, Reputazione ★)</li>
+          <li><strong>Anti-grind</strong> contro micro-loop</li>
+          <li><strong>PWA</strong> offline-first per mobile/desktop</li>
+          <li><strong>Scopo educativo</strong></li>
+        </ol>
+        <h3>Status legale</h3>
+        <ul>
+          <li>✅ Originale; nessun asset di terzi.</li>
+          <li>✅ Titolarità completa di nome, codice e design.</li>
+          <li>✅ Licenza MIT.</li>
+          <li>🚫 Nessun uso di materiali protetti.</li>
+        </ul>
+
+        <footer>© 2025 pezzaliAPP — MIT • open source, educativo e gratuito</footer>
+        <p style="text-align:center;"><a href="https://www.alessandropezzali.it/CashflowRushPWA/" class="btn">⬅️ Torna al Gioco</a></p>
+      </article>
+
+      <!-- ENGLISH -->
+      <article id="en" class="langblock" lang="en">
+        <h2>🎮 How to Play</h2>
+        <p>Move the hero on the grid and push <strong>Assets (blue)</strong> onto <strong>Goals (green)</strong> to activate them and generate passive income.</p>
+
+        <h3>Economic Events:</h3>
+        <table>
+          <thead><tr><th>Symbol</th><th>Event</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td>💰 <code>$</code></td><td>Coins</td><td>+500 Net Worth</td></tr>
+            <tr><td>💧 <code>D</code></td><td>Dividend</td><td>+200 Cashflow / move</td></tr>
+            <tr><td>⚙️ <code>L</code></td><td>Leverage</td><td>+600 Cashflow, −400 Net Worth</td></tr>
+            <tr><td>🔥 <code>I</code></td><td>Inflation</td><td>−200 Cashflow</td></tr>
+            <tr><td>💸 <code>T</code></td><td>Tax</td><td>−800 Net Worth</td></tr>
+          </tbody>
+        </table>
+
+        <p>Each move yields your current <strong>Cashflow / move</strong>. Activated assets produce extra income for several moves.</p>
+        <p>🎯 Finish the level by reaching the <strong>Net Worth target</strong>.</p>
+        <blockquote>⚖️ <em>Anti-grind:</em> no income if you repeat micro-loops back and forth without collecting events or pushing assets.</blockquote>
+
+        <hr>
+
+        <h2>🧭 Symbols &amp; Legend</h2>
+        <table>
+          <thead><tr><th>Color</th><th>Symbol</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>🟡</td><td><code>$</code></td><td>Coins</td></tr>
+            <tr><td>🔵</td><td><code>D</code></td><td>Dividend</td></tr>
+            <tr><td>🟣</td><td><code>L</code></td><td>Leverage</td></tr>
+            <tr><td>🟠</td><td><code>I</code></td><td>Inflation</td></tr>
+            <tr><td>🔴</td><td><code>T</code></td><td>Tax</td></tr>
+            <tr><td>🟩</td><td><code>G</code></td><td>Goal (activates asset)</td></tr>
+            <tr><td>🟦</td><td><code>A</code></td><td>Pushable asset</td></tr>
+            <tr><td>⬛</td><td><code>#</code></td><td>Wall</td></tr>
+          </tbody>
+        </table>
+
+        <hr>
+
+        <h2>📊 Live KPIs</h2>
+        <table>
+          <thead><tr><th>KPI</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Net Worth</strong></td><td>Cumulative capital (level target).</td></tr>
+            <tr><td><strong>Cashflow / move</strong></td><td>Net income at each move.</td></tr>
+            <tr><td><strong>Moves</strong></td><td>Total moves made.</td></tr>
+            <tr><td><strong>Target</strong></td><td>Net Worth required to win.</td></tr>
+            <tr><td><strong>Efficiency</strong></td><td>Rough indicator ≈ (Net/Moves)/10.</td></tr>
+            <tr><td><strong>Reputation ★</strong></td><td>+1 star if you never drop below zero.</td></tr>
+          </tbody>
+        </table>
+        <p>On <strong>smartphones</strong> a <strong>📊 Report</strong> button summarizes: Level, Target, Net Worth, Cashflow, Moves, Efficiency, Reputation.</p>
+
+        <hr>
+
+        <h2>🏁 Levels (Career Mode)</h2>
+        <table>
+          <thead><tr><th style="text-align:center">#</th><th>Name</th><th style="text-align:right">Target</th></tr></thead>
+          <tbody>
+            <tr><td style="text-align:center">1</td><td>Savings</td><td style="text-align:right">€5,000</td></tr>
+            <tr><td style="text-align:center">2</td><td>Investment</td><td style="text-align:right">€15,000</td></tr>
+            <tr><td style="text-align:center">3</td><td>Leverage</td><td style="text-align:right">€30,000</td></tr>
+            <tr><td style="text-align:center">4</td><td>Inflation</td><td style="text-align:right">€50,000</td></tr>
+            <tr><td style="text-align:center">5</td><td>Speculation</td><td style="text-align:right">€80,000</td></tr>
+            <tr><td style="text-align:center">6</td><td>Diversification</td><td style="text-align:right">€120,000</td></tr>
+            <tr><td style="text-align:center">7</td><td>Crisis</td><td style="text-align:right">€150,000</td></tr>
+            <tr><td style="text-align:center">8</td><td>Recovery</td><td style="text-align:right">€220,000</td></tr>
+            <tr><td style="text-align:center">9</td><td>Bubble</td><td style="text-align:right">€350,000</td></tr>
+            <tr><td style="text-align:center">10</td><td>Final Tycoon</td><td style="text-align:right">€1,000,000</td></tr>
+          </tbody>
+        </table>
+        <blockquote>Layouts are deterministic (fixed seeds) for consistent sessions.</blockquote>
+
+        <hr>
+
+        <h2>⌨️ / 📱 Controls</h2>
+        <h3>Laptop</h3>
+        <ul>
+          <li><strong>Arrow keys</strong> — Move / push assets</li>
+          <li><strong>R</strong> — Reload level</li>
+          <li><strong>Ctrl/Cmd + Z</strong> — Undo last move</li>
+          <li><strong>Toolbar</strong> — Reset, Undo, 📈 Levels, 🔊/🔇 Audio, 📊 Report</li>
+        </ul>
+        <h3>Smartphone</h3>
+        <ul>
+          <li><strong>PLAY</strong> — Start (unlocks audio on iOS)</li>
+          <li><strong>D-pad</strong> or <strong>Swipe</strong> on canvas</li>
+          <li><strong>📊 Report</strong> — Level summary</li>
+        </ul>
+
+        <hr>
+
+        <h2>📱 iOS Tip: Add to Home Screen</h2>
+        <ol>
+          <li>Tap <strong>Share (⬆️)</strong> in the bottom bar</li>
+          <li>Select <strong>“Add to Home Screen”</strong></li>
+          <li>Open the new <strong>Cashflow Rush</strong> icon</li>
+        </ol>
+        <blockquote>Works <strong>offline</strong> like a native app. 🚀</blockquote>
+        <p>The guide overlay appears <strong>once</strong> if not yet installed as a PWA.</p>
+
+        <hr>
+
+        <h2>⚙️ PWA — Installation & Updates</h2>
+        <ul>
+          <li>Installable on iOS, Android and Desktop</li>
+          <li><strong>Auto-update:</strong> Service Worker refreshes files on new versions</li>
+          <li>Current version: <strong>v3.1.4</strong></li>
+          <li>Query string <code>?v=3.1.4</code> in <code>index.html</code>, <code>app.js</code>, <code>dual.js</code>, <code>sw.js</code></li>
+          <li>Service Worker sends <code>SW_UPDATED</code> and forces reload</li>
+        </ul>
+        <blockquote>If something looks stale: open the app and wait two refreshes — no manual cache wipe needed.</blockquote>
+
+        <hr>
+
+        <h2>⚖️ Game Parameters (default)</h2>
+        <table>
+          <thead><tr><th>Event</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td>Coins</td><td>+500 Net</td></tr>
+            <tr><td>Dividend</td><td>+200 Cashflow</td></tr>
+            <tr><td>Leverage</td><td>+600 Cashflow, −400 Net</td></tr>
+            <tr><td>Inflation</td><td>−200 Cashflow</td></tr>
+            <tr><td>Tax</td><td>−800 Net</td></tr>
+            <tr><td>Active asset</td><td>+100 Net per move for a limited number of moves</td></tr>
+            <tr><td>Decay</td><td>every 7 moves Cashflow drops by 100</td></tr>
+          </tbody>
+        </table>
+
+        <hr>
+
+        <h2>🚫 Anti-Grind</h2>
+        <p>No income is granted if you:</p>
+        <ul>
+          <li>instantly move back to the previous cell, or</li>
+          <li>perform a micro-loop A→B→A without collecting events or pushing assets.</li>
+        </ul>
+
+        <hr>
+
+        <h2>🧩 Progress & Reset</h2>
+        <ul>
+          <li><strong>📈 Levels</strong> — Jump to a specific level</li>
+          <li><strong>↺ Restart Career</strong> — Reset progress and reputation</li>
+          <li>Local saves: <code>cfr.level</code>, <code>cfr.rep</code>, <code>cfr.muted</code>, <code>du.mode</code></li>
+        </ul>
+
+        <hr>
+
+        <h2>🚀 Deploy / Hosting</h2>
+        <ol>
+          <li>Upload to a static server (HTTPS recommended)</li>
+          <li>Serve proper MIME types (JS, JSON, PNG, Webmanifest)</li>
+          <li>Update version queries (<code>?v=</code>) in <code>index.html</code>, <code>sw.js</code>, <code>dual.js</code></li>
+          <li>Bump versions in <code>&lt;title&gt;</code>, JS files and <code>const VER</code> in <code>sw.js</code></li>
+        </ol>
+
+        <hr>
+
+        <h2>🧾 Originality & Copyright</h2>
+        <p><strong>Cashflow Rush — Career Edition</strong> is an original project by <strong>Alessandro Pezzali (pezzaliAPP)</strong>. No identical or equivalent title exists with the same name, rules or structure.</p>
+        <p>Mechanically inspired by <strong>Sokoban</strong> (1981). All other elements — theme, KPIs, Career, anti-grind, PWA UI, educational purpose — are original work.</p>
+
+        <footer>© 2025 pezzaliAPP — MIT • open source, educational</footer>
+        <p style="text-align:center;"><a href="https://www.alessandropezzali.it/CashflowRushPWA/" class="btn">⬅️ Back to Game</a></p>
+      </article>
+
+      <!-- DEUTSCH -->
+      <article id="de" class="langblock" lang="de">
+        <h2>🎮 So wird gespielt</h2>
+        <p>Bewege die Figur auf dem Raster und schiebe <strong>Assets (blau)</strong> auf <strong>Ziele (grün)</strong>, um sie zu aktivieren und passives Einkommen zu erzeugen.</p>
+
+        <h3>Wirtschafts-Events:</h3>
+        <table>
+          <thead><tr><th>Symbol</th><th>Ereignis</th><th>Effekt</th></tr></thead>
+          <tbody>
+            <tr><td>💰 <code>$</code></td><td>Münzen</td><td>+500 Nettovermögen</td></tr>
+            <tr><td>💧 <code>D</code></td><td>Dividende</td><td>+200 Cashflow / Zug</td></tr>
+            <tr><td>⚙️ <code>L</code></td><td>Hebel</td><td>+600 Cashflow, −400 Nettovermögen</td></tr>
+            <tr><td>🔥 <code>I</code></td><td>Inflation</td><td>−200 Cashflow</td></tr>
+            <tr><td>💸 <code>T</code></td><td>Steuer</td><td>−800 Nettovermögen</td></tr>
+          </tbody>
+        </table>
+
+        <p>Jeder Zug bringt deinen aktuellen <strong>Cashflow / Zug</strong>. Aktivierte Assets zahlen einige Züge lang extra.</p>
+        <p>🎯 Erreiche das <strong>Netto-Ziel</strong>, um das Level abzuschließen.</p>
+        <blockquote>⚖️ <em>Anti-Grind:</em> kein Einkommen bei Mikro-Schleifen vor/zurück ohne Events zu sammeln oder Assets zu schieben.</blockquote>
+
+        <hr>
+
+        <h2>🧭 Symbole &amp; Legende</h2>
+        <table>
+          <thead><tr><th>Farbe</th><th>Symbol</th><th>Bedeutung</th></tr></thead>
+          <tbody>
+            <tr><td>🟡</td><td><code>$</code></td><td>Münzen</td></tr>
+            <tr><td>🔵</td><td><code>D</code></td><td>Dividende</td></tr>
+            <tr><td>🟣</td><td><code>L</code></td><td>Hebel</td></tr>
+            <tr><td>🟠</td><td><code>I</code></td><td>Inflation</td></tr>
+            <tr><td>🔴</td><td><code>T</code></td><td>Steuer</td></tr>
+            <tr><td>🟩</td><td><code>G</code></td><td>Ziel (aktiviert Asset)</td></tr>
+            <tr><td>🟦</td><td><code>A</code></td><td>Schiebbares Asset</td></tr>
+            <tr><td>⬛</td><td><code>#</code></td><td>Wand</td></tr>
+          </tbody>
+        </table>
+
+        <hr>
+
+        <h2>📊 Live-KPIs</h2>
+        <table>
+          <thead><tr><th>KPI</th><th>Beschreibung</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Nettovermögen</strong></td><td>Kumuliertes Kapital (Level-Ziel).</td></tr>
+          <tr><td><strong>Cashflow / Zug</strong></td><td>Nettoeinnahme pro Zug.</td></tr>
+          <tr><td><strong>Züge</strong></td><td>Gesamtzahl der Züge.</td></tr>
+          <tr><td><strong>Ziel</strong></td><td>Netto-Schwelle zum Gewinnen.</td></tr>
+          <tr><td><strong>Effizienz</strong></td><td>≈ (Netto/Züge)/10.</td></tr>
+          <tr><td><strong>Reputation ★</strong></td><td>+1 Stern, wenn nie negativ.</td></tr>
+        </tbody>
+        </table>
+        <p>Auf <strong>Smartphones</strong> zeigt <strong>📊 Report</strong> die Zusammenfassung: Level, Ziel, Netto, Cashflow, Züge, Effizienz, Reputation.</p>
+
+        <hr>
+
+        <h2>🏁 Level (Karrieremodus)</h2>
+        <table>
+          <thead><tr><th style="text-align:center">#</th><th>Name</th><th style="text-align:right">Ziel</th></tr></thead>
+          <tbody>
+            <tr><td style="text-align:center">1</td><td>Sparen</td><td style="text-align:right">5.000€</td></tr>
+            <tr><td style="text-align:center">2</td><td>Investieren</td><td style="text-align:right">15.000€</td></tr>
+            <tr><td style="text-align:center">3</td><td>Hebel</td><td style="text-align:right">30.000€</td></tr>
+            <tr><td style="text-align:center">4</td><td>Inflation</td><td style="text-align:right">50.000€</td></tr>
+            <tr><td style="text-align:center">5</td><td>Spekulation</td><td style="text-align:right">80.000€</td></tr>
+            <tr><td style="text-align:center">6</td><td>Diversifikation</td><td style="text-align:right">120.000€</td></tr>
+            <tr><td style="text-align:center">7</td><td>Krise</td><td style="text-align:right">150.000€</td></tr>
+            <tr><td style="text-align:center">8</td><td>Erholung</td><td style="text-align:right">220.000€</td></tr>
+            <tr><td style="text-align:center">9</td><td>Blase</td><td style="text-align:right">350.000€</td></tr>
+            <tr><td style="text-align:center">10</td><td>Finaler Tycoon</td><td style="text-align:right">1.000.000€</td></tr>
+          </tbody>
+        </table>
+        <blockquote>Layouts sind deterministisch (feste Seeds) für konsistente Sitzungen.</blockquote>
+
+        <hr>
+
+        <h2>⌨️ / 📱 Steuerung</h2>
+        <h3>Laptop</h3>
+        <ul>
+          <li><strong>Pfeiltasten</strong> — Bewegen / schieben</li>
+          <li><strong>R</strong> — Level neu laden</li>
+          <li><strong>Ctrl/Cmd + Z</strong> — Letzten Zug rückgängig</li>
+          <li><strong>Toolbar</strong> — Reset, Undo, 📈 Level, 🔊/🔇 Audio, 📊 Report</li>
+        </ul>
+        <h3>Smartphone</h3>
+        <ul>
+          <li><strong>PLAY</strong> — Start (Audio auf iOS freischalten)</li>
+          <li><strong>D-Pad</strong> oder <strong>Wischen</strong> auf dem Canvas</li>
+          <li><strong>📊 Report</strong> — Level-Zusammenfassung</li>
+        </ul>
+
+        <hr>
+
+        <h2>📱 iOS-Tipp: Zum Homescreen hinzufügen</h2>
+        <ol>
+          <li><strong>Teilen (⬆️)</strong> unten antippen</li>
+          <li><strong>„Zum Home-Bildschirm“</strong> wählen</li>
+          <li>Neue <strong>Cashflow Rush</strong>-App öffnen</li>
+        </ol>
+        <blockquote>Funktioniert <strong>offline</strong> wie eine native App. 🚀</blockquote>
+        <p>Der Hinweis erscheint nur <strong>einmal</strong>, solange die App nicht als PWA installiert ist.</p>
+
+        <hr>
+
+        <h2>⚙️ PWA — Installation & Updates</h2>
+        <ul>
+          <li>Installierbar auf iOS, Android und Desktop</li>
+          <li><strong>Auto-Update:</strong> Service Worker aktualisiert Dateien</li>
+          <li>Aktuelle Version: <strong>v3.1.4</strong></li>
+          <li>Versions-Query <code>?v=3.1.4</code> in <code>index.html</code>, <code>app.js</code>, <code>dual.js</code>, <code>sw.js</code></li>
+          <li>Service Worker sendet <code>SW_UPDATED</code> und erzwingt Reload</li>
+        </ul>
+        <blockquote>Falls etwas veraltet wirkt: App öffnen und zwei Reloads abwarten — kein manuelles Cache-Leeren nötig.</blockquote>
+
+        <hr>
+
+        <h2>⚖️ Spielparameter (Standard)</h2>
+        <table>
+          <thead><tr><th>Ereignis</th><th>Effekt</th></tr></thead>
+          <tbody>
+            <tr><td>Münzen</td><td>+500 Netto</td></tr>
+            <tr><td>Dividende</td><td>+200 Cashflow</td></tr>
+            <tr><td>Hebel</td><td>+600 Cashflow, −400 Netto</td></tr>
+            <tr><td>Inflation</td><td>−200 Cashflow</td></tr>
+            <tr><td>Steuer</td><td>−800 Netto</td></tr>
+            <tr><td>Aktives Asset</td><td>+100 Netto pro Zug für begrenzte Züge</td></tr>
+            <tr><td>Verfall</td><td>alle 7 Züge −100 Cashflow</td></tr>
+          </tbody>
+        </table>
+
+        <hr>
+
+        <h2>🚫 Anti-Grind</h2>
+        <p>Kein Einkommen bei:</p>
+        <ul>
+          <li>sofortigem Zurückgehen in die vorige Richtung,</li>
+          <li>oder Mikro-Schleife A→B→A ohne Events/Schieben.</li>
+        </ul>
+
+        <hr>
+
+        <h2>🧩 Fortschritt & Zurücksetzen</h2>
+        <ul>
+          <li><strong>📈 Level</strong> — Direkt zu einem Level springen</li>
+          <li><strong>↺ Karriere neu starten</strong> — Fortschritt & Reputation löschen</li>
+          <li>Lokale Speicherung: <code>cfr.level</code>, <code>cfr.rep</code>, <code>cfr.muted</code>, <code>du.mode</code></li>
+        </ul>
+
+        <hr>
+
+        <h2>🚀 Deploy / Hosting</h2>
+        <ol>
+          <li>Auf statischem Server bereitstellen (HTTPS empfohlen)</li>
+          <li>Korrekte MIME-Typen liefern (JS, JSON, PNG, Webmanifest)</li>
+          <li>Versions-Queries (<code>?v=</code>) in <code>index.html</code>, <code>sw.js</code>, <code>dual.js</code> anpassen</li>
+          <li>Version in <code>&lt;title&gt;</code>, JS-Dateien und <code>const VER</code> in <code>sw.js</code> erhöhen</li>
+        </ol>
+
+        <hr>
+
+        <h2>🧾 Originalität & Urheberrecht</h2>
+        <p><strong>Cashflow Rush — Career Edition</strong> ist ein originales Projekt von <strong>Alessandro Pezzali (pezzaliAPP)</strong>. Kein identischer Titel mit gleichen Regeln/Struktur existiert.</p>
+        <p>Mechanische Inspiration: <strong>Sokoban</strong> (1981). Alle übrigen Elemente — Thema, KPIs, Karriere, Anti-Grind, PWA-UI, Lernziel — sind eigenständig.</p>
+
+        <footer>© 2025 pezzaliAPP — MIT • Open Source, edukativ</footer>
+        <p style="text-align:center;"><a href="https://www.alessandropezzali.it/CashflowRushPWA/" class="btn">⬅️ Zurück zum Spiel</a></p>
+      </article>
+
+    </div>
   </main>
+
+  <script>
+    (function(){
+      const buttons = document.querySelectorAll('.lang button');
+      const blocks = {
+        it: document.getElementById('it'),
+        en: document.getElementById('en'),
+        de: document.getElementById('de'),
+      };
+      const saved = localStorage.getItem('cfr.readme.lang') || 'it';
+      setLang(saved);
+
+      buttons.forEach(b=>b.addEventListener('click', ()=>{
+        setLang(b.dataset.lang);
+      }));
+
+      function setLang(code){
+        Object.values(blocks).forEach(el=>el.classList.remove('active'));
+        (blocks[code]||blocks.it).classList.add('active');
+        buttons.forEach(b=>b.classList.toggle('active', b.dataset.lang===code));
+        document.documentElement.lang = code;
+        localStorage.setItem('cfr.readme.lang', code);
+        // scroll to top when switching
+        document.querySelector('main').scrollTo({top:0, behavior:'instant'});
+      }
+    })();
+  </script>
 </body>
 </html>

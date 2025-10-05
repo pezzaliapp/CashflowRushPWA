@@ -1,10 +1,10 @@
-// sw.js — Auto-update (v2.8.7)
-const APP_VERSION = 'v2.8.7';
+// sw.js — Auto-update (v2.8.8)
+const APP_VERSION = 'v2.8.8';
 const CACHE_SHELL = `cashflow-shell-${APP_VERSION}`;
 const ASSETS_SHELL = [
   './',
   './index.html',
-  './app.js?v=2.8.7',
+  './app.js?v=2.8.8',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png'
@@ -30,7 +30,8 @@ self.addEventListener('message', (event) => { if (event.data && event.data.type 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
-  const isShell = url.search.includes('v=2.8.7') || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  const isShell = url.search.includes('v=2.8.8') || url.pathname.endswith('/index.html') or url.pathname.endswith('/')
+  ;
   if (isShell) {
     e.respondWith((async () => {
       try {

@@ -1,4 +1,4 @@
-// app.js — v2.8.7 Mobile polish + no haptic fallback sound
+// app.js — v2.8.8 Start/Play + mobile vertical legend
 (() => {
   const gridSize = 12, baseRes = 720;
   function getCanvas(){ return document.body.classList.contains('mode-mobile') ? document.getElementById('gameMob') : document.getElementById('game'); }
@@ -12,7 +12,7 @@
     document.body.classList.toggle('mode-mobile', mode==='mobile');
     document.body.classList.toggle('mode-desktop', mode!=='mobile');
     document.querySelectorAll('#modeSeg button').forEach(b=>b.classList.toggle('active', b.dataset.mode===modePref));
-    canvas = getCanvas(); ctx = canvas.getContext('2d'); canvas.width=baseRes; canvas.height=baseRes; fitCanvas(); render();
+    canvas = getCanvas(); ctx = canvas.getContext('2d'); canvas.width=baseRes; canvas.height=baseRes; fitCanvas(); render(); updatePlayOverlay();
   }
   function fitCanvas(){
     if(document.body.classList.contains('mode-mobile')){
@@ -39,14 +39,14 @@
   function fmt(n){ return n.toLocaleString('it-IT',{maximumFractionDigits:0}) + "€"; }
   function syncHUD(){ if(el.net) el.net.textContent=fmt(state.net); if(el.flow) el.flow.textContent=fmt(state.flow)+"/mossa"; if(el.moves) el.moves.textContent=state.moves; if(el.target) el.target.textContent=fmt(state.target); if(el.mNet2) el.mNet2.textContent=fmt(state.net); if(el.mFlow2) el.mFlow2.textContent=fmt(state.flow)+"/mossa"; if(el.mMoves2) el.mMoves2.textContent=state.moves; if(el.mTarget2) el.mTarget2.textContent=fmt(state.target); }
 
-  // Audio + Haptics (no fallback click)
+  // Audio + Haptics
   let muted = localStorage.getItem('cashflow.muted') === '1';
   const $mute = document.getElementById('muteBtn'); $mute.textContent = muted ? '🔇' : '🔊';
   const AudioCtx = window.AudioContext || window.webkitAudioContext; const actx = AudioCtx ? new AudioCtx() : null;
   function ensureAudio(){ if(actx && actx.state==='suspended'){ actx.resume().catch(()=>{}); } }
   ['touchstart','mousedown','keydown'].forEach(ev=>window.addEventListener(ev, ensureAudio, {passive:true}));
   function tone(freq=440, dur=0.06, type='sine', vol=0.05){ if(!actx || muted) return; try{ const o=actx.createOscillator(), g=actx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{ try{o.stop()}catch{} }, dur*1000);}catch{} }
-  function haptic(patternOrMs=10){ if(navigator.vibrate){ navigator.vibrate(patternOrMs); } /* else: do nothing, no fake click */ }
+  function haptic(patternOrMs=10){ if(navigator.vibrate){ navigator.vibrate(patternOrMs); } }
   $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cashflow.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
 
   // Levels
@@ -71,6 +71,7 @@
   let levelIndex = parseInt(localStorage.getItem('cashflow.level')||'0'); if(levelIndex>=levels.length) levelIndex=0;
   let state=null, history=[], lastDividendMove=-999, leverageCountEarly=0;
   let lastDir = {dx:0, dy:0}, backtrackStreak = 0;
+  let started = false;
 
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
   function tile(x,y){ return state.grid[y][x]; }
@@ -79,6 +80,45 @@
   function assetAt(x,y){ return state.assets.find(a=>a.x===x && a.y===y); }
   function goalAt(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
   function recalcAssets(){ for(const a of state.assets){ const was=a.active; a.active=goalAt(a.x,a.y); if(a.active && !was) a.fuel=5; } }
+
+  def_sound = 0
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
+
+  def_sound = 0
+
+  def_haptic = 0
 
   function applyTileEffect(x,y){
     const t=tile(x,y);
@@ -111,7 +151,7 @@
   function save(){ localStorage.setItem('cashflow.state', JSON.stringify(state)); localStorage.setItem('cashflow.level', String(levelIndex)); }
   function restore(){ const raw=localStorage.getItem('cashflow.state'); if(!raw) return false; try{ state=JSON.parse(raw); return true; }catch{ return false; } }
 
-  function loadLevel(idx){
+  function baseLoad(idx){
     const L=levels[idx]; const grid=L.grid.map(r=>r.split(''));
     let player={x:0,y:0}; const assets=[], goals=[];
     for(let y=0;y<gridSize;y++) for(let x=0;x<gridSize;x++){ const t=grid[y][x];
@@ -123,10 +163,20 @@
     history=[]; lastDividendMove=-999; leverageCountEarly=0; lastDir={dx:0,dy:0}; backtrackStreak=0;
     syncHUD(); render(); save(); fitCanvas();
   }
+  function loadLevel(idx){ baseLoad(idx); started=false; updatePlayOverlay(); }
 
-  function undo(){ if(history.length<=1) return; history.pop(); state=clone(history[history.length-1]); syncHUD(); render(); }
+  function updatePlayOverlay(){
+    const desk = document.getElementById('playOverlayDesk'); const mob = document.getElementById('playOverlayMob');
+    const onMob = document.body.classList.contains('mode-mobile');
+    desk && (desk.style.display = (!started && !onMob) ? 'flex' : 'none');
+    mob && (mob.style.display = (!started && onMob) ? 'flex' : 'none');
+  }
+  function startGame(){ started=true; ensureAudio(); updatePlayOverlay(); }
+
+  function undo(){ if(!started) return; if(history.length<=1) return; history.pop(); state=clone(history[history.length-1]); syncHUD(); render(); }
 
   function move(dx,dy){
+    if(!started) return;
     const nx=state.player.x+dx, ny=state.player.y+dy;
     if(!inBounds(nx,ny)||isWall(nx,ny)) return;
     const box=assetAt(nx,ny);
@@ -194,10 +244,10 @@
       if(Math.abs(dx)>Math.abs(dy)) move(dx>0?1:-1,0); else move(0,dy>0?1:-1);
       ts=null; }, {passive:true});
   });
-  window.addEventListener('keydown', e=>{ if(isMobile()) return; const k=e.key; if(k==='ArrowLeft') move(-1,0); if(k==='ArrowRight') move(1,0); if(k==='ArrowUp') move(0,-1); if(k==='ArrowDown') move(0,1); if(k==='z'&&(e.ctrlKey||e.metaKey)) undo(); if(k==='r') loadLevel(levelIndex); });
+  window.addEventListener('keydown', e=>{ if(isMobile() || !started) return; const k=e.key; if(k==='ArrowLeft') move(-1,0); if(k==='ArrowRight') move(1,0); if(k==='ArrowUp') move(0,-1); if(k==='ArrowDown') move(0,1); if(k==='z'&&(e.ctrlKey||e.metaKey)) undo(); if(k==='r') loadLevel(levelIndex); });
 
   // Toolbar
-  document.getElementById('resetBtn').addEventListener('click', ()=>loadLevel(levelIndex));
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ loadLevel(levelIndex); });
   document.getElementById('undoBtn').addEventListener('click', ()=>undo());
   document.getElementById('levelsBtn').addEventListener('click', ()=>{
     const list = levels.map((L,i)=>`${i+1}. ${L.name}`).join('\\n');
@@ -206,7 +256,11 @@
     levelIndex = idx; loadLevel(levelIndex);
   });
 
+  document.getElementById('playBtnDesk').addEventListener('click', ()=>{ started=true; ensureAudio(); updatePlayOverlay(); });
+  document.getElementById('playBtnMob').addEventListener('click', ()=>{ started=true; ensureAudio(); updatePlayOverlay(); });
+
   // Start
   applyMode();
-  if(!restore()){ loadLevel(levelIndex); } else { syncHUD(); render(); fitCanvas(); }
+  if(!restore()){ baseLoad(levelIndex); } else { render(); fitCanvas(); }
+  started=false; updatePlayOverlay();
 })();

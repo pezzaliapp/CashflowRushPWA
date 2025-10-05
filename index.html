@@ -4,59 +4,80 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush — Dual Universe v3.1.0</title>
+  <title>Cashflow Rush — Dual Universe v3.1.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
   <style>
     :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;--warn:#ffaa00;--danger:#ff4d4d}
     *{box-sizing:border-box} html,body{height:100%;margin:0}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;background:radial-gradient(1200px 1200px at 12% -10%,#141f45 0%, var(--bg) 45%) fixed;color:var(--ink);display:flex;flex-direction:column;min-height:100svh}
-    header,.wrap{width:100%;max-width:1180px;margin:0 auto;padding:10px 16px}
-    header{display:flex;gap:12px;align-items:center;justify-content:space-between}
+
+    header{width:100%;max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
     header .title{display:flex;gap:10px;align-items:center}
     header img{width:34px;height:34px;border-radius:8px}
-    header h1{font-size:16px;margin:0}
+    header h1{font-size:16px;margin:0;line-height:1.2}
     .seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
     .seg button{background:transparent;border:0;color:var(--muted);padding:6px 10px;cursor:pointer;font-size:13px}
     .seg button.active{background:#0c1533;color:var(--ink)}
     .btn{background:#0c1533;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:8px 12px;cursor:pointer}
     .btn:hover{border-color:var(--accent)}
 
-    .grid{display:grid;grid-template-columns:minmax(520px, 760px) 360px;gap:18px}
-    .stage{position:relative;background:#081028;border:2px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:center}
-    canvas{width:720px;height:720px;max-width:100%;max-height:calc(100svh - 320px);display:block;border-radius:10px;image-rendering:pixelated;touch-action:none}
+    /* DESKTOP LAYOUT */
+    .desk{width:100%;max-width:1180px;margin:0 auto;padding:0 16px 16px;display:grid;grid-template-columns:minmax(520px, 760px) 360px;gap:18px}
+    .stageDesk{position:relative;background:#081028;border:2px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:center}
+    canvas#gameDesk{width:720px;height:720px;max-width:100%;max-height:calc(100svh - 320px);display:block;border-radius:10px;image-rendering:pixelated;touch-action:none}
     .overlay{position:absolute;inset:14px;border-radius:12px;background:rgba(8,16,40,.72);display:flex;align-items:center;justify-content:center;border:1px dashed #2a3a77;z-index:10}
     .playBtn{background:#0c1533;border:1px solid #3a4a8d;color:#e9f1ff;padding:14px 22px;border-radius:999px;font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px;cursor:pointer}
     .playBtn::before{content:"▶"}
 
-    aside{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+    aside.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
     .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .kpi{background:#0c1533;border:1px solid var(--line);border-radius:12px;padding:10px}
     .kpi b{display:block;font-size:12px;color:#c3cfee}
     .kpi span{font-weight:800;font-size:20px}
-
     .legend{display:flex;flex-wrap:wrap;gap:8px}
     .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:13px;color:#cbd5f0}
     .dot{width:10px;height:10px;border-radius:50%}
 
-    .flash{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .25s ease}
-    .flash.show{opacity:.7}
-    .flash.green{background:radial-gradient(90vh 90vh at 50% 50%, rgba(45,211,111,.5), transparent 60%)}
-    .flash.red{background:radial-gradient(90vh 90vh at 50% 50%, rgba(255,77,77,.5), transparent 60%)}
+    /* MOBILE LAYOUT */
+    .mob{display:none}
+    .mobKPI{width:100%;max-width:1180px;margin:0 auto;padding:8px 16px 4px;display:none}
+    .mobKPI .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mobKPI .kpi{background:#0d1533;border:1px solid #233066;border-radius:12px;padding:12px}
+    .mobKPI .kpi b{font-size:12px;color:#c3cfee}
+    .mobKPI .kpi span{font-size:22px;font-weight:800}
 
-    @media (max-width: 920px){
-      .grid{grid-template-columns:1fr}
-      canvas{max-height:calc(100svh - 380px)}
-    }
+    .stageMob{display:none;padding:0 12px}
+    .frameMob{position:relative;background:#081028;border:2px solid var(--line);border-radius:16px;padding:14px;margin:6px auto 8px auto;display:flex;align-items:center;justify-content:center;max-width:min(96vw, 820px)}
+    .frameMob canvas{width:min(94vw, 720px);height:auto;display:block;image-rendering:pixelated;touch-action:none;border-radius:10px}
+    .frameMob .overlay{inset:14px}
+
+    .controlsRow{display:none;grid-template-columns:1fr auto 1fr;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+    .legendCol{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+    .legendCol.left{align-items:flex-start}
+    .legendCol .tag{min-width:126px;justify-content:center}
+
+    .touchpad{display:flex;flex-direction:column;align-items:center;gap:8px;transform:translateY(-4px)}
+    .touchpad button{background:#0c1533;color:#e9f1ff;font-size:22px;border:1px solid #1a2655;border-radius:12px;padding:10px 16px;min-width:64px;min-height:48px;cursor:pointer;touch-action:manipulation}
+    .touchpad .row{display:flex;gap:10px;align-items:center;justify-content:center}
+
+    /* MODE TOGGLES */
+    body.mode-desktop .desk{display:grid}
+    body.mode-desktop .mobKPI, body.mode-desktop .stageMob, body.mode-desktop .controlsRow{display:none}
+
+    body.mode-mobile .desk{display:none}
+    body.mode-mobile .mobKPI{display:block}
+    body.mode-mobile .stageMob{display:block}
+    body.mode-mobile .controlsRow{display:grid}
 
     footer{margin-top:auto;width:100%;text-align:center;color:#9db0d0;opacity:.6;font-size:12px;padding:10px 0 12px}
   </style>
 </head>
-<body>
+<body class="mode-desktop">
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <h1>Cashflow Rush — Dual Universe v3.1.0</h1>
+      <h1>Cashflow Rush — Dual Universe v3.1.1</h1>
     </div>
     <div class="actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <div class="seg" id="modeSeg">
@@ -77,44 +98,83 @@
     </div>
   </header>
 
-  <div class="wrap grid">
-    <div class="stage">
-      <canvas id="game" width="720" height="720"></canvas>
-      <div class="overlay" id="overlay"><button class="playBtn" id="playBtn">PLAY</button></div>
-      <div id="flash" class="flash"></div>
+  <!-- DESKTOP -->
+  <section class="desk">
+    <div class="stageDesk">
+      <canvas id="gameDesk" width="720" height="720"></canvas>
+      <div class="overlay" id="overlayDesk"><button class="playBtn" id="playBtnDesk">PLAY</button></div>
+      <div id="flashDesk" class="flash"></div>
     </div>
-    <aside>
+    <aside class="panel">
       <div class="kpis">
-        <div class="kpi"><b>Valore Netto</b> <span id="kNet">0€</span></div>
-        <div class="kpi"><b>Flusso €/mossa</b> <span id="kFlow">0€/mossa</span></div>
-        <div class="kpi kpi-career"><b>Mosse</b> <span id="kMoves">0</span></div>
-        <div class="kpi kpi-career"><b>Obiettivo</b> <span id="kTarget">50.000€</span></div>
-        <div class="kpi kpi-career"><b>Efficienza</b> <span id="kEff">0%</span></div>
-        <div class="kpi kpi-career"><b>Reputazione ★</b> <span id="kRep">0</span></div>
+        <div class="kpi"><b>Valore Netto</b> <span id="dNet">0€</span></div>
+        <div class="kpi"><b>Flusso €/mossa</b> <span id="dFlow">0€/mossa</span></div>
+        <div class="kpi"><b>Mosse</b> <span id="dMoves">0</span></div>
+        <div class="kpi"><b>Obiettivo</b> <span id="dTarget">50.000€</span></div>
+        <div class="kpi"><b>Efficienza</b> <span id="dEff">0%</span></div>
+        <div class="kpi"><b>Reputazione ★</b> <span id="dRep">0</span></div>
       </div>
       <div class="legend">
         <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
-        <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset attivo</span>
-        <span class="tag"><span class="dot" style="background:#748ffc"></span>Asset inattivo</span>
-        <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
         <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
+        <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
         <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
         <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa</span>
+        <span class="tag"><span class="dot" style="background:#748ffc"></span>Asset</span>
         <span class="tag"><span class="dot" style="background:#19cf83"></span>Goal</span>
       </div>
       <div class="panel" style="color:#c9d4f0;font-size:13px">
-        <b>Modalità:</b> Classic → 7 livelli brevi • Career → 10 livelli progressivi (Efficienza, Reputazione).  
-        Anti-grind: niente incassi su avanti↔indietro o loop brevi senza evento economico.
+        Selettore Classic/Career in alto. Anti-grind: niente incassi su avanti↔indietro o loop brevi senza evento economico.
       </div>
     </aside>
-  </div>
+  </section>
+
+  <!-- MOBILE -->
+  <section class="mobKPI">
+    <div class="grid">
+      <div class="kpi"><b>Valore Netto</b><span id="mNet">0€</span></div>
+      <div class="kpi"><b>Flusso €/mossa</b><span id="mFlow">0€/mossa</span></div>
+      <div class="kpi"><b>Mosse</b><span id="mMoves">0</span></div>
+      <div class="kpi"><b>Obiettivo</b><span id="mTarget">50.000€</span></div>
+    </div>
+  </section>
+
+  <section class="stageMob">
+    <div class="frameMob">
+      <canvas id="gameMob" width="720" height="720"></canvas>
+      <div class="overlay" id="overlayMob"><button class="playBtn" id="playBtnMob">PLAY</button></div>
+    </div>
+
+    <div class="controlsRow">
+      <div class="legendCol left">
+        <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
+        <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
+        <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset</span>
+      </div>
+
+      <div class="touchpad" aria-label="Pad direzionale">
+        <button data-dx="0" data-dy="-1" aria-label="Su">▲</button>
+        <div class="row">
+          <button data-dx="-1" data-dy="0" aria-label="Sinistra">◀</button>
+          <button data-dx="1" data-dy="0" aria-label="Destra">▶</button>
+        </div>
+        <button data-dx="0" data-dy="1" aria-label="Giu">▼</button>
+      </div>
+
+      <div class="legendCol">
+        <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
+        <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
+        <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa</span>
+      </div>
+    </div>
+  </section>
 
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
-  <script src="./app.js?v=3.1.0"></script>
+  <script src="./app.js?v=3.1.1"></script>
   <script>
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=3.1.0').then(reg=>{
+      navigator.serviceWorker.register('./sw.js?v=3.1.1').then(reg=>{
         if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
         reg.addEventListener('updatefound', ()=>{
           const nw = reg.installing;

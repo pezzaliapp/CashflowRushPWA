@@ -71,10 +71,10 @@
     body.mode-mobile .stageMob{display:block}
     body.mode-mobile .controlsRow{display:grid}
 
-    /* Modal base (report + iOS tips riusano gli stessi stili) */
+    /* Modal base */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:999}
     .modal.show{display:flex}
-    .modal .card{background:#0c1533;border:1px solid #1a2655;border-radius:14px;min-width:min(92vw,560px);max-width:96vw;padding:16px;color:#e9f1ff}
+    .modal .card{background:#0c1533;border:1px solid #1a2655;border-radius:14px;min-width:min(92vw,560px);max-width:96vw;padding:16px;color:#e9f1ff;max-height:90vh;overflow:auto}
     .modal .card h3{margin:0 0 8px 0;font-size:18px}
     .modal .card .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .modal .row{display:flex;justify-content:space-between;gap:10px;background:#0b1430;border:1px solid #223065;border-radius:10px;padding:8px 10px}
@@ -95,6 +95,7 @@
         <button data-mode="desktop">💻 Laptop</button>
         <button data-mode="mobile">📱 Smartphone</button>
       </div>
+      <button class="btn" id="readmeBtn">📘 Leggi</button>
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn" id="muteBtn">🔊</button>
@@ -105,37 +106,32 @@
   </header>
 
   <!-- DESKTOP -->
-<section class="desk">
-  <div class="stageDesk">
-    <canvas id="gameDesk" width="720" height="720"></canvas>
-    <div class="playOverlay" id="playOverlayDesk">
-      <button class="playBtn" id="playBtnDesk">PLAY</button>
+  <section class="desk">
+    <div class="stageDesk">
+      <canvas id="gameDesk" width="720" height="720"></canvas>
+      <div class="playOverlay" id="playOverlayDesk"><button class="playBtn" id="playBtnDesk">PLAY</button></div>
     </div>
-  </div>
+    <aside class="panel">
+      <div class="kpis">
+        <div class="kpi"><b>Valore Netto</b><span id="dNet">0€</span></div>
+        <div class="kpi"><b>Flusso €/mossa</b><span id="dFlow">0€/mossa</span></div>
+        <div class="kpi"><b>Mosse</b><span id="dMoves">0</span></div>
+        <div class="kpi"><b>Obiettivo</b><span id="dTarget">50.000€</span></div>
+        <div class="kpi"><b>Efficienza</b><span id="dEff">0%</span></div>
+        <div class="kpi"><b>Reputazione ★</b><span id="dRep">0</span></div>
+      </div>
+      <div class="legend" style="margin-top:10px">
+        <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
+        <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
+        <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset</span>
+        <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
+        <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
+        <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa</span>
+      </div>
+    </aside>
+  </section>
 
-  <aside class="panel">
-    <div class="kpis">
-      <div class="kpi"><b>Valore Netto</b><span id="dNet">0€</span></div>
-      <div class="kpi"><b>Flusso €/mossa</b><span id="dFlow">0€/mossa</span></div>
-      <div class="kpi"><b>Mosse</b><span id="dMoves">0</span></div>
-      <div class="kpi"><b>Obiettivo</b><span id="dTarget">50.000€</span></div>
-      <div class="kpi"><b>Efficienza</b><span id="dEff">0%</span></div>
-      <div class="kpi"><b>Reputazione ★</b><span id="dRep">0</span></div>
-    </div>
-
-    <!-- ✅ LEGENDA DESKTOP -->
-    <div class="legend" style="margin-top:10px">
-      <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
-      <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
-      <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset</span>
-      <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
-      <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
-      <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa</span>
-    </div>
-  </aside>
-</section>
-
-  <!-- MOBILE KPI -->
+  <!-- MOBILE KPI + STAGE -->
   <section class="mobileKPI">
     <div class="grid">
       <div class="kpi"><b>Valore Netto</b><span id="mNet">0€</span></div>
@@ -146,8 +142,6 @@
       <div class="kpi"><b>Reputazione ★</b><span id="mRep">0</span></div>
     </div>
   </section>
-
-  <!-- MOBILE STAGE -->
   <section class="stageMob">
     <div class="frameMob">
       <canvas id="gameMob" width="720" height="720"></canvas>
@@ -175,6 +169,30 @@
     </div>
   </section>
 
+  <!-- INTRO MODAL -->
+  <div class="modal" id="introModal">
+    <div class="card">
+      <h3>💼 Benvenuto in Cashflow Rush</h3>
+      <p>Prima di iniziare, puoi leggere come funziona il gioco e le regole base.</p>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="btn" id="openReadme">📘 Leggi le istruzioni</button>
+      </div>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="btn" id="startGame">▶ Inizia a giocare</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- README MODAL -->
+  <div class="modal" id="readmeModal">
+    <div class="card" style="max-width:92vw;max-height:90vh;padding:0;overflow:hidden;">
+      <iframe src="./readme.html" style="width:100%;height:80vh;border:0;"></iframe>
+      <div class="close" style="padding:10px;">
+        <button class="btn" id="closeReadme">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
   <!-- REPORT MODAL -->
   <div class="modal" id="reportModal">
     <div class="card">
@@ -193,87 +211,75 @@
   </div>
 
   <!-- iOS A2HS TIPS MODAL -->
-<div class="modal" id="iosTips">
-  <div class="card">
-    <h3>📱 Installa sulla Schermata Home</h3>
-    <p style="margin-top:0;color:#c9d4f0">
-      Per giocare al meglio su iPhone (audio fluido, prestazioni e salvataggi),
-      aggiungi <b>Cashflow Rush</b> alla Schermata Home.
-    </p>
-    <div class="grid">
-      <div class="row"><span>1️⃣ Apri il menu Condividi</span><b>⬆️ (barra in basso)</b></div>
-      <div class="row"><span>2️⃣ Tocca</span><b>“Aggiungi alla schermata Home”</b></div>
-      <div class="row"><span>3️⃣ Apri l’icona</span><b>Cashflow Rush</b> appena creata</div>
-    </div>
-    <p style="margin:10px 0 0 0;color:#9db0d0">
-      Suggerimento: funziona anche <b>offline</b>, come una vera App. 🚀
-    </p>
-
-    <!-- 🔹 Nuova sezione: pulsante “Leggi come funziona” -->
-    <div style="text-align:center;margin-top:18px;">
-      <a href="https://www.alessandropezzali.it/CashflowRushPWA/readme.html"
-         target="_blank"
-         class="btn"
-         style="background:#0c1533;border:1px solid #3a4a8d;color:#e9f1ff;
-                padding:10px 18px;border-radius:999px;display:inline-block;
-                font-weight:600;">
-         📖 Leggi come funziona
-      </a>
-    </div>
-
-    <div class="close" style="margin-top:16px;">
-      <button class="btn" id="iosTipsClose">Ho capito</button>
+  <div class="modal" id="iosTips">
+    <div class="card">
+      <h3>📱 Installa sulla Schermata Home</h3>
+      <p style="margin-top:0;color:#c9d4f0">
+        Per giocare al meglio su iPhone (audio fluido, prestazioni e salvataggi),
+        aggiungi <b>Cashflow Rush</b> alla Schermata Home.
+      </p>
+      <div class="grid">
+        <div class="row"><span>1️⃣ Apri il menu Condividi</span><b>⬆️ (barra in basso)</b></div>
+        <div class="row"><span>2️⃣ Tocca</span><b>“Aggiungi alla schermata Home”</b></div>
+        <div class="row"><span>3️⃣ Apri l’icona</span><b>Cashflow Rush</b> appena creata</div>
+      </div>
+      <p style="margin:10px 0 0 0;color:#9db0d0">
+        Suggerimento: funziona anche <b>offline</b>, come una vera App. 🚀
+      </p>
+      <div style="text-align:center;margin-top:18px;">
+        <a href="https://www.alessandropezzali.it/CashflowRushPWA/readme.html" target="_blank" class="btn">📖 Leggi come funziona</a>
+      </div>
+      <div class="close" style="margin-top:16px;">
+        <button class="btn" id="iosTipsClose">Ho capito</button>
+      </div>
     </div>
   </div>
-</div>
+
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
-  <!-- iOS A2HS detection: mostra guida solo su iPhone/iPad non-installato, solo la prima volta -->
+  <!-- SCRIPT -->
   <script>
-    (function(){
-      const ua = navigator.userAgent || navigator.vendor || window.opera;
-      const isIOS = /iphone|ipad|ipod/i.test(ua);
-      const isStandalone = (window.navigator.standalone === true) ||
-                           (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-      const alreadyShown = localStorage.getItem('pwa.tipShown') === '1';
+    // Intro modal
+    const introShown = localStorage.getItem('intro.shown');
+    const intro = document.getElementById('introModal');
+    const startBtn = document.getElementById('startGame');
+    const openReadme = document.getElementById('openReadme');
+    const readmeModal = document.getElementById('readmeModal');
+    const closeReadme = document.getElementById('closeReadme');
+    const readmeBtn = document.getElementById('readmeBtn');
 
-      function showTips(){
-        const modal = document.getElementById('iosTips');
-        if (!modal) return;
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        const close = document.getElementById('iosTipsClose');
-        if (close) {
-          close.addEventListener('click', () => {
-            modal.classList.remove('show');
-            document.body.style.overflow = '';
-            localStorage.setItem('pwa.tipShown', '1');
-          }, { once: true });
-        }
-      }
-      if (isIOS && !isStandalone && !alreadyShown) {
-        window.requestAnimationFrame(showTips);
-      }
-    })();
+    if (!introShown) {
+      intro.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    startBtn?.addEventListener('click', () => {
+      intro.classList.remove('show');
+      document.body.style.overflow = '';
+      localStorage.setItem('intro.shown', '1');
+    });
+
+    openReadme?.addEventListener('click', () => {
+      readmeModal.classList.add('show');
+    });
+
+    closeReadme?.addEventListener('click', () => {
+      readmeModal.classList.remove('show');
+    });
+
+    readmeBtn?.addEventListener('click', () => {
+      readmeModal.classList.add('show');
+    });
   </script>
 
-  <!-- Layout adapter + swipe/vibration -->
-  <script src="./dual.js?v=3.1.3"></script>
-  <!-- Game engine robust per mobile/desktop -->
-  <script src="./app.js?v=3.1.4-robust"></script>
+  <!-- Layout adapter + engine -->
+  <script src="./dual.js?v=3.1.4"></script>
+  <script src="./app.js?v=3.1.4"></script>
 
-  <!-- Service Worker con cache-busting -->
+  <!-- Service Worker -->
   <script>
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=3.1.4').then(reg=>{
-        if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
-        reg.addEventListener('updatefound', ()=>{
-          const nw = reg.installing;
-          nw && nw.addEventListener('statechange', ()=>{ if(nw.state==='installed'){ location.reload(); } });
-        });
-      });
-      navigator.serviceWorker.addEventListener('controllerchange', ()=>location.reload());
-      navigator.serviceWorker.addEventListener('message', (ev) => { if (ev.data && ev.data.type === 'SW_UPDATED') location.reload(); });
+      navigator.serviceWorker.register('./sw.js?v=3.1.4');
     }
   </script>
 </body>

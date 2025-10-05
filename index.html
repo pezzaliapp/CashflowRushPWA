@@ -4,15 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush — Career Edition v3.1.0-career</title>
+  <title>Cashflow Rush — Career Edition v3.1.4</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
+
+  <!-- iOS PWA meta -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <style>
     :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;--warn:#ffaa00;--danger:#ff4d4d}
     *{box-sizing:border-box} html,body{height:100%;margin:0}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;background:radial-gradient(1200px 1200px at 12% -10%,#141f45 0%, var(--bg) 45%) fixed;color:var(--ink);display:flex;flex-direction:column;min-height:100svh}
+
     header{width:100%;max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     header .title{display:flex;gap:10px;align-items:center}
     header img{width:34px;height:34px;border-radius:8px}
@@ -22,6 +26,8 @@
     .seg button.active{background:#0c1533;color:var(--ink)}
     .btn{background:#0c1533;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:8px 12px;cursor:pointer}
     .btn:hover{border-color:var(--accent)}
+
+    /* DESKTOP */
     .desk{width:100%;max-width:1180px;margin:0 auto;padding:0 16px 16px;display:grid;grid-template-columns:minmax(520px, 760px) 360px;gap:18px}
     .stageDesk{position:relative;background:#081028;border:2px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:center}
     canvas#gameDesk{width:720px;height:720px;max-width:100%;max-height:calc(100svh - 320px);display:block;border-radius:10px;image-rendering:pixelated;touch-action:none}
@@ -36,27 +42,36 @@
     .legend{display:flex;flex-wrap:wrap;gap:8px}
     .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:13px;color:#cbd5f0}
     .dot{width:10px;height:10px;border-radius:50%}
+
+    /* MOBILE */
     .mobileKPI{width:100%;max-width:1180px;margin:0 auto;padding:8px 16px 4px;display:none}
     .mobileKPI .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .mobileKPI .kpi{background:#0d1533;border:1px solid #233066;border-radius:12px;padding:12px}
     .mobileKPI .kpi b{font-size:12px;color:#c3cfee}
     .mobileKPI .kpi span{font-size:22px;font-weight:800}
+
     .stageMob{display:none;padding:0 12px}
     .frameMob{position:relative;background:#081028;border:2px solid var(--line);border-radius:16px;padding:14px;margin:6px auto 8px auto;display:flex;align-items:center;justify-content:center;max-width:min(96vw, 820px)}
     .frameMob canvas{width:min(94vw, 720px);height:auto;display:block;image-rendering:pixelated;touch-action:none;border-radius:10px}
+
     .controlsRow{display:none;grid-template-columns:1fr auto 1fr;align-items:center;justify-content:center;gap:8px;margin-top:8px}
     .legendCol{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
     .legendCol.left{align-items:flex-start}
     .legendCol .tag{min-width:126px;justify-content:center}
+
     .touchpad{display:flex;flex-direction:column;align-items:center;gap:8px;transform:translateY(-4px)}
     .touchpad button{background:#0c1533;color:#e9f1ff;font-size:22px;border:1px solid #1a2655;border-radius:12px;padding:10px 16px;min-width:64px;min-height:48px;cursor:pointer;touch-action:manipulation}
     .touchpad .row{display:flex;gap:10px;align-items:center;justify-content:center}
+
+    /* Toggle layout */
     body.mode-desktop .desk{display:grid}
     body.mode-desktop .mobileKPI, body.mode-desktop .stageMob, body.mode-desktop .controlsRow{display:none}
     body.mode-mobile .desk{display:none}
     body.mode-mobile .mobileKPI{display:block}
     body.mode-mobile .stageMob{display:block}
     body.mode-mobile .controlsRow{display:grid}
+
+    /* Modal base (report + iOS tips riusano gli stessi stili) */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:999}
     .modal.show{display:flex}
     .modal .card{background:#0c1533;border:1px solid #1a2655;border-radius:14px;min-width:min(92vw,560px);max-width:96vw;padding:16px;color:#e9f1ff}
@@ -64,6 +79,7 @@
     .modal .card .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .modal .row{display:flex;justify-content:space-between;gap:10px;background:#0b1430;border:1px solid #223065;border-radius:10px;padding:8px 10px}
     .modal .close{margin-top:12px;display:flex;justify-content:flex-end}
+
     footer{margin-top:auto;width:100%;text-align:center;color:#9db0d0;opacity:.6;font-size:12px;padding:10px 0 12px}
   </style>
 </head>
@@ -71,7 +87,7 @@
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <h1>Cashflow Rush — Career Edition v3.1.0-career</h1>
+      <h1>Cashflow Rush — Career Edition v3.1.4</h1>
     </div>
     <div class="actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <div class="seg" id="modeSeg">
@@ -84,9 +100,11 @@
       <button class="btn" id="muteBtn">🔊</button>
       <button class="btn" id="levelsBtn">📈 Livelli</button>
       <button class="btn" id="careerBtn">↺ Restart Career</button>
-      <button class="btn" id="reportBtn">📊 Report</button>
+      <button class="btn" id="reportBtn" disabled>📊 Report</button>
     </div>
   </header>
+
+  <!-- DESKTOP -->
   <section class="desk">
     <div class="stageDesk">
       <canvas id="gameDesk" width="720" height="720"></canvas>
@@ -103,6 +121,8 @@
       </div>
     </aside>
   </section>
+
+  <!-- MOBILE KPI -->
   <section class="mobileKPI">
     <div class="grid">
       <div class="kpi"><b>Valore Netto</b><span id="mNet">0€</span></div>
@@ -113,6 +133,8 @@
       <div class="kpi"><b>Reputazione ★</b><span id="mRep">0</span></div>
     </div>
   </section>
+
+  <!-- MOBILE STAGE -->
   <section class="stageMob">
     <div class="frameMob">
       <canvas id="gameMob" width="720" height="720"></canvas>
@@ -139,6 +161,8 @@
       </div>
     </div>
   </section>
+
+  <!-- REPORT MODAL -->
   <div class="modal" id="reportModal">
     <div class="card">
       <h3>Riepilogo Partita</h3>
@@ -154,12 +178,67 @@
       <div class="close"><button class="btn" id="reportCloseBtn">Chiudi</button></div>
     </div>
   </div>
+
+  <!-- iOS A2HS TIPS MODAL -->
+  <div class="modal" id="iosTips">
+    <div class="card">
+      <h3>📱 Installa sulla Schermata Home</h3>
+      <p style="margin-top:0;color:#c9d4f0">
+        Per giocare al meglio su iPhone (audio fluido, prestazioni e salvataggi),
+        aggiungi <b>Cashflow Rush</b> alla Schermata Home.
+      </p>
+      <div class="grid">
+        <div class="row"><span>1️⃣ Apri il menu Condividi</span><b>⬆️ (barra in basso)</b></div>
+        <div class="row"><span>2️⃣ Tocca</span><b>“Aggiungi alla schermata Home”</b></div>
+        <div class="row"><span>3️⃣ Apri l’icona</span><b>Cashflow Rush</b> appena creata</div>
+      </div>
+      <p style="margin:10px 0 0 0;color:#9db0d0">
+        Suggerimento: funziona anche <b>offline</b>, come una vera App. 🚀
+      </p>
+      <div class="close"><button class="btn" id="iosTipsClose">Ho capito</button></div>
+    </div>
+  </div>
+
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
-  <script src="./dual.js?v=3.1.0-career"></script>
-  <script src="./app.js?v=3.1.0-career"></script>
+
+  <!-- iOS A2HS detection: mostra guida solo su iPhone/iPad non-installato, solo la prima volta -->
+  <script>
+    (function(){
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      const isIOS = /iphone|ipad|ipod/i.test(ua);
+      const isStandalone = (window.navigator.standalone === true) ||
+                           (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+      const alreadyShown = localStorage.getItem('pwa.tipShown') === '1';
+
+      function showTips(){
+        const modal = document.getElementById('iosTips');
+        if (!modal) return;
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        const close = document.getElementById('iosTipsClose');
+        if (close) {
+          close.addEventListener('click', () => {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+            localStorage.setItem('pwa.tipShown', '1');
+          }, { once: true });
+        }
+      }
+      if (isIOS && !isStandalone && !alreadyShown) {
+        window.requestAnimationFrame(showTips);
+      }
+    })();
+  </script>
+
+  <!-- Layout adapter + swipe/vibration -->
+  <script src="./dual.js?v=3.1.3"></script>
+  <!-- Game engine robust per mobile/desktop -->
+  <script src="./app.js?v=3.1.4-robust"></script>
+
+  <!-- Service Worker con cache-busting -->
   <script>
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=3.1.0-career').then(reg=>{
+      navigator.serviceWorker.register('./sw.js?v=3.1.4').then(reg=>{
         if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
         reg.addEventListener('updatefound', ()=>{
           const nw = reg.installing;

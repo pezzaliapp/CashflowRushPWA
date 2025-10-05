@@ -7,16 +7,21 @@
   <title>Cashflow Rush — Career Edition v3.1.4</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
-
-  <!-- iOS PWA meta -->
+  <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
     :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;--warn:#ffaa00;--danger:#ff4d4d}
-    *{box-sizing:border-box} html,body{height:100%;margin:0}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;background:radial-gradient(1200px 1200px at 12% -10%,#141f45 0%, var(--bg) 45%) fixed;color:var(--ink);display:flex;flex-direction:column;min-height:100svh}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;
+      background:radial-gradient(1200px 1200px at 12% -10%,#141f45 0%, var(--bg) 45%) fixed;
+      color:var(--ink);display:flex;flex-direction:column;min-height:100svh
+    }
 
+    /* Header / toolbar */
     header{width:100%;max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
     header .title{display:flex;gap:10px;align-items:center}
     header img{width:34px;height:34px;border-radius:8px}
@@ -27,7 +32,7 @@
     .btn{background:#0c1533;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:8px 12px;cursor:pointer}
     .btn:hover{border-color:var(--accent)}
 
-    /* DESKTOP */
+    /* Desktop layout */
     .desk{width:100%;max-width:1180px;margin:0 auto;padding:0 16px 16px;display:grid;grid-template-columns:minmax(520px, 760px) 360px;gap:18px}
     .stageDesk{position:relative;background:#081028;border:2px solid var(--line);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:center}
     canvas#gameDesk{width:720px;height:720px;max-width:100%;max-height:calc(100svh - 320px);display:block;border-radius:10px;image-rendering:pixelated;touch-action:none}
@@ -43,7 +48,7 @@
     .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#0c1533;font-size:13px;color:#cbd5f0}
     .dot{width:10px;height:10px;border-radius:50%}
 
-    /* MOBILE */
+    /* Mobile layout */
     .mobileKPI{width:100%;max-width:1180px;margin:0 auto;padding:8px 16px 4px;display:none}
     .mobileKPI .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .mobileKPI .kpi{background:#0d1533;border:1px solid #233066;border-radius:12px;padding:12px}
@@ -63,7 +68,7 @@
     .touchpad button{background:#0c1533;color:#e9f1ff;font-size:22px;border:1px solid #1a2655;border-radius:12px;padding:10px 16px;min-width:64px;min-height:48px;cursor:pointer;touch-action:manipulation}
     .touchpad .row{display:flex;gap:10px;align-items:center;justify-content:center}
 
-    /* Toggle layout */
+    /* Toggle layout by class (gestito da dual.js) */
     body.mode-desktop .desk{display:grid}
     body.mode-desktop .mobileKPI, body.mode-desktop .stageMob, body.mode-desktop .controlsRow{display:none}
     body.mode-mobile .desk{display:none}
@@ -71,7 +76,7 @@
     body.mode-mobile .stageMob{display:block}
     body.mode-mobile .controlsRow{display:grid}
 
-    /* Modal base */
+    /* Modals (intro / readme / report / iOS) */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:999}
     .modal.show{display:flex}
     .modal .card{background:#0c1533;border:1px solid #1a2655;border-radius:14px;min-width:min(92vw,560px);max-width:96vw;padding:16px;color:#e9f1ff;max-height:90vh;overflow:auto}
@@ -83,6 +88,7 @@
     footer{margin-top:auto;width:100%;text-align:center;color:#9db0d0;opacity:.6;font-size:12px;padding:10px 0 12px}
   </style>
 </head>
+
 <body class="mode-desktop">
   <header>
     <div class="title">
@@ -95,14 +101,6 @@
         <button data-mode="desktop">💻 Laptop</button>
         <button data-mode="mobile">📱 Smartphone</button>
       </div>
-
-      <!-- Language selector -->
-      <div class="seg" id="langSeg">
-        <button data-lang="it" class="active">🇮🇹 IT</button>
-        <button data-lang="en">🇬🇧 EN</button>
-        <button data-lang="de">🇩🇪 DE</button>
-      </div>
-
       <button class="btn" id="readmeBtn">📘 Leggi</button>
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
@@ -139,7 +137,7 @@
     </aside>
   </section>
 
-  <!-- MOBILE KPI + STAGE -->
+  <!-- MOBILE KPI -->
   <section class="mobileKPI">
     <div class="grid">
       <div class="kpi"><b>Valore Netto</b><span id="mNet">0€</span></div>
@@ -150,6 +148,8 @@
       <div class="kpi"><b>Reputazione ★</b><span id="mRep">0</span></div>
     </div>
   </section>
+
+  <!-- MOBILE STAGE + CONTROLLI -->
   <section class="stageMob">
     <div class="frameMob">
       <canvas id="gameMob" width="720" height="720"></canvas>
@@ -177,16 +177,19 @@
     </div>
   </section>
 
-  <!-- INTRO/WELCOME MODAL (multilingua) -->
+  <!-- INTRO MODAL (multilingua) -->
   <div class="modal" id="introModal">
     <div class="card">
-      <h3 id="wTitle">💼 Benvenuto in Cashflow Rush</h3>
-      <p id="wBody">Prima di iniziare, puoi leggere come funziona il gioco e le regole base.</p>
+      <h3 id="introTitle">💼 Benvenuto in Cashflow Rush</h3>
+      <p id="introText">Prima di iniziare, puoi leggere come funziona il gioco e le regole base.</p>
       <div style="text-align:center;margin-top:14px;">
         <button class="btn" id="openReadme">📘 Leggi le istruzioni</button>
       </div>
       <div style="text-align:center;margin-top:12px;">
         <button class="btn" id="startGame">▶ Inizia a giocare</button>
+      </div>
+      <div style="text-align:center;margin-top:10px;">
+        <button class="btn" id="changeLang">🌐 English / Deutsch</button>
       </div>
     </div>
   </div>
@@ -194,7 +197,7 @@
   <!-- README MODAL -->
   <div class="modal" id="readmeModal">
     <div class="card" style="max-width:92vw;max-height:90vh;padding:0;overflow:hidden;">
-      <iframe id="readmeFrame" src="./readme.html" style="width:100%;height:80vh;border:0;"></iframe>
+      <iframe id="readmeFrame" src="./readme.html?lang=it" style="width:100%;height:80vh;border:0;"></iframe>
       <div class="close" style="padding:10px;">
         <button class="btn" id="closeReadme">Chiudi</button>
       </div>
@@ -218,24 +221,24 @@
     </div>
   </div>
 
-  <!-- iOS A2HS TIPS MODAL -->
+  <!-- iOS A2HS TIPS (tradotto) -->
   <div class="modal" id="iosTips">
     <div class="card">
-      <h3>📱 Installa sulla Schermata Home</h3>
-      <p style="margin-top:0;color:#c9d4f0">
+      <h3 id="iosTitle">📱 Installa sulla Schermata Home</h3>
+      <p id="iosIntro" style="margin-top:0;color:#c9d4f0">
         Per giocare al meglio su iPhone (audio fluido, prestazioni e salvataggi),
         aggiungi <b>Cashflow Rush</b> alla Schermata Home.
       </p>
       <div class="grid">
-        <div class="row"><span>1️⃣ Apri il menu Condividi</span><b>⬆️ (barra in basso)</b></div>
-        <div class="row"><span>2️⃣ Tocca</span><b>“Aggiungi alla schermata Home”</b></div>
-        <div class="row"><span>3️⃣ Apri l’icona</span><b>Cashflow Rush</b> appena creata</div>
+        <div class="row"><span id="iosStep1L">1️⃣ Apri il menu Condividi</span><b id="iosStep1R">⬆️ (barra in basso)</b></div>
+        <div class="row"><span id="iosStep2L">2️⃣ Tocca</span><b id="iosStep2R">“Aggiungi alla schermata Home”</b></div>
+        <div class="row"><span id="iosStep3L">3️⃣ Apri l’icona</span><b id="iosStep3R">Cashflow Rush</b></div>
       </div>
-      <p style="margin:10px 0 0 0;color:#9db0d0">
+      <p id="iosHint" style="margin:10px 0 0 0;color:#9db0d0">
         Suggerimento: funziona anche <b>offline</b>, come una vera App. 🚀
       </p>
       <div style="text-align:center;margin-top:18px;">
-        <a href="./readme.html" target="_blank" class="btn">📖 Leggi come funziona</a>
+        <a id="iosRead" href="./readme.html" target="_blank" class="btn">📖 Leggi come funziona</a>
       </div>
       <div class="close" style="margin-top:16px;">
         <button class="btn" id="iosTipsClose">Ho capito</button>
@@ -245,122 +248,157 @@
 
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
-  <!-- LANGUAGE + INTRO + README + iOS tips -->
+  <!-- SCRIPT -->
   <script>
+    /* ========= Lingua & Traduzioni ========= */
+    let lang = (navigator.language || 'it').slice(0,2).toLowerCase();
+    const supported = ['it','en','de'];
+    if(!supported.includes(lang)) lang = 'it';
+
+    const TR = {
+      it: {
+        introTitle:"💼 Benvenuto in Cashflow Rush",
+        introText:"Prima di iniziare, puoi leggere come funziona il gioco e le regole base.",
+        read:"📘 Leggi le istruzioni",
+        play:"▶ Inizia a giocare",
+        change:"🌐 English / Deutsch",
+
+        iosTitle:"📱 Installa sulla Schermata Home",
+        iosIntro:"Per giocare al meglio su iPhone (audio fluido, prestazioni e salvataggi), aggiungi <b>Cashflow Rush</b> alla Schermata Home.",
+        ios1L:"1️⃣ Apri il menu Condividi", ios1R:"⬆️ (barra in basso)",
+        ios2L:"2️⃣ Tocca", ios2R:"“Aggiungi alla schermata Home”",
+        ios3L:"3️⃣ Apri l’icona", ios3R:"Cashflow Rush",
+        iosHint:"Suggerimento: funziona anche <b>offline</b>, come una vera App. 🚀",
+        iosRead:"📖 Leggi come funziona",
+        iosClose:"Ho capito"
+      },
+      en: {
+        introTitle:"💼 Welcome to Cashflow Rush",
+        introText:"Before you start, you can read how the game works and the basic rules.",
+        read:"📘 Read instructions",
+        play:"▶ Start playing",
+        change:"🌐 Italiano / Deutsch",
+
+        iosTitle:"📱 Add to Home Screen",
+        iosIntro:"For the best iPhone experience (smooth audio, performance and saves), add <b>Cashflow Rush</b> to your Home Screen.",
+        ios1L:"1️⃣ Open the Share menu", ios1R:"⬆️ (bottom bar)",
+        ios2L:"2️⃣ Tap", ios2R:"“Add to Home Screen”",
+        ios3L:"3️⃣ Open the new app icon", ios3R:"Cashflow Rush",
+        iosHint:"Tip: it also works <b>offline</b>, like a real App. 🚀",
+        iosRead:"📖 Read how it works",
+        iosClose:"Got it"
+      },
+      de: {
+        introTitle:"💼 Willkommen bei Cashflow Rush",
+        introText:"Bevor du startest, lies wie das Spiel funktioniert und die Grundregeln.",
+        read:"📘 Anleitung lesen",
+        play:"▶ Jetzt spielen",
+        change:"🌐 Italiano / English",
+
+        iosTitle:"📱 Zum Home-Bildschirm hinzufügen",
+        iosIntro:"Für das beste iPhone-Erlebnis (Audio, Leistung und Spielstände) füge <b>Cashflow Rush</b> zum Home-Bildschirm hinzu.",
+        ios1L:"1️⃣ Teilen-Menü öffnen", ios1R:"⬆️ (untere Leiste)",
+        ios2L:"2️⃣ Tippe auf", ios2R:"„Zum Home-Bildschirm“",
+        ios3L:"3️⃣ Öffne das neue Symbol", ios3R:"Cashflow Rush",
+        iosHint:"Tipp: funktioniert auch <b>offline</b> – wie eine echte App. 🚀",
+        iosRead:"📖 So funktioniert’s",
+        iosClose:"Verstanden"
+      }
+    };
+
+    function applyIntroLang(L){
+      const tr = TR[L];
+      document.getElementById('introTitle').textContent = tr.introTitle;
+      document.getElementById('introText').textContent = tr.introText;
+      document.getElementById('openReadme').textContent = tr.read;
+      document.getElementById('startGame').textContent = tr.play;
+      document.getElementById('changeLang').textContent = tr.change;
+      document.getElementById('readmeFrame').src = './readme.html?lang=' + L;
+
+      // iOS tips
+      document.getElementById('iosTitle').textContent = tr.iosTitle;
+      document.getElementById('iosIntro').innerHTML   = tr.iosIntro;
+      document.getElementById('iosStep1L').textContent= tr.ios1L;
+      document.getElementById('iosStep1R').textContent= tr.ios1R;
+      document.getElementById('iosStep2L').textContent= tr.ios2L;
+      document.getElementById('iosStep2R').textContent= tr.ios2R;
+      document.getElementById('iosStep3L').textContent= tr.ios3L;
+      document.getElementById('iosStep3R').textContent= tr.ios3R;
+      document.getElementById('iosHint').innerHTML    = tr.iosHint;
+      document.getElementById('iosRead').textContent  = tr.iosRead;
+      document.getElementById('iosTipsClose').textContent = tr.iosClose;
+    }
+    applyIntroLang(lang);
+
+    // Cambia lingua a rotazione IT → EN → DE → IT
+    document.getElementById('changeLang').addEventListener('click', ()=>{
+      lang = (lang==='it') ? 'en' : (lang==='en' ? 'de' : 'it');
+      applyIntroLang(lang);
+    });
+
+    /* ========= Intro / README modal ========= */
+    const intro = document.getElementById('introModal');
+    const openReadme = document.getElementById('openReadme');
+    const readmeModal = document.getElementById('readmeModal');
+    const closeReadme = document.getElementById('closeReadme');
+    const readmeBtn = document.getElementById('readmeBtn');
+    const startBtn = document.getElementById('startGame');
+
+    if(!localStorage.getItem('intro.shown')){
+      intro.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    startBtn.addEventListener('click', ()=>{
+      intro.classList.remove('show');
+      document.body.style.overflow = '';
+      localStorage.setItem('intro.shown','1');
+    });
+
+    openReadme.addEventListener('click', ()=> readmeModal.classList.add('show'));
+    readmeBtn.addEventListener('click', ()=> readmeModal.classList.add('show'));
+    closeReadme.addEventListener('click', ()=> readmeModal.classList.remove('show'));
+
+    /* ========= iOS A2HS overlay ========= */
     (function(){
-      // ====== Lingua (persistenza + UI header) ======
-      const langSeg = document.getElementById('langSeg');
-      const savedLang = localStorage.getItem('cashflow.lang') || 'it';
-      setLangActive(savedLang);
-
-      function setLangActive(code){
-        [...langSeg.querySelectorAll('button')].forEach(b=>{
-          b.classList.toggle('active', b.dataset.lang === code);
-        });
-        localStorage.setItem('cashflow.lang', code);
-        applyWelcomeTexts(code);
-      }
-      langSeg.addEventListener('click', (e)=>{
-        const b = e.target.closest('button[data-lang]');
-        if(!b) return;
-        setLangActive(b.dataset.lang);
-        // Ricarica l'iframe del README con la lingua corrente (se lo supporti via hash/query)
-        const fr = document.getElementById('readmeFrame');
-        if(fr) {
-          try {
-            const url = new URL(fr.src, location.href);
-            url.hash = '#'+(b.dataset.lang||'it');
-            fr.src = url.toString();
-          } catch(_){}
-        }
-      });
-
-      // ====== Testi Welcome Modal (IT/EN/DE) ======
-      const T = {
-        it:{ t:'💼 Benvenuto in Cashflow Rush',
-             b:'Prima di iniziare, puoi leggere come funziona il gioco e le regole base.',
-             read:'📘 Leggi le istruzioni', start:'▶ Inizia a giocare' },
-        en:{ t:'💼 Welcome to Cashflow Rush',
-             b:'Before you start, you can read how the game works and the basic rules.',
-             read:'📘 Read the instructions', start:'▶ Start playing' },
-        de:{ t:'💼 Willkommen bei Cashflow Rush',
-             b:'Bevor du beginnst, kannst du lesen, wie das Spiel funktioniert und die Grundregeln.',
-             read:'📘 Anleitung lesen', start:'▶ Jetzt spielen' }
-      };
-      function applyWelcomeTexts(l){
-        const L = T[l] || T.it;
-        const $ = id => document.getElementById(id);
-        $('wTitle').textContent = L.t;
-        $('wBody').textContent  = L.b;
-        $('openReadme').textContent = L.read;
-        $('startGame').textContent  = L.start;
-      }
-      applyWelcomeTexts(savedLang);
-
-      // ====== Intro modal (mostra una volta per lingua/versione) ======
-      const INTRO_KEY = 'intro.shown.v3.1.4.' + (localStorage.getItem('cashflow.lang') || 'it');
-      const intro = document.getElementById('introModal');
-      if (localStorage.getItem(INTRO_KEY) !== '1') {
-        requestAnimationFrame(()=>{ intro.classList.add('show'); document.body.style.overflow = 'hidden'; });
-      }
-      document.getElementById('startGame')?.addEventListener('click', ()=>{
-        intro.classList.remove('show'); document.body.style.overflow = '';
-        localStorage.setItem(INTRO_KEY, '1');
-        try{ window.Game && typeof Game.start==='function' && Game.start(); }catch(_){}
-      });
-      document.getElementById('openReadme')?.addEventListener('click', ()=>{
-        document.getElementById('readmeModal').classList.add('show');
-      });
-
-      // ====== README overlay triggers ======
-      const readmeBtn = document.getElementById('readmeBtn');
-      const readmeModal = document.getElementById('readmeModal');
-      readmeBtn?.addEventListener('click', ()=> readmeModal.classList.add('show'));
-      document.getElementById('closeReadme')?.addEventListener('click', ()=> readmeModal.classList.remove('show'));
-
-      // Imposta hash lingua nell'iframe se serve
-      try{
-        const fr = document.getElementById('readmeFrame');
-        if(fr){
-          const u = new URL(fr.src, location.href);
-          u.hash = '#'+savedLang;
-          fr.src = u.toString();
-        }
-      }catch(_){}
-
-      // ====== iOS Tips: mostra solo a iOS non-standalone e una volta ======
       const ua = navigator.userAgent || navigator.vendor || window.opera;
       const isIOS = /iphone|ipad|ipod/i.test(ua);
       const isStandalone = (window.navigator.standalone === true) ||
                            (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-      const tipKey = 'pwa.tipShown';
-      if (isIOS && !isStandalone && localStorage.getItem(tipKey)!=='1') {
-        const tips = document.getElementById('iosTips');
-        requestAnimationFrame(()=>{ tips.classList.add('show'); });
-        document.getElementById('iosTipsClose')?.addEventListener('click', ()=>{
-          tips.classList.remove('show'); localStorage.setItem(tipKey,'1');
-        },{once:true});
+      const alreadyShown = localStorage.getItem('pwa.tipShown') === '1';
+      if (isIOS && !isStandalone && !alreadyShown) {
+        const modal = document.getElementById('iosTips');
+        modal.classList.add('show');
+        document.getElementById('iosTipsClose').addEventListener('click', ()=>{
+          modal.classList.remove('show');
+          localStorage.setItem('pwa.tipShown','1');
+        }, { once:true });
       }
     })();
-  </script>
 
-  <!-- Layout adapter + engine -->
-  <script src="./dual.js?v=3.1.4"></script>
-  <script src="./app.js?v=3.1.4"></script>
-
-  <!-- Service Worker -->
-  <script>
+    /* ========= Service Worker (auto-reload on update) ========= */
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./sw.js?v=3.1.4').then(reg=>{
         if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
         reg.addEventListener('updatefound', ()=>{
           const nw = reg.installing;
-          nw && nw.addEventListener('statechange', ()=>{ if(nw.state==='installed'){ location.reload(); } });
+          nw && nw.addEventListener('statechange', ()=>{
+            if(nw.state === 'installed' && navigator.serviceWorker.controller){
+              // nuova versione pronta → ricarico
+              location.reload();
+            }
+          });
         });
       });
       navigator.serviceWorker.addEventListener('controllerchange', ()=>location.reload());
-      navigator.serviceWorker.addEventListener('message', (ev) => { if (ev.data && ev.data.type === 'SW_UPDATED') location.reload(); });
+      navigator.serviceWorker.addEventListener('message', (ev) => {
+        if (ev.data && ev.data.type === 'SW_UPDATED') location.reload();
+      });
     }
   </script>
+
+  <!-- Layout adapter + engine -->
+  <script src="./dual.js?v=3.1.4"></script>
+  <script src="./app.js?v=3.1.4"></script>
 </body>
 </html>

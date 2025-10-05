@@ -1,4 +1,4 @@
-// Cashflow Rush v3.0 — Career Mode (skeleton) — patched for hybrid layout + Game.nudge
+// Cashflow Rush v3.0 — Career Mode (skeleton) — patched for hybrid layout + Game.nudge + dual KPI HUD
 (() => {
   const SIZE = 12, BASE = 720;
 
@@ -8,13 +8,24 @@
   canvas.width = BASE; canvas.height = BASE;
   const $ = (id)=>document.getElementById(id);
 
-  // KPI refs (desktop prima, mobile fallback)
-  const kNet   = $('dNet')   || $('mNet')   || document.createElement('span');
-  const kFlow  = $('dFlow')  || $('mFlow')  || document.createElement('span');
-  const kMoves = $('dMoves') || $('mMoves') || document.createElement('span');
-  const kTarget= $('dTarget')|| $('mTarget')|| document.createElement('span');
-  const kEff   = $('dEff')   || document.createElement('span');
-  const kRep   = $('dRep')   || document.createElement('span');
+  // KPI refs → sempre sia desktop che mobile
+  const KPI = {
+    d: {
+      net: $('dNet'),
+      flow: $('dFlow'),
+      moves: $('dMoves'),
+      target: $('dTarget'),
+      eff: $('dEff'),
+      rep: $('dRep'),
+    },
+    m: {
+      net: $('mNet'),
+      flow: $('mFlow'),
+      moves: $('mMoves'),
+      target: $('mTarget'),
+    }
+  };
+  function setText(el, txt){ if(el) el.textContent = txt; }
 
   // Overlay/PLAY (tollerante)
   const overlayEls = [ $('overlay'), $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
@@ -64,7 +75,7 @@
     const rnd = rng(seed), g = Array.from({length:SIZE}, _=>Array(SIZE).fill('.'));
     for(let i=0;i<SIZE;i++){ g[0][i]='#'; g[SIZE-1][i]='#'; g[i][0]='#'; g[i][SIZE-1]='#'; }
     for(let i=0;i<3;i++){ g[2+i*3][SIZE-2] = 'G'; }
-    const features = ['$', 'D', 'T', 'L', ' I'.trim()];
+    const features = ['$', 'D', 'T', 'L', 'I'];
     for(let k=0;k<28;k++){
       const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
       if(g[y][x]!=='.') continue;
@@ -102,14 +113,28 @@
 
   // HUD
   function euro(n){ return n.toLocaleString('it-IT')+"€"; }
+
   function updateHUD(){
-    kNet.textContent = euro(state.net);
-    kFlow.textContent = euro(state.flow)+"/mossa";
-    kMoves.textContent = state.moves;
-    kTarget.textContent = euro(state.target);
-    const eff = state.moves? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
-    state.eff = eff; if(kEff) kEff.textContent = eff+"%";
-    if(kRep) kRep.textContent = state.rep;
+    const netTxt    = euro(state.net);
+    const flowTxt   = euro(state.flow)+"/mossa";
+    const movesTxt  = String(state.moves);
+    const targetTxt = euro(state.target);
+    const eff       = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
+    state.eff = eff;
+
+    // Scrivi SEMPRE su desktop + mobile (se esistono)
+    setText(KPI.d.net,    netTxt);
+    setText(KPI.d.flow,   flowTxt);
+    setText(KPI.d.moves,  movesTxt);
+    setText(KPI.d.target, targetTxt);
+    setText(KPI.d.eff,    eff+"%");
+    setText(KPI.d.rep,    String(state.rep));
+
+    setText(KPI.m.net,    netTxt);
+    setText(KPI.m.flow,   flowTxt);
+    setText(KPI.m.moves,  movesTxt);
+    setText(KPI.m.target, targetTxt);
+
     localStorage.setItem('cfr.level', String(L));
   }
 
@@ -227,7 +252,7 @@
   Game.start  = ()=>{ if(!started){ started=true; toggleOverlay(false); tone(660,0.06); } };
   Game.reload = ()=>{ loadLevel(L); };
   Game.isStarted = ()=> started;
-  Game.nudge = (dx,dy)=> move(dx,dy);   // <— usato dal D-pad e dallo swipe su iOS
+  Game.nudge = (dx,dy)=> move(dx,dy);   // usato dal D-pad e dallo swipe su iOS
 
   // Avvio
   loadLevel(L);

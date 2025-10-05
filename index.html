@@ -105,22 +105,35 @@
   </header>
 
   <!-- DESKTOP -->
-  <section class="desk">
-    <div class="stageDesk">
-      <canvas id="gameDesk" width="720" height="720"></canvas>
-      <div class="playOverlay" id="playOverlayDesk"><button class="playBtn" id="playBtnDesk">PLAY</button></div>
+<section class="desk">
+  <div class="stageDesk">
+    <canvas id="gameDesk" width="720" height="720"></canvas>
+    <div class="playOverlay" id="playOverlayDesk">
+      <button class="playBtn" id="playBtnDesk">PLAY</button>
     </div>
-    <aside class="panel">
-      <div class="kpis">
-        <div class="kpi"><b>Valore Netto</b><span id="dNet">0€</span></div>
-        <div class="kpi"><b>Flusso €/mossa</b><span id="dFlow">0€/mossa</span></div>
-        <div class="kpi"><b>Mosse</b><span id="dMoves">0</span></div>
-        <div class="kpi"><b>Obiettivo</b><span id="dTarget">50.000€</span></div>
-        <div class="kpi"><b>Efficienza</b><span id="dEff">0%</span></div>
-        <div class="kpi"><b>Reputazione ★</b><span id="dRep">0</span></div>
-      </div>
-    </aside>
-  </section>
+  </div>
+
+  <aside class="panel">
+    <div class="kpis">
+      <div class="kpi"><b>Valore Netto</b><span id="dNet">0€</span></div>
+      <div class="kpi"><b>Flusso €/mossa</b><span id="dFlow">0€/mossa</span></div>
+      <div class="kpi"><b>Mosse</b><span id="dMoves">0</span></div>
+      <div class="kpi"><b>Obiettivo</b><span id="dTarget">50.000€</span></div>
+      <div class="kpi"><b>Efficienza</b><span id="dEff">0%</span></div>
+      <div class="kpi"><b>Reputazione ★</b><span id="dRep">0</span></div>
+    </div>
+
+    <!-- ✅ LEGENDA DESKTOP -->
+    <div class="legend" style="margin-top:10px">
+      <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
+      <span class="tag"><span class="dot" style="background:#8a56ff"></span>Leva</span>
+      <span class="tag"><span class="dot" style="background:#2dd36f"></span>Asset</span>
+      <span class="tag"><span class="dot" style="background:#3dc2ff"></span>Dividendo</span>
+      <span class="tag"><span class="dot" style="background:#ffaa00"></span>Inflazione</span>
+      <span class="tag"><span class="dot" style="background:#ff4d4d"></span>Tassa</span>
+    </div>
+  </aside>
+</section>
 
   <!-- MOBILE KPI -->
   <section class="mobileKPI">

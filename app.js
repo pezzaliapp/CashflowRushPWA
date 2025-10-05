@@ -11,20 +11,14 @@
       const el = $(id);
       if(isVisibleEl(el)) return el;
     }
-    // fallback: restituisci il primo esistente anche se nascosto
-    for(const id of ids){
-      const el = $(id);
-      if(el) return el;
-    }
+    for(const id of ids){ const el=$(id); if(el) return el; }
     return null;
   }
 
-  // ---------- canvas: scegli sempre quello VISIBILE ----------
+  // ---------- canvas ----------
   let canvas = null, ctx = null;
   function pickCanvas() {
-    const g = $('game');
-    const m = $('gameMob');
-    const d = $('gameDesk');
+    const g=$('game'), m=$('gameMob'), d=$('gameDesk');
     if (isVisibleEl(g)) return g;
     if (isVisibleEl(m)) return m;
     if (isVisibleEl(d)) return d;
@@ -42,7 +36,7 @@
   }
   syncCanvas();
   window.addEventListener('resize', syncCanvas);
-  setInterval(syncCanvas, 600); // iOS WebView a volte non emette resize
+  setInterval(syncCanvas, 600);
 
   // ---------- Overlay / PLAY ----------
   const overlayEls = [ $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
@@ -132,7 +126,7 @@
   function isGoal(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
   function recalc(){ for(const a of state.assets){ const was=a.active; a.active=isGoal(a.x,a.y); if(a.active && !was) a.fuel=5; } }
 
-  // ---------- Eventi (senza clamp a 0 su Netto) ----------
+  // ---------- Eventi ----------
   function applyTile(x,y){
     const t=at(x,y);
     if(t==='$'){ state.net += 500; state.grid[y][x]='.'; tone(760,0.06); }
@@ -152,7 +146,7 @@
         if(a.fuel<=0) a.active=false;
       }
     }
-    if(state.moves % 7 === 0) state.flow = Math.max(0, state.flow - 100); // decadimento
+    if(state.moves % 7 === 0) state.flow = Math.max(0, state.flow - 100);
   }
 
   // ---------- Movimento ----------
@@ -170,22 +164,17 @@
       if(!inB(bx,by) || isWall(bx,by) || assetAt(bx,by)) return;
       box.x=bx; box.y=by;
       recalc();
-      didSomething = true;       // spinta = mossa valida
+      didSomething = true; // spinta = mossa valida
       tone(420,0.05,'triangle');
     }
 
-    // Undo snapshot
     history.push(JSON.parse(JSON.stringify(state)));
-
-    // Muovi player
     state.player.x=nx; state.player.y=ny;
 
-    // Eventi su cella e verifica se hanno cambiato net/flow
     const beforeNet = state.net, beforeFlow = state.flow;
     applyTile(nx,ny);
     if (state.net !== beforeNet || state.flow !== beforeFlow) didSomething = true;
 
-    // Avanza tempo
     state.moves++;
     tick(didSomething);
 
@@ -212,7 +201,7 @@
     if(rRep)    rRep.textContent    = (state.rep||0) + "★";
     if(modal){
       modal.classList.add('show');
-      bindReportModalHandlers(); // handler robusti (bottone, backdrop, ESC)
+      bindReportModalHandlers();
     }
 
     tone(800,0.15,'triangle');
@@ -224,36 +213,31 @@
   function bindReportModalHandlers(){
     const modal = $('reportModal');
     if(!modal) return;
-
-    // Evita duplicazioni
     modal._bound && modal._bound.forEach(off => off());
     modal._bound = [];
 
     function closeReport(){
       modal.classList.remove('show');
-      loadLevel(L);        // prepara il prossimo livello
-      started = false;     // richiedi PLAY esplicito
+      loadLevel(L);
+      started = false;
       toggleOverlay(true);
     }
 
-    // 1) Bottone "Chiudi"
     const btn = $('reportCloseBtn');
     const onBtn = () => closeReport();
     btn && btn.addEventListener('click', onBtn);
     modal._bound.push(() => btn && btn.removeEventListener('click', onBtn));
 
-    // 2) Clic sul backdrop (fuori dalla card)
     const onBackdrop = (e) => { if(e.target === modal) closeReport(); };
     modal.addEventListener('click', onBackdrop);
     modal._bound.push(() => modal.removeEventListener('click', onBackdrop));
 
-    // 3) Tasto ESC
     const onEsc = (e) => { if(e.key === 'Escape') closeReport(); };
     document.addEventListener('keydown', onEsc);
     modal._bound.push(() => document.removeEventListener('keydown', onEsc));
   }
 
-  // ---------- HUD: scegli SEMPRE l’elemento visibile (desktop/mobile) ----------
+  // ---------- HUD ----------
   function updateHUD(){
     const elNet   = pickVisible('dNet','mNet');
     const elFlow  = pickVisible('dFlow','mFlow');
@@ -281,15 +265,11 @@
     const c=ctx;
     c.clearRect(0,0,W,H);
     c.fillStyle="#081028"; c.fillRect(0,0,W,H);
-
-    // griglia
     c.strokeStyle="#1a2655";
     for(let i=0;i<=SIZE;i++){
       c.beginPath(); c.moveTo(i*C,0); c.lineTo(i*C,H); c.stroke();
       c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke();
     }
-
-    // sfondo celle speciali
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
       if(t==='#') c.fillStyle='#0c1533';
@@ -302,8 +282,6 @@
       else c.fillStyle='transparent';
       if(c.fillStyle!=='transparent') c.fillRect(x*C,y*C,C,C);
     }
-
-    // puntini evento
     function dot(x,y,color){ const r=Math.floor(C*0.12), cx=x*C+C/2, cy=y*C+C/2;
       c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
@@ -314,8 +292,6 @@
       if(t==='L') dot(x,y,'#8a56ff');
       if(t==='I') dot(x,y,'#ffaa00');
     }
-
-    // asset e player
     const pad=10, padP=14;
     function box(x,y,color){ c.fillStyle=color; c.fillRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad);
       c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); }
@@ -323,7 +299,7 @@
     c.fillStyle='#e9f1ff'; c.fillRect(state.player.x*C+padP, state.player.y*C+padP, C-2*padP, C-2*padP);
   }
 
-  // ---------- Input tastiera (desktop) ----------
+  // ---------- Input tastiera ----------
   window.addEventListener('keydown', e=>{
     const k=e.key;
     if(k==='ArrowLeft') move(-1,0);
@@ -352,13 +328,21 @@
   }
   const resetBtn=$('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=>loadLevel(L));
   const undoBtn =$('undoBtn');  if(undoBtn)  undoBtn.addEventListener('click', ()=>{ if(history.length){ state=history.pop(); updateHUD(); render(); }});
-  const careerBtn=$('careerBtn'); if(careerBtn) addEventListener('click', ()=>{
-    if(confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")){
-      localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L);
-    }
-  });
 
-  // ---------- API per dual.js (swipe & play) ----------
+  // ⚠️ FIX QUI: l’handler è sul BOTTONE, non sulla finestra
+  const careerBtn=$('careerBtn');
+  if(careerBtn){
+    careerBtn.addEventListener('click', ()=>{
+      if(confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")){
+        localStorage.removeItem('cfr.level');
+        localStorage.removeItem('cfr.rep');
+        L=0;
+        loadLevel(L);
+      }
+    });
+  }
+
+  // ---------- API per dual.js ----------
   window.Game = {
     start: () => { if(!started){ started = true; toggleOverlay(false); tone(660,0.06); } },
     nudge: (dx,dy) => move(dx,dy),

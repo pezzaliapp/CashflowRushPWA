@@ -4,9 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1228">
-  <title>Cashflow Rush — Dual Universe v3.0.1-hybrid</title>
+  <title>Cashflow Rush — Dual Universe v3.0.2-hybrid</title>
+
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <style>
     :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;--warn:#ffaa00;--danger:#ff4d4d}
     *{box-sizing:border-box} html,body{height:100%;margin:0}
@@ -59,7 +63,7 @@
     .touchpad button{background:#0c1533;color:#e9f1ff;font-size:22px;border:1px solid #1a2655;border-radius:12px;padding:10px 16px;min-width:64px;min-height:48px;cursor:pointer;touch-action:manipulation}
     .touchpad .row{display:flex;gap:10px;align-items:center;justify-content:center}
 
-    /* Toggle layout via body class */
+    /* Toggle */
     body.mode-desktop .desk{display:grid}
     body.mode-desktop .mobileKPI, body.mode-desktop .stageMob, body.mode-desktop .controlsRow{display:none}
     body.mode-mobile .desk{display:none}
@@ -74,25 +78,25 @@
   <header>
     <div class="title">
       <img src="./icons/icon-192.png" alt="logo">
-      <h1>Cashflow Rush — Dual Universe v3.0.1-hybrid</h1>
+      <h1>Cashflow Rush — Dual Universe v3.0.2-hybrid</h1>
     </div>
     <div class="actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <!-- Selettore dispositivo -->
-      <div class="seg" id="modeSeg">
-        <button data-mode="auto" class="active">Auto</button>
-        <button data-mode="desktop">💻 Laptop</button>
-        <button data-mode="mobile">📱 Smartphone</button>
+      <!-- Dispositivo -->
+      <div class="seg" id="modeSeg" role="group" aria-label="Selettore dispositivo">
+        <button data-mode="auto" class="active" aria-pressed="true">Auto</button>
+        <button data-mode="desktop" aria-pressed="false">💻 Laptop</button>
+        <button data-mode="mobile" aria-pressed="false">📱 Smartphone</button>
       </div>
 
-      <!-- Selettore modalità di gioco -->
-      <div class="seg" id="gameModeSeg">
-        <button data-gamemode="classic" class="active">Classic</button>
-        <button data-gamemode="career">Dual</button>
+      <!-- Modalità di gioco -->
+      <div class="seg" id="gameModeSeg" role="group" aria-label="Selettore modalità">
+        <button data-gamemode="classic">Classic</button>
+        <button data-gamemode="career" class="active">Dual</button>
       </div>
 
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
-      <button class="btn" id="muteBtn">🔊</button>
+      <button class="btn" id="muteBtn" aria-label="Audio">🔊</button>
       <button class="btn" id="levelsBtn">📈 Livelli</button>
     </div>
   </header>
@@ -101,7 +105,7 @@
   <section class="desk">
     <div class="stageDesk">
       <canvas id="gameDesk" width="720" height="720"></canvas>
-      <div class="playOverlay" id="playOverlayDesk"><button class="playBtn" id="playBtnDesk">PLAY</button></div>
+      <div class="playOverlay" id="playOverlayDesk"><button class="playBtn" id="playBtnDesk" aria-label="Play">PLAY</button></div>
     </div>
     <aside class="panel">
       <div class="kpis">
@@ -109,6 +113,9 @@
         <div class="kpi"><b>Flusso €/mossa</b> <span id="dFlow">0€/mossa</span></div>
         <div class="kpi"><b>Mosse</b> <span id="dMoves">0</span></div>
         <div class="kpi"><b>Obiettivo</b> <span id="dTarget">50.000€</span></div>
+        <!-- opzionali (se presenti il motore li aggiorna) -->
+        <div class="kpi" style="display:none"><b>Efficienza</b> <span id="dEff">0%</span></div>
+        <div class="kpi" style="display:none"><b>Reputazione ★</b> <span id="dRep">0</span></div>
       </div>
       <div class="legend">
         <span class="tag"><span class="dot" style="background:#ffd700"></span>Monete</span>
@@ -136,7 +143,7 @@
   <section class="stageMob">
     <div class="frameMob">
       <canvas id="gameMob" width="720" height="720"></canvas>
-      <div class="playOverlay" id="playOverlayMob"><button class="playBtn" id="playBtnMob">PLAY</button></div>
+      <div class="playOverlay" id="playOverlayMob"><button class="playBtn" id="playBtnMob" aria-label="Play">PLAY</button></div>
     </div>
 
     <div class="controlsRow">
@@ -152,7 +159,7 @@
           <button data-dx="-1" data-dy="0" aria-label="Sinistra">◀</button>
           <button data-dx="1" data-dy="0" aria-label="Destra">▶</button>
         </div>
-        <button data-dx="0" data-dy="1" aria-label="Giu">▼</button>
+        <button data-dx="0" data-dy="1" aria-label="Giù">▼</button>
       </div>
 
       <div class="legendCol">
@@ -166,14 +173,14 @@
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
   <!-- Adattatore layout + play + d-pad + canvas swap -->
-  <script src="./dual.js?v=3.0.1-hybrid"></script>
-  <!-- Motore v3.0.0 (stabile) -->
-  <script src="./app.js?v=3.0.1-hybrid"></script>
+  <script src="./dual.js?v=3.0.2-hybrid"></script>
+  <!-- Motore (skeleton) con Game.nudge -->
+  <script src="./app.js?v=3.0.2-hybrid"></script>
 
-  <!-- Service Worker -->
+  <!-- Service Worker con cache-busting -->
   <script>
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=3.0.1-hybrid').then(reg=>{
+      navigator.serviceWorker.register('./sw.js?v=3.0.2-hybrid').then(reg=>{
         if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
         reg.addEventListener('updatefound', ()=>{
           const nw = reg.installing;

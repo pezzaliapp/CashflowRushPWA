@@ -18,9 +18,18 @@
     .lang{display:flex;gap:6px;flex-wrap:wrap}
     .lang button{background:#0b1430;border:1px solid #2a3a77;color:#cfe1ff;padding:6px 10px;border-radius:999px;cursor:pointer;font-size:12px}
     .lang button.active{border-color:var(--accent);color:#fff}
-    main{position:absolute;top:118px;left:0;right:0;bottom:0;overflow-y:auto;
-      padding:26px 18px 40px;background:radial-gradient(1200px 820px at 20% -10%,#141f45 0%, var(--bg) 60%) fixed}
-    .container{max-width:980px;margin:0 auto}
+   /* Desktop/Laptop — sposta più in basso sotto il blocco fisso */
+main{
+  position:absolute;top:138px;left:0;right:0;bottom:0;overflow-y:auto;
+  padding:26px 18px 40px;
+  background:radial-gradient(1200px 820px at 20% -10%,#141f45 0%, var(--bg) 60%) fixed;
+}
+
+/* Mobile — resta invariato (non toccare il layout perfetto su smartphone) */
+@media (max-width: 768px){
+  main{ top:118px; }
+}
+  .container{max-width:980px;margin:0 auto}
     h2,h3{color:var(--accent);margin-top:22px}
     table{width:100%;border-collapse:collapse;margin:10px 0 20px}
     th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;font-size:14px}

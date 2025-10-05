@@ -1,5 +1,5 @@
 // sw.js v3.1.0-career — instant update
-const CACHE = 'cfr-career-v3.1.0-' + (self.registration ? self.registration.scope : Math.random());
+const CACHE = 'cfr-career-v3.1.1-' + (self.registration ? self.registration.scope : Math.random());
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll([
@@ -15,7 +15,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil((async ()=>{
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k=>!k.includes('cfr-career-v3.1.0-')).map(k=>caches.delete(k)));
+    await Promise.all(keys.filter(k=>!k.includes('cfr-career-v3.1.1-')).map(k=>caches.delete(k)));
     await self.clients.claim();
     const clients = await self.clients.matchAll({type:'window', includeUncontrolled:true});
     clients.forEach(c=>c.postMessage({type:'SW_UPDATED'}));

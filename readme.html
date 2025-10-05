@@ -5,31 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>💼 Cashflow Rush — Career Edition (v3.1.4) — README</title>
   <style>
-    :root{--bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f}
+    :root{
+      --bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f;
+      /* altezza header dinamica (fallback) */
+      --headH:118px;
+    }
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;background:var(--bg);color:var(--ink);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;overflow:hidden}
-    header{position:fixed;top:0;left:0;right:0;z-index:10;background:#0c1533;border-bottom:1px solid var(--line);
-      padding:12px 16px}
+    html,body{
+      height:100%;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;
+      overflow:hidden;
+    }
+
+    /* Header */
+    header{
+      position:fixed;top:0;left:0;right:0;z-index:10;
+      background:#0c1533;border-bottom:1px solid var(--line);
+      padding:12px 16px;
+    }
     .headwrap{max-width:980px;margin:0 auto;display:flex;gap:10px;align-items:center;justify-content:space-between}
     .title{text-align:left}
     header h1{font-size:17px;margin:0 0 4px 0}
     header p{font-size:13px;color:var(--muted);line-height:1.45}
     .lang{display:flex;gap:6px;flex-wrap:wrap}
-    .lang button{background:#0b1430;border:1px solid #2a3a77;color:#cfe1ff;padding:6px 10px;border-radius:999px;cursor:pointer;font-size:12px}
+    .lang button{
+      background:#0b1430;border:1px solid #2a3a77;color:#cfe1ff;
+      padding:6px 10px;border-radius:999px;cursor:pointer;font-size:12px
+    }
     .lang button.active{border-color:var(--accent);color:#fff}
-   /* Desktop/Laptop — sposta più in basso sotto il blocco fisso */
-main{
-  position:absolute;top:138px;left:0;right:0;bottom:0;overflow-y:auto;
-  padding:26px 18px 40px;
-  background:radial-gradient(1200px 820px at 20% -10%,#141f45 0%, var(--bg) 60%) fixed;
-}
 
-/* Mobile — resta invariato (non toccare il layout perfetto su smartphone) */
-@media (max-width: 768px){
-  main{ top:118px; }
-}
-  .container{max-width:980px;margin:0 auto}
+    /* Main: posizionamento sotto l’header dinamico */
+    main{
+      position:absolute;left:0;right:0;bottom:0;overflow-y:auto;
+      top:calc(var(--headH) + 14px);
+      padding:26px 18px 40px;
+      background:radial-gradient(1200px 820px at 20% -10%,#141f45 0%, var(--bg) 60%) fixed;
+    }
+    @media (max-width: 768px){
+      main{ top:calc(var(--headH) + 8px); }
+    }
+
+    .container{max-width:980px;margin:0 auto}
     h2,h3{color:var(--accent);margin-top:22px}
     table{width:100%;border-collapse:collapse;margin:10px 0 20px}
     th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;font-size:14px}
@@ -37,86 +55,93 @@ main{
     p{margin:10px 0;font-size:15px;line-height:1.6}
     ul,ol{margin:10px 0 10px 20px}
     code{background:#0c1533;border-radius:4px;padding:2px 4px;font-size:90%}
-    a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
     blockquote{border-left:3px solid var(--accent);margin:14px 0;padding-left:10px;color:#bcd2ff}
     hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     footer{text-align:center;color:#9db0d0;font-size:12px;margin-top:30px;opacity:.7}
-    .btn{display:inline-block;background:#0c1533;color:#e9f1ff;border:1px solid #3a4a8d;
-      padding:10px 18px;border-radius:999px;font-weight:600;margin-top:18px}
+    .btn{
+      display:inline-block;background:#0c1533;color:#e9f1ff;border:1px solid #3a4a8d;
+      padding:10px 18px;border-radius:999px;font-weight:600;margin-top:18px
+    }
     .btn:hover{border-color:var(--accent)}
-    /* language blocks */
+
+    /* blocchi lingua */
     .langblock{display:none}
     .langblock.active{display:block}
   </style>
 </head>
 <body>
   <header>
-  <div class="headwrap">
-    <div class="title">
-      <h1>💼 Cashflow Rush — Career Edition (v3.1.4)</h1>
+    <div class="headwrap">
+      <div class="title">
+        <h1>💼 Cashflow Rush — Career Edition (v3.1.4)</h1>
 
-      <!-- Blocchi testuali dinamici -->
-      <p id="intro-line1">Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.</p>
-      <p id="intro-line2">Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.</p>
-      <p id="intro-line3">Funziona <b>offline</b> come Progressive Web App (PWA).</p>
+        <!-- Testo “frontespizio” dinamico -->
+        <p id="intro-line1">Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.</p>
+        <p id="intro-line2">Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.</p>
+        <p id="intro-line3">Funziona <b>offline</b> come Progressive Web App (PWA).</p>
+      </div>
+
+      <!-- Selettore lingua -->
+      <div class="lang" aria-label="Language selector">
+        <button data-lang="it" class="active">🇮🇹 Italiano</button>
+        <button data-lang="en">🇬🇧 English</button>
+        <button data-lang="de">🇩🇪 Deutsch</button>
+      </div>
     </div>
 
-    <!-- Selettore lingua -->
-    <div class="lang" aria-label="Language selector">
-      <button data-lang="it" class="active">🇮🇹 Italiano</button>
-      <button data-lang="en">🇬🇧 English</button>
-      <button data-lang="de">🇩🇪 Deutsch</button>
-    </div>
-  </div>
+    <!-- Traduzioni header -->
+    <script>
+      (function(){
+        const LINES = {
+          it: [
+            'Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.',
+            'Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.',
+            'Funziona <b>offline</b> come Progressive Web App (PWA).'
+          ],
+          en: [
+            'Arcade financial puzzle in “push-box” style, with a 10-level difficulty progression.',
+            'Optimized for <b>Laptop (keyboard)</b> and <b>Smartphone (touch + D-pad)</b>.',
+            'Works <b>offline</b> as a Progressive Web App (PWA).'
+          ],
+          de: [
+            'Arcade-Finanzrätsel im „Push-Box“-Stil mit einer Progression über 10 Schwierigkeitsstufen.',
+            'Optimiert für <b>Laptop (Tastatur)</b> und <b>Smartphone (Touch + D-Pad)</b>.',
+            'Funktioniert <b>offline</b> als Progressive Web App (PWA).'
+          ]
+        };
 
-  <script>
-    (function(){
-      const LINES = {
-        it: [
-          'Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.',
-          'Ottimizzato per <b>Laptop (tastiera)</b> e <b>Smartphone (touch + D-pad)</b>.',
-          'Funziona <b>offline</b> come Progressive Web App (PWA).'
-        ],
-        en: [
-          'Arcade financial puzzle in “push-box” style, with a 10-level difficulty progression.',
-          'Optimized for <b>Laptop (keyboard)</b> and <b>Smartphone (touch + D-pad)</b>.',
-          'Works <b>offline</b> as a Progressive Web App (PWA).'
-        ],
-        de: [
-          'Arcade-Finanzrätsel im „Push-Box“-Stil mit einer Progression über 10 Schwierigkeitsstufen.',
-          'Optimiert für <b>Laptop (Tastatur)</b> und <b>Smartphone (Touch + D-Pad)</b>.',
-          'Funktioniert <b>offline</b> als Progressive Web App (PWA).'
-        ]
-      };
+        const p1=document.getElementById('intro-line1'),
+              p2=document.getElementById('intro-line2'),
+              p3=document.getElementById('intro-line3'),
+              btns=document.querySelectorAll('.lang button');
 
-      const p1=document.getElementById('intro-line1'),
-            p2=document.getElementById('intro-line2'),
-            p3=document.getElementById('intro-line3'),
-            btns=document.querySelectorAll('.lang button');
+        function applyLang(code){
+          const t = LINES[code] || LINES.it;
+          p1.innerHTML=t[0]; p2.innerHTML=t[1]; p3.innerHTML=t[2];
+          btns.forEach(b=>b.classList.toggle('active', b.dataset.lang===code));
+          localStorage.setItem('cashflow.lang', code);
+          // Trigger un ricalcolo dell’altezza header
+          document.dispatchEvent(new Event('cfr:headerChanged'));
+        }
 
-      function applyLang(code){
-        const t = LINES[code] || LINES.it;
-        p1.innerHTML=t[0]; p2.innerHTML=t[1]; p3.innerHTML=t[2];
-        btns.forEach(b=>b.classList.toggle('active', b.dataset.lang===code));
-        localStorage.setItem('cashflow.lang', code);
-      }
+        // lingua iniziale
+        const saved = localStorage.getItem('cashflow.lang') || 'it';
+        applyLang(saved);
 
-      // lingua iniziale
-      const saved = localStorage.getItem('cashflow.lang') || 'it';
-      applyLang(saved);
-
-      // click
-      btns.forEach(btn=>{
-        btn.addEventListener('click',()=>applyLang(btn.dataset.lang));
-      });
-    })();
-  </script>
-</header>
+        // click
+        btns.forEach(btn=>{
+          btn.addEventListener('click',()=>applyLang(btn.dataset.lang));
+        });
+      })();
+    </script>
+  </header>
 
   <main>
     <div class="container">
 
-      <!-- ITALIANO (default) -->
+      <!-- ITALIANO -->
       <article id="it" class="langblock active" lang="it">
         <h2>🎮 Come si gioca</h2>
         <p>Sposta il personaggio sulla griglia e spingi gli <strong>Asset (blu)</strong> verso i <strong>Goal (verdi)</strong> per attivarli e generare rendite passive.</p>
@@ -284,7 +309,7 @@ main{
         <p>Ispirato meccanicamente al genere <strong>Sokoban</strong> (1981), ma tutti gli altri elementi — tema economico-finanziario, KPI, Career, anti-grind, UI PWA, finalità educativa — sono inediti.</p>
         <h3>Elementi distintivi</h3>
         <ol>
-          <li><strong>Tema</strong> con asset/monete/tasse/dividendi/infla zione</li>
+          <li><strong>Tema</strong> con asset/monete/tasse/dividendi/inflazione</li>
           <li><strong>Career Mode</strong> con KPI (Netto, Flusso, Efficienza, Reputazione ★)</li>
           <li><strong>Anti-grind</strong> contro micro-loop</li>
           <li><strong>PWA</strong> offline-first per mobile/desktop</li>
@@ -513,14 +538,14 @@ main{
         <h2>📊 Live-KPIs</h2>
         <table>
           <thead><tr><th>KPI</th><th>Beschreibung</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Nettovermögen</strong></td><td>Kumuliertes Kapital (Level-Ziel).</td></tr>
-          <tr><td><strong>Cashflow / Zug</strong></td><td>Nettoeinnahme pro Zug.</td></tr>
-          <tr><td><strong>Züge</strong></td><td>Gesamtzahl der Züge.</td></tr>
-          <tr><td><strong>Ziel</strong></td><td>Netto-Schwelle zum Gewinnen.</td></tr>
-          <tr><td><strong>Effizienz</strong></td><td>≈ (Netto/Züge)/10.</td></tr>
-          <tr><td><strong>Reputation ★</strong></td><td>+1 Stern, wenn nie negativ.</td></tr>
-        </tbody>
+          <tbody>
+            <tr><td><strong>Nettovermögen</strong></td><td>Kumuliertes Kapital (Level-Ziel).</td></tr>
+            <tr><td><strong>Cashflow / Zug</strong></td><td>Nettoeinnahme pro Zug.</td></tr>
+            <tr><td><strong>Züge</strong></td><td>Gesamtzahl der Züge.</td></tr>
+            <tr><td><strong>Ziel</strong></td><td>Netto-Schwelle zum Gewinnen.</td></tr>
+            <tr><td><strong>Effizienz</strong></td><td>≈ (Netto/Züge)/10.</td></tr>
+            <tr><td><strong>Reputation ★</strong></td><td>+1 Stern, wenn nie negativ.</td></tr>
+          </tbody>
         </table>
         <p>Auf <strong>Smartphones</strong> zeigt <strong>📊 Report</strong> die Zusammenfassung: Level, Ziel, Netto, Cashflow, Züge, Effizienz, Reputation.</p>
 
@@ -641,6 +666,31 @@ main{
     </div>
   </main>
 
+  <!-- Misura header e aggiorna --headH per evitare sovrapposizioni -->
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const header = document.querySelector('header');
+
+      function setHeadHeight(){
+        if(!header) return;
+        root.style.setProperty('--headH', header.offsetHeight + 'px');
+      }
+
+      setHeadHeight();
+      window.addEventListener('resize', setHeadHeight);
+      document.addEventListener('cfr:headerChanged', setHeadHeight);
+
+      if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(setHeadHeight);
+        ro.observe(header);
+      } else {
+        setInterval(setHeadHeight, 800);
+      }
+    })();
+  </script>
+
+  <!-- Switch lingua: mostra/nasconde blocchi contenuto -->
   <script>
     (function(){
       const buttons = document.querySelectorAll('.lang button');
@@ -649,12 +699,6 @@ main{
         en: document.getElementById('en'),
         de: document.getElementById('de'),
       };
-      const saved = localStorage.getItem('cfr.readme.lang') || 'it';
-      setLang(saved);
-
-      buttons.forEach(b=>b.addEventListener('click', ()=>{
-        setLang(b.dataset.lang);
-      }));
 
       function setLang(code){
         Object.values(blocks).forEach(el=>el.classList.remove('active'));
@@ -662,38 +706,15 @@ main{
         buttons.forEach(b=>b.classList.toggle('active', b.dataset.lang===code));
         document.documentElement.lang = code;
         localStorage.setItem('cfr.readme.lang', code);
-        // scroll to top when switching
-        document.querySelector('main').scrollTo({top:0, behavior:'instant'});
+        // torna in cima quando si cambia lingua
+        document.querySelector('main').scrollTo({top:0, behavior:'auto'});
       }
+
+      const saved = localStorage.getItem('cfr.readme.lang') || localStorage.getItem('cashflow.lang') || 'it';
+      setLang(saved);
+
+      buttons.forEach(b=>b.addEventListener('click', ()=>setLang(b.dataset.lang)));
     })();
   </script>
-  <script>
-  // Calcola l’altezza reale dell’header (che cambia con le lingue/badge) e aggiorna --headH
-  (function () {
-    const root = document.documentElement;
-    const header = document.querySelector('header');
-
-    function setHeadHeight(){
-      if(!header) return;
-      // offsetHeight include padding e border: perfetto per evitare “tagli”
-      root.style.setProperty('--headH', header.offsetHeight + 'px');
-    }
-
-    // Prima misurazione
-    setHeadHeight();
-
-    // Aggiorna su resize / zoom / cambio orientamento
-    window.addEventListener('resize', setHeadHeight);
-
-    // Aggiorna se l’header cambia dimensione (es. mostra/nascondi pulsanti lingua)
-    if ('ResizeObserver' in window) {
-      const ro = new ResizeObserver(setHeadHeight);
-      ro.observe(header);
-    } else {
-      // fallback per browser più vecchi
-      setInterval(setHeadHeight, 1000);
-    }
-  })();
-</script>
 </body>
 </html>

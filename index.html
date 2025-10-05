@@ -95,6 +95,14 @@
         <button data-mode="desktop">💻 Laptop</button>
         <button data-mode="mobile">📱 Smartphone</button>
       </div>
+
+      <!-- Language selector -->
+      <div class="seg" id="langSeg">
+        <button data-lang="it" class="active">🇮🇹 IT</button>
+        <button data-lang="en">🇬🇧 EN</button>
+        <button data-lang="de">🇩🇪 DE</button>
+      </div>
+
       <button class="btn" id="readmeBtn">📘 Leggi</button>
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
@@ -169,11 +177,11 @@
     </div>
   </section>
 
-  <!-- INTRO MODAL -->
+  <!-- INTRO/WELCOME MODAL (multilingua) -->
   <div class="modal" id="introModal">
     <div class="card">
-      <h3>💼 Benvenuto in Cashflow Rush</h3>
-      <p>Prima di iniziare, puoi leggere come funziona il gioco e le regole base.</p>
+      <h3 id="wTitle">💼 Benvenuto in Cashflow Rush</h3>
+      <p id="wBody">Prima di iniziare, puoi leggere come funziona il gioco e le regole base.</p>
       <div style="text-align:center;margin-top:14px;">
         <button class="btn" id="openReadme">📘 Leggi le istruzioni</button>
       </div>
@@ -186,7 +194,7 @@
   <!-- README MODAL -->
   <div class="modal" id="readmeModal">
     <div class="card" style="max-width:92vw;max-height:90vh;padding:0;overflow:hidden;">
-      <iframe src="./readme.html" style="width:100%;height:80vh;border:0;"></iframe>
+      <iframe id="readmeFrame" src="./readme.html" style="width:100%;height:80vh;border:0;"></iframe>
       <div class="close" style="padding:10px;">
         <button class="btn" id="closeReadme">Chiudi</button>
       </div>
@@ -227,7 +235,7 @@
         Suggerimento: funziona anche <b>offline</b>, come una vera App. 🚀
       </p>
       <div style="text-align:center;margin-top:18px;">
-        <a href="https://www.alessandropezzali.it/CashflowRushPWA/readme.html" target="_blank" class="btn">📖 Leggi come funziona</a>
+        <a href="./readme.html" target="_blank" class="btn">📖 Leggi come funziona</a>
       </div>
       <div class="close" style="margin-top:16px;">
         <button class="btn" id="iosTipsClose">Ho capito</button>
@@ -237,39 +245,103 @@
 
   <footer>© 2025 pezzaliAPP — MIT • Funziona offline come PWA</footer>
 
-  <!-- SCRIPT -->
+  <!-- LANGUAGE + INTRO + README + iOS tips -->
   <script>
-    // Intro modal
-    const introShown = localStorage.getItem('intro.shown');
-    const intro = document.getElementById('introModal');
-    const startBtn = document.getElementById('startGame');
-    const openReadme = document.getElementById('openReadme');
-    const readmeModal = document.getElementById('readmeModal');
-    const closeReadme = document.getElementById('closeReadme');
-    const readmeBtn = document.getElementById('readmeBtn');
+    (function(){
+      // ====== Lingua (persistenza + UI header) ======
+      const langSeg = document.getElementById('langSeg');
+      const savedLang = localStorage.getItem('cashflow.lang') || 'it';
+      setLangActive(savedLang);
 
-    if (!introShown) {
-      intro.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    }
+      function setLangActive(code){
+        [...langSeg.querySelectorAll('button')].forEach(b=>{
+          b.classList.toggle('active', b.dataset.lang === code);
+        });
+        localStorage.setItem('cashflow.lang', code);
+        applyWelcomeTexts(code);
+      }
+      langSeg.addEventListener('click', (e)=>{
+        const b = e.target.closest('button[data-lang]');
+        if(!b) return;
+        setLangActive(b.dataset.lang);
+        // Ricarica l'iframe del README con la lingua corrente (se lo supporti via hash/query)
+        const fr = document.getElementById('readmeFrame');
+        if(fr) {
+          try {
+            const url = new URL(fr.src, location.href);
+            url.hash = '#'+(b.dataset.lang||'it');
+            fr.src = url.toString();
+          } catch(_){}
+        }
+      });
 
-    startBtn?.addEventListener('click', () => {
-      intro.classList.remove('show');
-      document.body.style.overflow = '';
-      localStorage.setItem('intro.shown', '1');
-    });
+      // ====== Testi Welcome Modal (IT/EN/DE) ======
+      const T = {
+        it:{ t:'💼 Benvenuto in Cashflow Rush',
+             b:'Prima di iniziare, puoi leggere come funziona il gioco e le regole base.',
+             read:'📘 Leggi le istruzioni', start:'▶ Inizia a giocare' },
+        en:{ t:'💼 Welcome to Cashflow Rush',
+             b:'Before you start, you can read how the game works and the basic rules.',
+             read:'📘 Read the instructions', start:'▶ Start playing' },
+        de:{ t:'💼 Willkommen bei Cashflow Rush',
+             b:'Bevor du beginnst, kannst du lesen, wie das Spiel funktioniert und die Grundregeln.',
+             read:'📘 Anleitung lesen', start:'▶ Jetzt spielen' }
+      };
+      function applyWelcomeTexts(l){
+        const L = T[l] || T.it;
+        const $ = id => document.getElementById(id);
+        $('wTitle').textContent = L.t;
+        $('wBody').textContent  = L.b;
+        $('openReadme').textContent = L.read;
+        $('startGame').textContent  = L.start;
+      }
+      applyWelcomeTexts(savedLang);
 
-    openReadme?.addEventListener('click', () => {
-      readmeModal.classList.add('show');
-    });
+      // ====== Intro modal (mostra una volta per lingua/versione) ======
+      const INTRO_KEY = 'intro.shown.v3.1.4.' + (localStorage.getItem('cashflow.lang') || 'it');
+      const intro = document.getElementById('introModal');
+      if (localStorage.getItem(INTRO_KEY) !== '1') {
+        requestAnimationFrame(()=>{ intro.classList.add('show'); document.body.style.overflow = 'hidden'; });
+      }
+      document.getElementById('startGame')?.addEventListener('click', ()=>{
+        intro.classList.remove('show'); document.body.style.overflow = '';
+        localStorage.setItem(INTRO_KEY, '1');
+        try{ window.Game && typeof Game.start==='function' && Game.start(); }catch(_){}
+      });
+      document.getElementById('openReadme')?.addEventListener('click', ()=>{
+        document.getElementById('readmeModal').classList.add('show');
+      });
 
-    closeReadme?.addEventListener('click', () => {
-      readmeModal.classList.remove('show');
-    });
+      // ====== README overlay triggers ======
+      const readmeBtn = document.getElementById('readmeBtn');
+      const readmeModal = document.getElementById('readmeModal');
+      readmeBtn?.addEventListener('click', ()=> readmeModal.classList.add('show'));
+      document.getElementById('closeReadme')?.addEventListener('click', ()=> readmeModal.classList.remove('show'));
 
-    readmeBtn?.addEventListener('click', () => {
-      readmeModal.classList.add('show');
-    });
+      // Imposta hash lingua nell'iframe se serve
+      try{
+        const fr = document.getElementById('readmeFrame');
+        if(fr){
+          const u = new URL(fr.src, location.href);
+          u.hash = '#'+savedLang;
+          fr.src = u.toString();
+        }
+      }catch(_){}
+
+      // ====== iOS Tips: mostra solo a iOS non-standalone e una volta ======
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      const isIOS = /iphone|ipad|ipod/i.test(ua);
+      const isStandalone = (window.navigator.standalone === true) ||
+                           (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+      const tipKey = 'pwa.tipShown';
+      if (isIOS && !isStandalone && localStorage.getItem(tipKey)!=='1') {
+        const tips = document.getElementById('iosTips');
+        requestAnimationFrame(()=>{ tips.classList.add('show'); });
+        document.getElementById('iosTipsClose')?.addEventListener('click', ()=>{
+          tips.classList.remove('show'); localStorage.setItem(tipKey,'1');
+        },{once:true});
+      }
+    })();
   </script>
 
   <!-- Layout adapter + engine -->
@@ -279,7 +351,15 @@
   <!-- Service Worker -->
   <script>
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=3.1.4');
+      navigator.serviceWorker.register('./sw.js?v=3.1.4').then(reg=>{
+        if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
+        reg.addEventListener('updatefound', ()=>{
+          const nw = reg.installing;
+          nw && nw.addEventListener('statechange', ()=>{ if(nw.state==='installed'){ location.reload(); } });
+        });
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', ()=>location.reload());
+      navigator.serviceWorker.addEventListener('message', (ev) => { if (ev.data && ev.data.type === 'SW_UPDATED') location.reload(); });
     }
   </script>
 </body>

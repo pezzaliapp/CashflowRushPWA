@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>💼 Cashflow Rush — Career Edition (v3.1.4) — README</title>
+  <style>
+    :root{
+      --bg:#0a1228;--ink:#f5f8ff;--muted:#a8b8d8;--card:#101a3a;--line:#1a2655;--accent:#2dd36f
+    }
+    body{margin:0;background:#0b1430;color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;padding:32px}
+    main{max-width:980px;margin:0 auto}
+    h1,h2,h3{line-height:1.25}
+    h1{font-size:32px;margin:0 0 8px}
+    h2{font-size:24px;margin:28px 0 12px;border-bottom:1px solid #233066;padding-bottom:6px}
+    h3{font-size:18px;margin:18px 0 8px}
+    p{margin:10px 0}
+    hr{border:0;border-top:1px solid #233066;margin:24px 0}
+    code{background:#0f1a3d;border:1px solid #1d2a57;border-radius:6px;padding:0 6px}
+    pre{background:#0f1a3d;border:1px solid #1d2a57;border-radius:10px;padding:14px;overflow:auto}
+    table{border-collapse:collapse;width:100%;margin:10px 0 16px;background:#0f1a3d;border:1px solid #1d2a57;border-radius:10px;overflow:hidden}
+    thead th{background:#0e1837}
+    th,td{padding:10px;border-bottom:1px solid #1d2a57;text-align:left}
+    tbody tr:last-child td{border-bottom:0}
+    blockquote{margin:12px 0;padding:10px 14px;border-left:4px solid #3351b5;background:#0f1a3d;color:#cfe1ff}
+    ul{padding-left:22px}
+    a{color:#7fb4ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .muted{color:#b9c6e8}
+  </style>
+</head>
+<body>
+<main>
+
+<h1>💼 Cashflow Rush — Career Edition (v3.1.4)</h1>
+<p>Arcade rompicapo finanziario in stile “push-box”, con progressione a 10 livelli di difficoltà crescente.<br>
+Ottimizzato per <strong>Laptop (tastiera)</strong> e <strong>Smartphone (touch + D-pad)</strong>.<br>
+Funziona <strong>offline</strong> come Progressive Web App (PWA).</p>
+
+<hr>
+
+<h2>🎮 Come si gioca</h2>
+<p>Sposta il personaggio sulla griglia e spingi gli <strong>Asset (blu)</strong> verso i <strong>Goal (verdi)</strong> per attivarli e generare rendite passive.</p>
+
+<h3>Eventi economici:</h3>
+<table>
+  <thead>
+    <tr><th>Simbolo</th><th>Evento</th><th>Effetto</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>💰 <code>$</code></td><td>Monete</td><td>+500 Valore Netto</td></tr>
+    <tr><td>💧 <code>D</code></td><td>Dividendo</td><td>+200 Flusso €/mossa</td></tr>
+    <tr><td>⚙️ <code>L</code></td><td>Leva</td><td>+600 Flusso, −400 Valore Netto</td></tr>
+    <tr><td>🔥 <code>I</code></td><td>Inflazione</td><td>−200 Flusso</td></tr>
+    <tr><td>💸 <code>T</code></td><td>Tassa</td><td>−800 Valore Netto</td></tr>
+  </tbody>
+</table>
+
+<p>Ogni mossa incassa il tuo <strong>Flusso €/mossa</strong>.<br>
+Gli Asset attivati su un Goal generano extra per alcune mosse.</p>
+
+<p>🎯 Completa il livello raggiungendo l’<strong>Obiettivo (Valore Netto)</strong>.</p>
+
+<blockquote>
+  <p>⚖️ <em>Anti-grind attivo:</em> nessun incasso se ripeti micro-loop avanti/indietro senza raccogliere eventi o spingere asset.</p>
+</blockquote>
+
+<hr>
+
+<h2>🧭 Simboli &amp; Legenda</h2>
+<table>
+  <thead>
+    <tr><th>Colore</th><th>Simbolo</th><th>Significato</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>🟡</td><td><code>$</code></td><td>Monete</td></tr>
+    <tr><td>🔵</td><td><code>D</code></td><td>Dividendo</td></tr>
+    <tr><td>🟣</td><td><code>L</code></td><td>Leva Finanziaria</td></tr>
+    <tr><td>🟠</td><td><code>I</code></td><td>Inflazione</td></tr>
+    <tr><td>🔴</td><td><code>T</code></td><td>Tassa</td></tr>
+    <tr><td>🟩</td><td><code>G</code></td><td>Goal (attiva Asset sovrapposto)</td></tr>
+    <tr><td>🟦</td><td><code>A</code></td><td>Asset spingibile</td></tr>
+    <tr><td>⬛</td><td><code>#</code></td><td>Muro</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>📊 KPI in tempo reale</h2>
+<table>
+  <thead>
+    <tr><th>KPI</th><th>Descrizione</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Valore Netto</strong></td><td>Capitale cumulato (target del livello).</td></tr>
+    <tr><td><strong>Flusso €/mossa</strong></td><td>Entrata netta per ogni mossa.</td></tr>
+    <tr><td><strong>Mosse</strong></td><td>Numero di mosse effettuate.</td></tr>
+    <tr><td><strong>Obiettivo</strong></td><td>Traguardo da raggiungere per completare il livello.</td></tr>
+    <tr><td><strong>Efficienza</strong></td><td>Indicatore % ≈ (Netto/Mosse)/10.</td></tr>
+    <tr><td><strong>Reputazione ★</strong></td><td>+1 stella se completi il livello senza mai chiudere in negativo.</td></tr>
+  </tbody>
+</table>
+
+<p>Su <strong>smartphone</strong> è incluso il pulsante <strong>📊 Report</strong> che mostra il riepilogo di:
+Livello, Obiettivo, Valore Netto, Flusso, Mosse, Efficienza e Reputazione.</p>
+
+<hr>
+
+<h2>🏁 Livelli (Career Mode)</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>Nome</th><th style="text-align:right">Target</th></tr>
+  </thead>
+  <tbody>
+    <tr><td style="text-align:center">1</td><td>Risparmio</td><td style="text-align:right">5.000€</td></tr>
+    <tr><td style="text-align:center">2</td><td>Investimento</td><td style="text-align:right">15.000€</td></tr>
+    <tr><td style="text-align:center">3</td><td>Leva Finanziaria</td><td style="text-align:right">30.000€</td></tr>
+    <tr><td style="text-align:center">4</td><td>Inflazione</td><td style="text-align:right">50.000€</td></tr>
+    <tr><td style="text-align:center">5</td><td>Speculazione</td><td style="text-align:right">80.000€</td></tr>
+    <tr><td style="text-align:center">6</td><td>Diversificazione</td><td style="text-align:right">120.000€</td></tr>
+    <tr><td style="text-align:center">7</td><td>Crisi</td><td style="text-align:right">150.000€</td></tr>
+    <tr><td style="text-align:center">8</td><td>Ripresa</td><td style="text-align:right">220.000€</td></tr>
+    <tr><td style="text-align:center">9</td><td>Bolla</td><td style="text-align:right">350.000€</td></tr>
+    <tr><td style="text-align:center">10</td><td>Tycoon Finale</td><td style="text-align:right">1.000.000€</td></tr>
+  </tbody>
+</table>
+<blockquote>
+  <p>Layout e generazione griglia sono deterministici (seed fissi), garantendo stabilità tra sessioni.</p>
+</blockquote>
+
+<hr>
+
+<h2>⌨️ / 📱 Controlli</h2>
+
+<h3>Laptop</h3>
+<ul>
+  <li><strong>Frecce</strong> — Muoviti / spingi Asset</li>
+  <li><strong>R</strong> — Ricarica livello</li>
+  <li><strong>Ctrl/Cmd + Z</strong> — Undo ultima mossa</li>
+  <li><strong>Toolbar</strong> — Reset, Undo, 📈 Livelli, 🔊/🔇 Audio, 📊 Report</li>
+</ul>
+
+<h3>Smartphone</h3>
+<ul>
+  <li><strong>PLAY</strong> — Inizia la partita (sblocca audio su iOS)</li>
+  <li><strong>D-pad (▲ ◀ ▶ ▼)</strong> o <strong>Swipe</strong> sul canvas</li>
+  <li><strong>📊 Report</strong> — Mostra riepilogo livello</li>
+</ul>
+
+<hr>
+
+<h2>📱 Suggerimento iOS: Aggiungi alla Home</h2>
+<p>Su iPhone/iPad, per un’esperienza fluida e con audio attivo:</p>
+<ol>
+  <li>Tocca <strong>Condividi (⬆️)</strong> nella barra in basso</li>
+  <li>Seleziona <strong>“Aggiungi alla schermata Home”</strong></li>
+  <li>Apri l’icona <strong>Cashflow Rush</strong> appena creata</li>
+</ol>
+<blockquote>
+  <p>Funziona anche <strong>offline</strong> come una vera App. 🚀</p>
+</blockquote>
+<p class="muted">L’overlay di guida appare <strong>solo la prima volta</strong> se l’app non è ancora installata come PWA.</p>
+
+<hr>
+
+<h2>⚙️ PWA — Installazione &amp; Aggiornamenti</h2>
+<ul>
+  <li>Installabile su iOS, Android e Desktop</li>
+  <li><strong>Aggiornamento automatico:</strong> il Service Worker aggiorna i file quando rileva una nuova versione</li>
+  <li>Versione attuale: <strong>v3.1.4</strong></li>
+  <li>In <code>index.html</code>, <code>app.js</code>, <code>dual.js</code>, <code>sw.js</code> è usata la query <code>?v=3.1.4</code></li>
+  <li>Il Service Worker invia <code>SW_UPDATED</code> e forza il refresh automatico</li>
+</ul>
+<blockquote>
+  <p>Se noti risorse non aggiornate: apri l’app, attendi due refresh — non serve svuotare la cache manualmente.</p>
+</blockquote>
+
+<hr>
+
+<h2>📂 Struttura File</h2>
+<pre><code>/index.html
+  → UI desktop/mobile, KPI, D-pad, PLAY, Report, overlay iOS
+
+/app.js
+  → Motore Career + Anti-grind + KPI + gestione asset
+
+/dual.js
+  → Adattatore device (auto, desktop, mobile) + swipe
+
+/sw.js
+  → Service Worker cache-busting + auto-reload
+
+/manifest.webmanifest
+  → Metadati PWA
+
+/icons/icon-192.png
+/icons/icon-512.png
+  → Icone per installazione
+
+/README.md
+  → Documentazione tecnica
+</code></pre>
+
+<hr>
+
+<h2>⚖️ Parametri di Gioco (default)</h2>
+<table>
+  <thead>
+    <tr><th>Evento</th><th>Effetto</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Monete</td><td>+500 Netto</td></tr>
+    <tr><td>Dividendo</td><td>+200 Flusso</td></tr>
+    <tr><td>Leva</td><td>+600 Flusso, −400 Netto</td></tr>
+    <tr><td>Inflazione</td><td>−200 Flusso</td></tr>
+    <tr><td>Tassa</td><td>−800 Netto</td></tr>
+    <tr><td>Asset attivo</td><td>+100 Netto/mossa per un numero limitato di mosse</td></tr>
+    <tr><td>Decadimento</td><td>ogni 7 mosse il Flusso si riduce di 100</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>🚫 Anti-Grind</h2>
+<p>Il sistema disattiva guadagni da flusso/asset se:</p>
+<ul>
+  <li>ti muovi indietro immediatamente rispetto alla direzione precedente,</li>
+  <li>oppure esegui un micro-loop A→B→A senza raccogliere o spingere asset.</li>
+</ul>
+<p>Serve a mantenere la sfida pulita, evitando farming.</p>
+
+<hr>
+
+<h2>🧩 Progressi e Reset</h2>
+<ul>
+  <li><strong>📈 Livelli</strong> — Salta a un livello specifico</li>
+  <li><strong>↺ Restart Career</strong> — Azzera progressi e reputazione</li>
+  <li>I progressi sono salvati localmente:
+    <ul>
+      <li><code>cfr.level</code>, <code>cfr.rep</code>, <code>cfr.muted</code>, <code>du.mode</code></li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+
+<h2>🚀 Deploy / Hosting</h2>
+<ol>
+  <li>Copia la cartella su un server statico (HTTPS consigliato)</li>
+  <li>Assicurati di servire correttamente MIME type (JS, JSON, PNG, Webmanifest)</li>
+  <li>Aggiorna le query di versione (<code>?v=</code>) in <code>index.html</code>, <code>sw.js</code> e <code>dual.js</code></li>
+  <li>Incrementa la versione in:
+    <ul>
+      <li><code>&lt;title&gt;</code> e file JS</li>
+      <li><code>const VER</code> in <code>sw.js</code></li>
+    </ul>
+  </li>
+</ol>
+
+<hr>
+
+<h2>🧾 License</h2>
+<p>MIT © 2025 <strong>pezzaliAPP</strong></p>
+
+<hr>
+
+<h2>🧠 Changelog (estratto)</h2>
+<ul>
+  <li><strong>v3.1.4</strong>
+    <ul>
+      <li>Legenda visiva desktop migliorata</li>
+      <li>Overlay iOS “Aggiungi alla Home” automatico</li>
+      <li>Sincronizzazione KPI e Report</li>
+      <li>Fix asset + touchpad responsive</li>
+      <li>PWA robusta con auto-update</li>
+    </ul>
+  </li>
+  <li><strong>v3.1.0-career</strong>
+    <ul>
+      <li>Career Mode stabile (10 livelli)</li>
+      <li>D-pad + Swipe su iPhone (Game.nudge)</li>
+      <li>Report in-app (📊)</li>
+      <li>Anti-grind attivo</li>
+      <li>Service Worker con cache-busting e reload</li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+
+<h2>🛠️ Troubleshooting</h2>
+<table>
+  <thead>
+    <tr><th>Problema</th><th>Soluzione</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>PLAY non parte su iPhone</td><td>Tocca il canvas o il pulsante PLAY una volta per sbloccare l’audio</td></tr>
+    <tr><td>Audio assente</td><td>Controlla 🔊/🔇 e modalità silenziosa</td></tr>
+    <tr><td>Aggiornamento non visibile</td><td>Apri l’app e attendi due refresh</td></tr>
+    <tr><td>Lag o resize su mobile</td><td>Seleziona <strong>Auto</strong> o <strong>Smartphone</strong> nel menu superiore</td></tr>
+    <tr><td>Overlay iOS non più visibile</td><td>Cancella <code>localStorage['pwa.tipShown']</code> e ricarica</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<p>📍 <strong>Autore:</strong> <a href="https://www.alessandropezzali.it">Alessandro Pezzali</a><br>
+<strong>Progetto:</strong> <a href="https://www.pezzaliapp.com">pezzaliAPP.com</a><br>
+<strong>Licenza:</strong> MIT — open source, educativo e gratuito.</p>
+
+</main>
+</body>
+</html>

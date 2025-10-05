@@ -4,12 +4,10 @@
   const SIZE = 12, BASE = 720;
   const $ = id => document.getElementById(id);
 
-  // Canvas dinamico (desktop o mobile)
   const canvas = $('gameDesk') || $('gameMob') || $('game');
   const ctx = canvas.getContext('2d');
   canvas.width = BASE; canvas.height = BASE;
 
-  // KPI references (desktop → mobile fallback)
   const kNet = $('dNet') || $('mNet');
   const kFlow = $('dFlow') || $('mFlow');
   const kMoves = $('dMoves') || $('mMoves');
@@ -17,11 +15,9 @@
   const kEff = $('dEff') || $('mEff');
   const kRep = $('dRep') || $('mRep');
 
-  // Overlay / Play
   const overlayEls = [$('playOverlayDesk'), $('playOverlayMob')].filter(Boolean);
   const playBtns = [$('playBtnDesk'), $('playBtnMob')].filter(Boolean);
 
-  // Audio
   let muted = localStorage.getItem('cfr.muted') === '1';
   const $mute = $('muteBtn');
   if ($mute) $mute.textContent = muted ? '🔇' : '🔊';
@@ -42,7 +38,6 @@
     });
   }
 
-  // Levels — Career progression
   const levels = [
     { name: "Risparmio", target: 5000, seed: 1 },
     { name: "Investimento", target: 15000, seed: 2 },
@@ -58,7 +53,6 @@
   let L = parseInt(localStorage.getItem('cfr.level') || '0');
   if (L >= levels.length) L = 0;
 
-  // Stato gioco
   let state = null, history = [], started = false;
 
   function rng(seed) {
@@ -102,29 +96,16 @@
     updateHUD(); render(); started = false; toggleOverlay(true);
   }
 
-  // Overlay
-  function toggleOverlay(show) {
-    overlayEls.forEach(el => el.style.display = show ? 'flex' : 'none');
-  }
-  playBtns.forEach(btn => btn.addEventListener('click', () => {
-    started = true; toggleOverlay(false); tone(660, 0.06);
-  }));
+  function toggleOverlay(show) { overlayEls.forEach(el => el.style.display = show ? 'flex' : 'none'); }
+  playBtns.forEach(btn => btn.addEventListener('click', () => { started = true; toggleOverlay(false); tone(660, 0.06); }));
 
-  // Helpers
   function euro(n) { return n.toLocaleString('it-IT') + "€"; }
   function inB(x, y) { return x >= 0 && y >= 0 && x < SIZE && y < SIZE; }
   function at(x, y) { return state.grid[y][x]; }
   function isWall(x, y) { return at(x, y) === '#'; }
   function assetAt(x, y) { return state.assets.find(a => a.x === x && a.y === y); }
   function isGoal(x, y) { return state.goals.some(g => g.x === x && g.y === y); }
-
-  function recalc() {
-    for (const a of state.assets) {
-      const was = a.active;
-      a.active = isGoal(a.x, a.y);
-      if (a.active && !was) a.fuel = 5;
-    }
-  }
+  function recalc() { for (const a of state.assets) { const was = a.active; a.active = isGoal(a.x, a.y); if (a.active && !was) a.fuel = 5; } }
 
   function applyTile(x, y) {
     const t = at(x, y);
@@ -138,11 +119,7 @@
   function tick() {
     state.net += state.flow;
     for (const a of state.assets) {
-      if (a.active && a.fuel > 0) {
-        state.net += 100;
-        a.fuel--;
-        if (a.fuel <= 0) a.active = false;
-      }
+      if (a.active && a.fuel > 0) { state.net += 100; a.fuel--; if (a.fuel <= 0) a.active = false; }
     }
     if (state.moves % 7 === 0) state.flow = Math.max(0, state.flow - 100);
   }
@@ -163,7 +140,6 @@
     state.moves++;
     tick();
     updateHUD(); render();
-
     if (state.net >= state.target) completeLevel();
   }
 
@@ -172,8 +148,6 @@
     localStorage.setItem('cfr.rep', String(state.rep || 0));
     const eff = state.moves ? Math.max(0, Math.round((state.net / state.moves) / 10)) : 0;
     state.eff = eff;
-
-    // Report modal
     $('rLevel').textContent = state.name;
     $('rTarget').textContent = euro(state.target);
     $('rNet').textContent = euro(state.net);
@@ -182,16 +156,12 @@
     $('rEff').textContent = eff + "%";
     $('rRep').textContent = state.rep + "★";
     $('reportModal').classList.add('show');
-
     tone(800, 0.15, 'triangle');
     L = (L + 1) % levels.length;
     localStorage.setItem('cfr.level', String(L));
   }
 
-  $('reportCloseBtn').addEventListener('click', () => {
-    $('reportModal').classList.remove('show');
-    loadLevel(L);
-  });
+  $('reportCloseBtn').addEventListener('click', () => { $('reportModal').classList.remove('show'); loadLevel(L); });
 
   function updateHUD() {
     kNet.textContent = euro(state.net);
@@ -204,17 +174,13 @@
     if (kRep) kRep.textContent = state.rep;
   }
 
-  // Render
   function render() {
     const W = canvas.width, H = canvas.height, C = Math.floor(W / SIZE);
     const c = ctx;
     c.clearRect(0, 0, W, H);
     c.fillStyle = "#081028"; c.fillRect(0, 0, W, H);
     c.strokeStyle = "#1a2655";
-    for (let i = 0; i <= SIZE; i++) {
-      c.beginPath(); c.moveTo(i * C, 0); c.lineTo(i * C, H); c.stroke();
-      c.beginPath(); c.moveTo(0, i * C); c.lineTo(W, i * C); c.stroke();
-    }
+    for (let i = 0; i <= SIZE; i++) { c.beginPath(); c.moveTo(i * C, 0); c.lineTo(i * C, H); c.stroke(); c.beginPath(); c.moveTo(0, i * C); c.lineTo(W, i * C); c.stroke(); }
     for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
       const t = state.grid[y][x];
       if (t === '#') c.fillStyle = '#0c1533';
@@ -227,11 +193,7 @@
       else c.fillStyle = 'transparent';
       if (c.fillStyle !== 'transparent') c.fillRect(x * C, y * C, C, C);
     }
-    function dot(x, y, color) {
-      const r = Math.floor(C * 0.12);
-      const cx = x * C + C / 2, cy = y * C + C / 2;
-      c.beginPath(); c.fillStyle = color; c.arc(cx, cy, r, 0, Math.PI * 2); c.fill();
-    }
+    function dot(x, y, color) { const r = Math.floor(C * 0.12), cx = x * C + C / 2, cy = y * C + C / 2; c.beginPath(); c.fillStyle = color; c.arc(cx, cy, r, 0, Math.PI * 2); c.fill(); }
     for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
       const t = state.grid[y][x];
       if (t === '$') dot(x, y, '#ffd700');
@@ -241,40 +203,26 @@
       if (t === 'I') dot(x, y, '#ffaa00');
     }
     const pad = 10, padP = 14;
-    function box(x, y, color) {
-      c.fillStyle = color;
-      c.fillRect(x * C + pad, y * C + pad, C - 2 * pad, C - 2 * pad);
-      c.strokeStyle = '#0a1228';
-      c.lineWidth = 2;
-      c.strokeRect(x * C + pad, y * C + pad, C - 2 * pad, C - 2 * pad);
-    }
+    function box(x, y, color) { c.fillStyle = color; c.fillRect(x * C + pad, y * C + pad, C - 2 * pad, C - 2 * pad); c.strokeStyle = '#0a1228'; c.lineWidth = 2; c.strokeRect(x * C + pad, y * C + pad, C - 2 * pad, C - 2 * pad); }
     for (const a of state.assets) box(a.x, a.y, a.active ? '#2dd36f' : '#748ffc');
-    c.fillStyle = '#e9f1ff';
-    c.fillRect(state.player.x * C + padP, state.player.y * C + padP, C - 2 * padP, C - 2 * padP);
+    c.fillStyle = '#e9f1ff'; c.fillRect(state.player.x * C + padP, state.player.y * C + padP, C - 2 * padP, C - 2 * padP);
   }
 
-  // Input tastiera
   window.addEventListener('keydown', e => {
     const k = e.key;
     if (k === 'ArrowLeft') move(-1, 0);
     if (k === 'ArrowRight') move(1, 0);
     if (k === 'ArrowUp') move(0, -1);
     if (k === 'ArrowDown') move(0, 1);
-    if ((e.ctrlKey || e.metaKey) && k === 'z' && history.length) {
-      state = history.pop(); updateHUD(); render();
-    }
+    if ((e.ctrlKey || e.metaKey) && k === 'z' && history.length) { state = history.pop(); updateHUD(); render(); }
     if (k === 'r') loadLevel(L);
   });
 
-  // Touchpad per mobile
-  document.querySelectorAll('.touchpad button[data-dx]').forEach(b =>
-    b.addEventListener('click', () => {
-      const dx = parseInt(b.dataset.dx), dy = parseInt(b.dataset.dy);
-      move(dx, dy);
-    })
-  );
+  document.querySelectorAll('.touchpad button[data-dx]').forEach(b => b.addEventListener('click', () => {
+    const dx = parseInt(b.dataset.dx), dy = parseInt(b.dataset.dy);
+    move(dx, dy);
+  }));
 
-  // Toolbar
   const levelsBtn = $('levelsBtn');
   if (levelsBtn) {
     levelsBtn.addEventListener('click', () => {
@@ -286,20 +234,12 @@
   }
   const resetBtn = $('resetBtn'); if (resetBtn) resetBtn.addEventListener('click', () => loadLevel(L));
   const undoBtn = $('undoBtn'); if (undoBtn) undoBtn.addEventListener('click', () => { if (history.length) { state = history.pop(); updateHUD(); render(); } });
-  const careerBtn = $('careerBtn');
-  if (careerBtn) {
-    careerBtn.addEventListener('click', () => {
-      if (confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")) {
-        localStorage.removeItem('cfr.level');
-        localStorage.removeItem('cfr.rep');
-        L = 0; loadLevel(L);
-      }
-    });
-  }
+  const careerBtn = $('careerBtn'); if (careerBtn) careerBtn.addEventListener('click', () => {
+    if (confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")) {
+      localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L = 0; loadLevel(L);
+    }
+  });
 
-  // Public hooks
-  window.Game = { start: () => { started = true; toggleOverlay(false); tone(660, 0.06); }, reload: () => loadLevel(L), nudge: (dx, dy) => move(dx, dy) };
-
-  // Start
+  window.Game = { start: () => { if(!started){ started = True; } }, nudge: (dx,dy)=>{}, reload: ()=>{} };
   loadLevel(L);
 })();

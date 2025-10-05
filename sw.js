@@ -1,46 +1,37 @@
-// sw.js v3.1.0-career
-const VER='3.1.0-career';
-const SHELL='cfr-career-'+VER;
-const ASSETS=[
-  './',
-  './index.html',
-  './dual.js?v=3.1.0-career',
-  './app.js?v=3.1.0-career',
-  './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
-
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(SHELL).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+// sw.js v3.1.0-career — instant update
+const CACHE = 'cfr-career-v3.1.0-' + (self.registration ? self.registration.scope : Math.random());
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll([
+    './',
+    './index.html',
+    './app.js?v=3.1.0-career',
+    './dual.js?v=3.1.0-career',
+    './manifest.webmanifest',
+    './icons/icon-192.png',
+    './icons/icon-512.png'
+  ]).catch(()=>{})));
 });
-self.addEventListener('activate',e=>{
-  e.waitUntil(
-    caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('cfr-career-')&&k!==SHELL).map(k=>caches.delete(k))))
-      .then(()=>self.clients.claim())
-      .then(async ()=>{
-        const wins=await self.clients.matchAll({type:'window',includeUncontrolled:true});
-        for(const w of wins) w.postMessage({type:'SW_UPDATED',ver:VER});
-      })
-  );
+self.addEventListener('activate', e => {
+  e.waitUntil((async ()=>{
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k=>!k.includes('cfr-career-v3.1.0-')).map(k=>caches.delete(k)));
+    await self.clients.claim();
+    const clients = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+    clients.forEach(c=>c.postMessage({type:'SW_UPDATED'}));
+  })());
 });
-self.addEventListener('message',e=>{ if(e.data&&e.data.type==='SKIP_WAITING') self.skipWaiting(); });
-self.addEventListener('fetch',e=>{
-  const url=new URL(e.request.url);
-  if(url.origin!==location.origin) return;
-  const isShell=url.search.includes('v=3.1.0-career')||url.pathname.endsWith('/')||url.pathname.endsWith('/index.html');
-  if(isShell){
-    e.respondWith((async()=>{
-      try{
-        const fresh=await fetch(e.request,{cache:'no-store'});
-        const cache=await caches.open(SHELL);
-        cache.put(e.request,fresh.clone());
-        return fresh;
-      }catch{
-        return (await caches.match(e.request))||new Response('Offline', {status:503});
-      }
-    })());
-  }else{
-    e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
+self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+  if (url.pathname.endsWith('app.js') || url.pathname.endsWith('dual.js') || url.pathname.endsWith('index.html')) {
+    // network-first to pick up updates
+    e.respondWith(fetch(e.request).then(r=>{
+      const cp = r.clone();
+      caches.open(CACHE).then(c=>c.put(e.request, cp));
+      return r;
+    }).catch(()=>caches.match(e.request)));
+  } else {
+    // cache-first for assets
+    e.respondWith(caches.match(e.request).then(r=> r || fetch(e.request)));
   }
 });

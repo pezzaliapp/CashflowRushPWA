@@ -1,4 +1,4 @@
-// Cashflow Rush — Career Edition v3.1.4-robust (anti-grind + KPI mobile fix)
+// Cashflow Rush — Career Edition v3.1.4-robust (anti-grind + KPI mobile fix + safe report close)
 // pezzaliAPP ©2025 — MIT License
 (() => {
   const SIZE = 12, BASE = 720;
@@ -210,11 +210,47 @@
     if(rMoves)  rMoves.textContent  = state.moves;
     if(rEff)    rEff.textContent    = eff + "%";
     if(rRep)    rRep.textContent    = (state.rep||0) + "★";
-    if(modal)   modal.classList.add('show');
+    if(modal){
+      modal.classList.add('show');
+      bindReportModalHandlers(); // handler robusti (bottone, backdrop, ESC)
+    }
 
     tone(800,0.15,'triangle');
     L=(L+1)%levels.length;
     localStorage.setItem('cfr.level', String(L));
+  }
+
+  // ---------- Chiusura MODAL report robusta ----------
+  function bindReportModalHandlers(){
+    const modal = $('reportModal');
+    if(!modal) return;
+
+    // Evita duplicazioni
+    modal._bound && modal._bound.forEach(off => off());
+    modal._bound = [];
+
+    function closeReport(){
+      modal.classList.remove('show');
+      loadLevel(L);        // prepara il prossimo livello
+      started = false;     // richiedi PLAY esplicito
+      toggleOverlay(true);
+    }
+
+    // 1) Bottone "Chiudi"
+    const btn = $('reportCloseBtn');
+    const onBtn = () => closeReport();
+    btn && btn.addEventListener('click', onBtn);
+    modal._bound.push(() => btn && btn.removeEventListener('click', onBtn));
+
+    // 2) Clic sul backdrop (fuori dalla card)
+    const onBackdrop = (e) => { if(e.target === modal) closeReport(); };
+    modal.addEventListener('click', onBackdrop);
+    modal._bound.push(() => modal.removeEventListener('click', onBackdrop));
+
+    // 3) Tasto ESC
+    const onEsc = (e) => { if(e.key === 'Escape') closeReport(); };
+    document.addEventListener('keydown', onEsc);
+    modal._bound.push(() => document.removeEventListener('keydown', onEsc));
   }
 
   // ---------- HUD: scegli SEMPRE l’elemento visibile (desktop/mobile) ----------
@@ -316,7 +352,7 @@
   }
   const resetBtn=$('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=>loadLevel(L));
   const undoBtn =$('undoBtn');  if(undoBtn)  undoBtn.addEventListener('click', ()=>{ if(history.length){ state=history.pop(); updateHUD(); render(); }});
-  const careerBtn=$('careerBtn'); if(careerBtn) careerBtn.addEventListener('click', ()=>{
+  const careerBtn=$('careerBtn'); if(careerBtn) addEventListener('click', ()=>{
     if(confirm("Ricominciare la Carriera?\nQuesto resetta progressione e reputazione.")){
       localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L);
     }

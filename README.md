@@ -113,3 +113,91 @@ L’overlay di guida appare **solo la prima volta** se l’app non è ancora ins
 ---
 
 ## 📂 Struttura File
+
+/index.html             → UI desktop/mobile, KPI, D-pad, PLAY, Report, overlay iOS
+/app.js                 → Motore Career + Anti-grind + KPI + gestione asset
+/dual.js                → Adattatore device (auto, desktop, mobile) + swipe
+/sw.js                  → Service Worker cache-busting + auto-reload
+/manifest.webmanifest   → Metadati PWA
+/icons/icon-192.png
+/icons/icon-512.png
+/README.md
+
+---
+
+## ⚖️ Parametri di Gioco (default)
+| Evento | Effetto |
+|:--|:--|
+| Monete | +500 Netto |
+| Dividendo | +200 Flusso |
+| Leva | +600 Flusso, −400 Netto |
+| Inflazione | −200 Flusso |
+| Tassa | −800 Netto |
+| Asset attivo | +100 Netto/mossa per un numero limitato di mosse |
+| Decadimento | ogni 7 mosse il Flusso si riduce di 100 |
+
+---
+
+## 🚫 Anti-Grind
+Il sistema disattiva guadagni da flusso/asset se:
+- ti muovi indietro immediatamente rispetto alla direzione precedente,  
+- oppure esegui un micro-loop A→B→A senza raccogliere o spingere asset.  
+
+Serve a mantenere la sfida pulita, evitando farming.
+
+---
+
+## 🧩 Progressi e Reset
+- **📈 Livelli** — Salta a un livello specifico  
+- **↺ Restart Career** — Azzera progressi e reputazione  
+- I progressi sono salvati localmente:
+  - `cfr.level`, `cfr.rep`, `cfr.muted`, `du.mode`
+
+---
+
+## 🚀 Deploy / Hosting
+1. Copia la cartella su un server statico (HTTPS consigliato)  
+2. Assicurati di servire correttamente MIME type (JS, JSON, PNG, Webmanifest)  
+3. Aggiorna le query di versione (`?v=`) in `index.html`, `sw.js` e `dual.js`  
+4. Incrementa la versione in:
+   - `<title>` e file JS
+   - `const VER` in `sw.js`
+
+---
+
+## 🧾 License
+MIT © 2025 **pezzaliAPP**
+
+---
+
+## 🧠 Changelog (estratto)
+- **v3.1.4**
+  - Legenda visiva desktop migliorata  
+  - Overlay iOS “Aggiungi alla Home” automatico  
+  - Sincronizzazione KPI e Report  
+  - Fix asset + touchpad responsive  
+  - PWA robusta con auto-update
+
+- **v3.1.0-career**
+  - Career Mode stabile (10 livelli)  
+  - D-pad + Swipe su iPhone (Game.nudge)  
+  - Report in-app (📊)  
+  - Anti-grind attivo  
+  - Service Worker con cache-busting e reload
+
+---
+
+## 🛠️ Troubleshooting
+| Problema | Soluzione |
+|:--|:--|
+| PLAY non parte su iPhone | Tocca il canvas o il pulsante PLAY una volta per sbloccare l’audio |
+| Audio assente | Controlla 🔊/🔇 e modalità silenziosa |
+| Aggiornamento non visibile | Apri l’app e attendi due refresh |
+| Lag o resize su mobile | Seleziona **Auto** o **Smartphone** nel menu superiore |
+| Overlay iOS non più visibile | Cancella `localStorage['pwa.tipShown']` e ricarica |
+
+---
+
+📍 **Autore:** [Alessandro Pezzali](https://www.alessandropezzali.it)  
+**Progetto:** [pezzaliAPP.com](https://www.pezzaliapp.com)  
+**Licenza:** MIT — open source, educativo e gratuito.

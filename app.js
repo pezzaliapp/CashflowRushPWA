@@ -1,57 +1,33 @@
-// Cashflow Rush v3.0 — Career Mode (skeleton) — patched for hybrid layout + Game.nudge + dual KPI HUD
+// Cashflow Rush — Career Edition v3.1.0-career
+// Smartphone-ready: D-pad/Swipe via Game.nudge, KPI desktop+mobile, anti-grind.
 (() => {
   const SIZE = 12, BASE = 720;
 
-  // canvas: dual.js rinomina il visibile in #game
+  // canvas (gestito da dual.js che rinomina il visibile in #game)
   const canvas = document.getElementById('game') || document.getElementById('gameDesk') || document.getElementById('gameMob');
   const ctx = canvas.getContext('2d');
   canvas.width = BASE; canvas.height = BASE;
   const $ = (id)=>document.getElementById(id);
 
-  // KPI refs → sempre sia desktop che mobile
+  // KPI refs (scriviamo su entrambi i pannelli)
   const KPI = {
-    d: {
-      net: $('dNet'),
-      flow: $('dFlow'),
-      moves: $('dMoves'),
-      target: $('dTarget'),
-      eff: $('dEff'),
-      rep: $('dRep'),
-    },
-    m: {
-      net: $('mNet'),
-      flow: $('mFlow'),
-      moves: $('mMoves'),
-      target: $('mTarget'),
-    }
+    d: { net:$('dNet'), flow:$('dFlow'), moves:$('dMoves'), target:$('dTarget'), eff:$('dEff'), rep:$('dRep') },
+    m: { net:$('mNet'), flow:$('mFlow'), moves:$('mMoves'), target:$('mTarget') }
   };
-  function setText(el, txt){ if(el) el.textContent = txt; }
+  const setText = (el,txt)=>{ if(el) el.textContent=txt; };
 
-  // Overlay/PLAY (tollerante)
+  // Overlay/PLAY
   const overlayEls = [ $('overlay'), $('playOverlayDesk'), $('playOverlayMob') ].filter(Boolean);
   const playBtns   = [ $('playBtn'), $('playBtnDesk'), $('playBtnMob') ].filter(Boolean);
 
-  // Device selector (solo styling)
-  let modePref = localStorage.getItem('cfr.mode') || 'auto';
-  const modeSeg = $('modeSeg');
-  if (modeSeg) {
-    modeSeg.addEventListener('click', e=>{
-      const b=e.target.closest('button'); if(!b) return;
-      modePref = b.dataset.mode; localStorage.setItem('cfr.mode', modePref);
-      document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('active', x.dataset.mode===modePref));
-    });
-  }
-
-  // Audio base
+  // Audio
   let muted = localStorage.getItem('cfr.muted')==='1';
   const $mute = $('muteBtn'); if($mute) $mute.textContent = muted ? '🔇' : '🔊';
   const AC = window.AudioContext || window.webkitAudioContext; const actx = AC ? new AC() : null;
   function tone(f=440,d=0.06,t='sine',v=0.05){ if(!actx || muted) return; const o=actx.createOscillator(), g=actx.createGain(); o.type=t; o.frequency.value=f; g.gain.value=v; o.connect(g); g.connect(actx.destination); o.start(); setTimeout(()=>{try{o.stop()}catch{}}, d*1000); }
-  if($mute){
-    $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cfr.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; });
-  }
+  if($mute){ $mute.addEventListener('click', ()=>{ muted=!muted; localStorage.setItem('cfr.muted', muted?'1':'0'); $mute.textContent = muted ? '🔇' : '🔊'; }); }
 
-  // Levels (Career)
+  // Livelli Career
   const levels = [
     {name:"Risparmio",         target:  5000,  seed:1},
     {name:"Investimento",     target: 15000,  seed:2},
@@ -66,32 +42,36 @@
   ];
   let L = parseInt(localStorage.getItem('cfr.level')||'0'); if(L>=levels.length) L=0;
 
-  // Stato gioco
-  let state = null, history = [];
-  let started = false;
+  // Stato
+  let state=null, history=[];
+  let started=false;
 
-  function rng(seed){ let s = seed||1; return ()=> (s = (s*1664525+1013904223)%4294967296)/4294967296; }
+  // Anti-grind trackers
+  let lastDir={dx:0,dy:0};
+  const lastPos=[];
+
+  // RNG + grid
+  function rng(seed){ let s=seed||1; return ()=> (s=(s*1664525+1013904223)%4294967296)/4294967296; }
   function genGrid(seed){
-    const rnd = rng(seed), g = Array.from({length:SIZE}, _=>Array(SIZE).fill('.'));
+    const rnd=rng(seed), g=Array.from({length:SIZE}, _=>Array(SIZE).fill('.'));
     for(let i=0;i<SIZE;i++){ g[0][i]='#'; g[SIZE-1][i]='#'; g[i][0]='#'; g[i][SIZE-1]='#'; }
-    for(let i=0;i<3;i++){ g[2+i*3][SIZE-2] = 'G'; }
-    const features = ['$', 'D', 'T', 'L', 'I'];
+    for(let i=0;i<3;i++){ g[2+i*3][SIZE-2]='G'; }
+    const features=['$','D','T','L','I'];
     for(let k=0;k<28;k++){
       const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
-      if(g[y][x]!=='.') continue;
-      g[y][x] = features[Math.floor(rnd()*features.length)];
+      if(g[y][x]!=='.') continue; g[y][x]=features[Math.floor(rnd()*features.length)];
     }
     for(let k=0;k<4;k++){
       const x=1+Math.floor(rnd()*(SIZE-2)), y=1+Math.floor(rnd()*(SIZE-2));
-      if(g[y][x]!=='.') continue; g[y][x] = 'A';
+      if(g[y][x]!=='.') continue; g[y][x]='A';
     }
-    g[1][1] = 'P';
+    g[1][1]='P';
     return g;
   }
 
   function loadLevel(index){
-    const meta = levels[index];
-    const grid = genGrid(meta.seed);
+    const meta=levels[index];
+    const grid=genGrid(meta.seed);
     let player={x:1,y:1};
     const assets=[], goals=[];
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
@@ -100,103 +80,95 @@
       if(t==='A'){ assets.push({x,y,active:false,fuel:0}); grid[y][x]='.'; }
       if(t==='G'){ goals.push({x,y}); }
     }
-    state = { name:meta.name, target:meta.target, grid, player, assets, goals, net:0, flow:0, moves:0, rep:parseInt(localStorage.getItem('cfr.rep')||'0'), eff:0 };
-    history.length=0;
+    state={ name:meta.name, target:meta.target, grid, player, assets, goals, net:0, flow:0, moves:0, rep:parseInt(localStorage.getItem('cfr.rep')||'0'), eff:0 };
+    history.length=0; lastDir={dx:0,dy:0}; lastPos.length=0; lastPos.push({x:player.x,y:player.y});
     updateHUD(); render(); started=false; toggleOverlay(true);
   }
 
-  // Overlay / PLAY (compatibile con index)
-  function toggleOverlay(show){ overlayEls.forEach(el => el.style.display = show ? 'flex' : 'none'); }
-  playBtns.forEach(btn => btn.addEventListener('click', ()=>{
-    started=true; toggleOverlay(false); tone(660,0.06);
-  }));
+  // Overlay / PLAY
+  function toggleOverlay(show){ overlayEls.forEach(el=> el.style.display = show ? 'flex':'none'); }
+  playBtns.forEach(btn=> btn.addEventListener('click', ()=>{ started=true; toggleOverlay(false); tone(660,0.06); }));
 
   // HUD
   function euro(n){ return n.toLocaleString('it-IT')+"€"; }
-
   function updateHUD(){
-    const netTxt    = euro(state.net);
-    const flowTxt   = euro(state.flow)+"/mossa";
-    const movesTxt  = String(state.moves);
-    const targetTxt = euro(state.target);
-    const eff       = state.moves ? Math.max(0, Math.round((state.net/state.moves)/10)) : 0;
-    state.eff = eff;
-
-    // Scrivi SEMPRE su desktop + mobile (se esistono)
-    setText(KPI.d.net,    netTxt);
-    setText(KPI.d.flow,   flowTxt);
-    setText(KPI.d.moves,  movesTxt);
-    setText(KPI.d.target, targetTxt);
-    setText(KPI.d.eff,    eff+"%");
-    setText(KPI.d.rep,    String(state.rep));
-
-    setText(KPI.m.net,    netTxt);
-    setText(KPI.m.flow,   flowTxt);
-    setText(KPI.m.moves,  movesTxt);
-    setText(KPI.m.target, targetTxt);
-
+    const netTxt=euro(state.net), flowTxt=euro(state.flow)+"/mossa", movesTxt=String(state.moves), targetTxt=euro(state.target);
+    const eff = state.moves? Math.max(0, Math.round((state.net/state.moves)/10)) : 0; state.eff=eff;
+    setText(KPI.d.net,netTxt); setText(KPI.d.flow,flowTxt); setText(KPI.d.moves,movesTxt); setText(KPI.d.target,targetTxt); setText(KPI.d.eff,eff+"%"); setText(KPI.d.rep,String(state.rep));
+    setText(KPI.m.net,netTxt); setText(KPI.m.flow,flowTxt); setText(KPI.m.moves,movesTxt); setText(KPI.m.target,targetTxt);
     localStorage.setItem('cfr.level', String(L));
   }
 
   // Helpers
-  function inB(x,y){ return x>=0 && y>=0 && x<SIZE && y<SIZE; }
-  function at(x,y){ return state.grid[y][x]; }
-  function isWall(x,y){ return at(x,y)==='#'; }
-  function assetAt(x,y){ return state.assets.find(a=>a.x===x && a.y===y); }
-  function isGoal(x,y){ return state.goals.some(g=>g.x===x && g.y===y); }
+  const inB=(x,y)=> x>=0 && y>=0 && x<SIZE && y<SIZE;
+  const at=(x,y)=> state.grid[y][x];
+  const isWall=(x,y)=> at(x,y)==='#';
+  const assetAt=(x,y)=> state.assets.find(a=>a.x===x && a.y===y);
+  const isGoal=(x,y)=> state.goals.some(g=>g.x===x && g.y===y);
   function recalc(){ for(const a of state.assets){ const was=a.active; a.active=isGoal(a.x,a.y); if(a.active && !was) a.fuel=5; } }
 
   function applyTile(x,y){
-    const t = at(x,y);
-    if(t==='$'){ state.net+=500; state.grid[y][x]='.'; tone(760,0.06); }
-    if(t==='D'){ state.flow+=200; state.grid[y][x]='.'; tone(900,0.06); }
-    if(t==='T'){ state.net=Math.max(0,state.net-800); state.grid[y][x]='.'; tone(240,0.06,'square'); }
-    if(t==='L'){ state.flow+=600; state.net=Math.max(0,state.net-400); state.grid[y][x]='.'; tone(520,0.06,'triangle'); }
-    if(t==='I'){ state.flow=Math.max(0,state.flow-200); state.grid[y][x]='.'; tone(300,0.05); }
+    const t=at(x,y);
+    if(t==='$'){ state.net+=500; state.grid[y][x]='.'; tone(760,0.06); return true; }
+    if(t==='D'){ state.flow+=200; state.grid[y][x]='.'; tone(900,0.06); return true; }
+    if(t==='T'){ state.net=Math.max(0,state.net-800); state.grid[y][x]='.'; tone(240,0.06,'square'); return true; }
+    if(t==='L'){ state.flow+=600; state.net=Math.max(0,state.net-400); state.grid[y][x]='.'; tone(520,0.06,'triangle'); return true; }
+    if(t==='I'){ state.flow=Math.max(0,state.flow-200); state.grid[y][x]='.'; tone(300,0.05); return true; }
+    return false;
   }
 
-  function tick(){
+  function tickIncome(suppress=false){
+    if(suppress) return;
     state.net += state.flow;
-    for(const a of state.assets){
-      if(a.active && a.fuel>0){ state.net += 100; a.fuel--; if(a.fuel<=0) a.active=false; }
-    }
+    for(const a of state.assets){ if(a.active && a.fuel>0){ state.net+=100; a.fuel--; if(a.fuel<=0) a.active=false; } }
     if(state.moves % 7 === 0){ state.flow = Math.max(0, state.flow - 100); }
   }
 
   function move(dx,dy){
     if(!started) return;
     const nx=state.player.x+dx, ny=state.player.y+dy;
-    if(!inB(nx,ny) || isWall(nx,ny)) return;
-    const box = assetAt(nx,ny);
+    if(!inB(nx,ny)||isWall(nx,ny)) return;
+
+    // push asset
+    let assetPushed=false;
+    const box=assetAt(nx,ny);
     if(box){
       const bx=nx+dx, by=ny+dy;
-      if(!inB(bx,by) || isWall(bx,by) || assetAt(bx,by)) return;
-      box.x=bx; box.y=by; recalc(); tone(420,0.05,'triangle');
+      if(!inB(bx,by)||isWall(bx,by)||assetAt(bx,by)) return;
+      box.x=bx; box.y=by; recalc(); tone(420,0.05,'triangle'); assetPushed=true;
     }
+
+    const isBack = (dx===-lastDir.dx && dy===-lastDir.dy);
+
     history.push(JSON.parse(JSON.stringify(state)));
     state.player.x=nx; state.player.y=ny;
-    applyTile(nx,ny);
+    const hadEvent=applyTile(nx,ny);
     state.moves++;
-    tick();
+
+    const prev = lastPos[lastPos.length-1];
+    const prev2 = lastPos.length>1 ? lastPos[lastPos.length-2] : null;
+    const loopShort = prev2 && prev2.x===state.player.x && prev2.y===state.player.y;
+    const suppress = !hadEvent && !assetPushed && (isBack || loopShort);
+
+    lastPos.push({x:state.player.x,y:state.player.y}); if(lastPos.length>3) lastPos.shift();
+    lastDir={dx,dy};
+
+    tickIncome(suppress);
     updateHUD(); render();
 
     if(state.net>=state.target){
-      if(history.every(s=>s.net>=0)) state.rep = Math.min(5, (state.rep||0)+1);
+      if(history.every(s=>s.net>=0)) state.rep = Math.min(5,(state.rep||0)+1);
       localStorage.setItem('cfr.rep', String(state.rep||0));
-      const score = Math.round(state.net/Math.max(1,state.moves)) + state.eff*10 + (state.rep||0)*500;
-      alert(`Livello completato: ${state.name}\nMosse: ${state.moves}\nEfficienza: ${state.eff}%\nReputazione: ${state.rep}★\nScore: ${score}`);
+      const score = Math.round(state.net/Math.max(1,state.moves)) + (state.eff||0)*10 + (state.rep||0)*500;
+      alert(`Livello completato: ${state.name}\nMosse: ${state.moves}\nEfficienza: ${state.eff||0}%\nReputazione: ${state.rep||0}★\nScore: ${score}`);
       L=(L+1)%levels.length; loadLevel(L);
     }
   }
 
   function render(){
     const W=canvas.width, H=canvas.height, C=Math.floor(W/SIZE);
-    const c=ctx;
-    c.clearRect(0,0,W,H);
-    c.fillStyle="#081028"; c.fillRect(0,0,W,H);
-    c.strokeStyle="#1a2655";
-    for(let i=0;i<=SIZE;i++){ c.beginPath(); c.moveTo(i*C,0); c.lineTo(i*C,H); c.stroke();
-                              c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke(); }
+    const c=ctx; c.clearRect(0,0,W,H); c.fillStyle="#081028"; c.fillRect(0,0,W,H); c.strokeStyle="#1a2655";
+    for(let i=0;i<=SIZE;i++){ c.beginPath(); c.moveTo(i*C,0); c.lineTo(i*C,H); c.stroke(); c.beginPath(); c.moveTo(0,i*C); c.lineTo(W,i*C); c.stroke(); }
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
       if(t==='#') c.fillStyle='#0c1533';
@@ -212,11 +184,7 @@
     function dot(x,y,color){ const r=Math.floor(C*0.12); const cx=x*C + C/2, cy=y*C + C/2; c.beginPath(); c.fillStyle=color; c.arc(cx,cy,r,0,Math.PI*2); c.fill(); }
     for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
       const t=state.grid[y][x];
-      if(t==='$') dot(x,y,'#ffd700');
-      if(t==='D') dot(x,y,'#3dc2ff');
-      if(t==='T') dot(x,y,'#ff4d4d');
-      if(t==='L') dot(x,y,'#8a56ff');
-      if(t==='I') dot(x,y,'#ffaa00');
+      if(t==='$') dot(x,y,'#ffd700'); if(t==='D') dot(x,y,'#3dc2ff'); if(t==='T') dot(x,y,'#ff4d4d'); if(t==='L') dot(x,y,'#8a56ff'); if(t==='I') dot(x,y,'#ffaa00');
     }
     const pad=10, padP=14;
     function box(x,y,color){ c.fillStyle=color; c.fillRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); c.strokeStyle='#0a1228'; c.lineWidth=2; c.strokeRect(x*C+pad,y*C+pad,C-2*pad,C-2*pad); }
@@ -235,24 +203,26 @@
   });
 
   // Toolbar
-  const levelsBtn = $('levelsBtn');
-  if(levelsBtn){
-    levelsBtn.addEventListener('click', ()=>{
-      const list = levels.map((x,i)=>`${i+1}. ${x.name} — target ${x.target.toLocaleString('it-IT')}€`).join('\n');
-      const ans = prompt(`Vai al livello (1-${levels.length})\n`+list, String(L+1));
-      const idx = Math.max(1, Math.min(levels.length, parseInt(ans||'1'))) - 1;
-      L=idx; loadLevel(L);
-    });
-  }
-  const resetBtn = $('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=>loadLevel(L));
-  const undoBtn  = $('undoBtn');  if(undoBtn)  undoBtn.addEventListener('click', ()=>{ if(history.length){ state = history.pop(); updateHUD(); render(); }});
+  const levelsBtn=$('levelsBtn'); if(levelsBtn){ levelsBtn.addEventListener('click', ()=>{
+    const list = levels.map((x,i)=>`${i+1}. ${x.name} — target ${x.target.toLocaleString('it-IT')}€`).join('\n');
+    const ans = prompt(`Vai al livello (1-${levels.length})\n`+list, String(L+1));
+    const idx = Math.max(1, Math.min(levels.length, parseInt(ans||'1'))) - 1;
+    L=idx; loadLevel(L);
+  });}
+  const resetBtn=$('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', ()=> loadLevel(L));
+  const undoBtn=$('undoBtn'); if(undoBtn) undoBtn.addEventListener('click', ()=>{ if(history.length){ state=history.pop(); updateHUD(); render(); }});
+  const careerBtn=$('careerBtn'); if(careerBtn){ careerBtn.addEventListener('click', ()=>{
+    if(confirm("Ricominciare la Carriera?\nResetta progressione e reputazione.")){
+      localStorage.removeItem('cfr.level'); localStorage.removeItem('cfr.rep'); L=0; loadLevel(L);
+    }
+  });}
 
-  // Hooks per dual.js (NUOVO: nudge per mobile)
+  // Hooks per dual.js
   window.Game = window.Game || {};
   Game.start  = ()=>{ if(!started){ started=true; toggleOverlay(false); tone(660,0.06); } };
   Game.reload = ()=>{ loadLevel(L); };
   Game.isStarted = ()=> started;
-  Game.nudge = (dx,dy)=> move(dx,dy);   // usato dal D-pad e dallo swipe su iOS
+  Game.nudge = (dx,dy)=> move(dx,dy); // D-pad & swipe
 
   // Avvio
   loadLevel(L);

@@ -101,9 +101,9 @@
         <button data-mode="desktop">💻 Laptop</button>
         <button data-mode="mobile">📱 Smartphone</button>
       </div>
-     <a class="btn" id="readmeLink"
-   href="./readme.html" target="_blank" rel="noopener"
-   title="Apri le istruzioni in una nuova scheda">📘 Leggi</a>
+      <!-- Desktop: apri README in nuova scheda -->
+      <a class="btn" id="readmeLink" href="./readme.html" target="_blank" rel="noopener"
+         title="Apri le istruzioni in una nuova scheda">📘 Leggi</a>
       <button class="btn" id="resetBtn">Reset</button>
       <button class="btn" id="undoBtn">Undo</button>
       <button class="btn" id="muteBtn">🔊</button>
@@ -196,7 +196,7 @@
     </div>
   </div>
 
-  <!-- README MODAL -->
+  <!-- README MODAL (usato dall’intro e dal mobile) -->
   <div class="modal" id="readmeModal">
     <div class="card" style="max-width:92vw;max-height:90vh;padding:0;overflow:hidden;">
       <iframe id="readmeFrame" src="./readme.html?lang=it" style="width:100%;height:80vh;border:0;"></iframe>
@@ -343,7 +343,6 @@
     const openReadme = document.getElementById('openReadme');
     const readmeModal = document.getElementById('readmeModal');
     const closeReadme = document.getElementById('closeReadme');
-    const readmeBtn = document.getElementById('readmeBtn');
     const startBtn = document.getElementById('startGame');
 
     if(!localStorage.getItem('intro.shown')){
@@ -358,7 +357,6 @@
     });
 
     openReadme.addEventListener('click', ()=> readmeModal.classList.add('show'));
-    readmeBtn.addEventListener('click', ()=> readmeModal.classList.add('show'));
     closeReadme.addEventListener('click', ()=> readmeModal.classList.remove('show'));
 
     /* ========= iOS A2HS overlay ========= */
